@@ -10,9 +10,9 @@ export function RadioButton({ label, inputId, value, listName, selectedValue, ha
                 value={value}
                 checked={selectedValue === value}
                 onChange={handleChange}
-                className="h-[20px] w-[20px]">
+                className="h-[20px] w-[20px] shrink-0">
             </input>
-            <label htmlFor={inputId} className="ml-1 text-[1.06rem]">{label}</label>
+            <label htmlFor={inputId} className="ml-1 text-[1.06rem] leading-none">{label}</label>
         </span>
     );
 }

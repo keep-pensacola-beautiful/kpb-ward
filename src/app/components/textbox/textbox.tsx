@@ -2,7 +2,7 @@ import { TextboxModel } from './textbox.model';
 import { isBlank } from '../../utils/isBlank';
 
 export function Textbox({
-    inputId, inputType, inputName, labelText, descriptionText, maxlength, step, width, isRequired, labelFontWeight, errorText
+    inputId, inputType, inputName, labelText, descriptionText, maxlength, step, width, isRequired, labelFontWeight, errorText, compact, ariaDescribedBy
 }: TextboxModel) {
     const DEFAULT_TEXT_WIDTH: string = 'sm:w-32';
     const DEFAULT_DATE_WIDTH: string = 'sm:w-[138px]';
@@ -22,14 +22,15 @@ export function Textbox({
                 id={inputId}
                 type={inputType}
                 name={inputName ? inputName : inputId}
-                className={`block p-1 border rounded-sm bg-white p-1
+                className={`block border rounded-sm bg-white
+                    ${compact ? 'pl-1 pr-1' : 'p-1'}
                     ${width ? `${width}` : (inputType === 'date' ? DEFAULT_DATE_WIDTH : DEFAULT_TEXT_WIDTH)} w-full
                     ${errorText && !isBlank(errorText) ? 'border-2 border-red-500' : ''}`}
                 maxLength={maxlength}
                 step={step ? step : 1}
                 aria-required={isRequired}
                 aria-invalid={!isBlank(errorText)}
-                aria-describedby={`${`${inputId}-label`} ${descriptionText ? `${inputId}-description` : ''} ${errorText ? `${inputId}-error` : ''}`}>
+                aria-describedby={`${descriptionText ? `${inputId}-description` : ''} ${errorText ? `${inputId}-error` : ''} ${ariaDescribedBy !== undefined ? ariaDescribedBy : ''}`}>
             </input>
             { !isBlank(errorText) &&
                 <div id={`${inputId}-error`} className="mt-1">

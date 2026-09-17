@@ -1,9 +1,15 @@
 import { EventDAO } from './event.DAO';
 import { EventModel } from '../../models';
+import { IntervalCode, MetricVisualizeModel } from '../../models/metrics';
 import { TreePlantingEventEntity } from '../../entities/event/treePlantingEvent.entity';
 import { EventEntity } from '../../entities/event/event.entity';
 import { isTreePlantingEvent } from '../../utils/eventTypeGuards';
 import { insertTreePlantingEvent, updateTreePlantingEvent } from '../../lib/event.sql';
+import { getColumnSumAsMetricByInterval } from '../../lib/metric.sql';
+import { TREE_PLANTING_METRIC_VALUES } from './metricValues';
+
+type MetricCode = 'treeCount' | 'volunteerCount' | 'volunteerHours';
+const METRIC_CODES: MetricCode[] = ['treeCount', 'volunteerCount', 'volunteerHours'];
 
 export class TreePlantingEventDAO implements EventDAO {
     async getById(id: number): Promise<EventEntity | null> {
@@ -34,5 +40,54 @@ export class TreePlantingEventDAO implements EventDAO {
 
     delete(id: number): void {
         console.log('Deleting');
+    }
+
+    async getMetric(
+        timePeriod: {
+            startMonth?: number, endMonth?: number,
+            startQuarter?: number, endQuarter?: number,
+            startYear: number, endYear: number
+        },
+        metricCode: string,
+        interval: IntervalCode
+    ): Promise<MetricVisualizeModel> {
+        let metric: MetricVisualizeModel = { metricTitle: 'Error: Unable to Retrieve Metric', dataLabel: 'error', chartType: 'bar', data: [] };
+        if (METRIC_CODES.includes(metricCode as any)) {
+            const code: MetricCode = metricCode as any;
+            let result: any = null;
+            metric.metricTitle = TREE_PLANTING_METRIC_VALUES[code].metricTitle;
+            metric.dataLabel = TREE_PLANTING_METRIC_VALUES[code].dataLabel;
+            metric.chartType = TREE_PLANTING_METRIC_VALUES[code].chartType;
+            switch (code) {
+                case METRIC_CODES[0]:
+                case METRIC_CODES[1]:
+                case METRIC_CODES[2]:
+                    result = await getColumnSumAsMetricByInterval(
+                        interval,
+                        timePeriod,
+                        TREE_PLANTING_METRIC_VALUES[code].tables[0],
+                        TREE_PLANTING_METRIC_VALUES[code].valueCol
+                    );
+                    break;
+            }
+            switch (interval) {
+                case 'month':
+                    metric.metricTitle += ' by Month';
+                    break;
+                case 'quarter':
+                    metric.metricTitle += ' by Quarter';
+                    break;
+                case 'year':
+                    metric.metricTitle += ' by Year';
+                    break;
+            }
+            console.log(result);
+            if (result !== null && result.length >= 1) {
+                result.forEach((row: any) => metric.data.push({ label: row.label, value: row.value }));
+            }
+        } else {
+            console.error(`Error: Invalid metric code '${metricCode}'`);
+        }
+        return metric;
     }
 }

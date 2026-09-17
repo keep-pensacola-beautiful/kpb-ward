@@ -19,9 +19,9 @@ export function StatusDialog({ dialogId, isOpen, onClose, title, body, type = 'i
                         type="button"
                         onClick={onClose}
                         className={`border p-2 rounded-md
-                            text-[var(--background)] text-[1.06rem]
+                            text-[var(--tan)] text-[1.06rem]
                             cursor-pointer
-                            ${type === 'info' ? 'bg-[var(--foreground)]' : ''}
+                            ${type === 'info' ? 'bg-[var(--deepBlue)]' : ''}
                             ${type === 'error' ? 'bg-red-700' : ''}
                             ${type === 'success' ? 'bg-green-800' : ''}`}
                         >

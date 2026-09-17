@@ -10,4 +10,6 @@ export interface TextboxModel {
     isRequired?: boolean;
     labelFontWeight?: string;
     errorText?: string;
+    compact?: boolean;
+    ariaDescribedBy?: string;
 }

@@ -10,11 +10,11 @@ export const metadata: Metadata = {
 
 export default function EnterOtherData() {
   return (
-    <main id="main-content" className="px-2 sm:px-4 md:px-8">
+    <div className="px-2 sm:px-4 md:px-8">
       <OtherFormHandler
         isUpdate={false}
         reportingDataType={REPORTING_DATA_VALUES.bagSwap.code}>
       </OtherFormHandler>
-    </main>
+    </div>
   );
 }
