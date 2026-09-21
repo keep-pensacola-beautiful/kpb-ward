@@ -1,4 +1,5 @@
-import { EventDAO } from './';
+import { EventDAO } from './event.DAO';
+import { MetricsDAO } from '../metrics/metrics.DAO';
 import { EventEntity } from '../../entities/event/event.entity';
 import { CleanTeamEventEntity } from '../../entities/event/cleanTeamEvent.entity';
 import { EventModel } from '../../models';
@@ -11,7 +12,7 @@ import { CLEAN_TEAM_METRIC_VALUES } from './metricValues';
 type MetricCode = 'trashLbs' | 'recyclingLbs';
 const METRIC_CODES: MetricCode[] = ['trashLbs', 'recyclingLbs'];
 
-export class CleanTeamEventDAO implements EventDAO {
+export class CleanTeamEventDAO implements EventDAO, MetricsDAO {
     async getById(id: number): Promise<EventEntity | null> {
         return null;
     }
@@ -80,7 +81,6 @@ export class CleanTeamEventDAO implements EventDAO {
                     metric.metricTitle += ' by Year';
                     break;
             }
-            console.log(result);
             if (result !== null && result.length >= 1) {
                 result.forEach((row: any) => metric.data.push({ label: row.label, value: row.value }));
             }

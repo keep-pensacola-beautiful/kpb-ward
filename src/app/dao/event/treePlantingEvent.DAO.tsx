@@ -1,4 +1,5 @@
 import { EventDAO } from './event.DAO';
+import { MetricsDAO } from '../metrics/metrics.DAO';
 import { EventModel } from '../../models';
 import { IntervalCode, MetricVisualizeModel } from '../../models/metrics';
 import { TreePlantingEventEntity } from '../../entities/event/treePlantingEvent.entity';
@@ -11,7 +12,7 @@ import { TREE_PLANTING_METRIC_VALUES } from './metricValues';
 type MetricCode = 'treeCount' | 'volunteerCount' | 'volunteerHours';
 const METRIC_CODES: MetricCode[] = ['treeCount', 'volunteerCount', 'volunteerHours'];
 
-export class TreePlantingEventDAO implements EventDAO {
+export class TreePlantingEventDAO implements EventDAO, MetricsDAO {
     async getById(id: number): Promise<EventEntity | null> {
         return null;
     }
@@ -81,7 +82,6 @@ export class TreePlantingEventDAO implements EventDAO {
                     metric.metricTitle += ' by Year';
                     break;
             }
-            console.log(result);
             if (result !== null && result.length >= 1) {
                 result.forEach((row: any) => metric.data.push({ label: row.label, value: row.value }));
             }

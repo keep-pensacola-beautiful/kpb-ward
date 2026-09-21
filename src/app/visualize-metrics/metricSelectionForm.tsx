@@ -43,9 +43,7 @@ export function MetricSelectionForm({ onVisualize }: { onVisualize: (data: any) 
         const prgmCode: ProgramCode = PROGRAM_CODES_BY_CATEGORY[ctgyCode][0];
         setMetricOptions(JSON.stringify(METRIC_OPTIONS[prgmCode]));
         setMetric(METRIC_OPTIONS[prgmCode][0].value);
-        if (isBlank(interval) && !/^top/.test(METRIC_OPTIONS[prgmCode][0].value)) {
-            setInterval('month');
-        }
+        setInterval('month');
 
         setErrors(new Map<string, ErrorModel>());
         // setAlertHeader('');

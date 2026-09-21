@@ -1,4 +1,5 @@
-import { EventDAO } from './';
+import { EventDAO } from './event.DAO';
+import { MetricsDAO } from '../metrics/metrics.DAO';
 import { BulkyItemEntity } from '../../entities/bulkyItem.entity';
 import { DistrictEntity } from '../../entities/district.entity';
 import { EventEntity } from '../../entities/event/event.entity';
@@ -17,7 +18,7 @@ import { ROADSIDE_LITTER_METRIC_VALUES } from './metricValues';
 type MetricCode = 'litterLbs' | 'recyclingLbs' | 'bulkyCount' | 'topBulkyItems' | 'topDistricts';
 const METRIC_CODES: MetricCode[] = ['litterLbs', 'recyclingLbs', 'bulkyCount', 'topBulkyItems', 'topDistricts'];
 
-export class RoadsideLitterEventDAO implements EventDAO {
+export class RoadsideLitterEventDAO implements EventDAO, MetricsDAO {
     async getById(id: number): Promise<EventEntity | null> {
         return null;
     }
@@ -105,12 +106,11 @@ export class RoadsideLitterEventDAO implements EventDAO {
                     );
                     break;
                 case METRIC_CODES[3]:
-                case METRIC_CODES[4]:
                     if (!ROADSIDE_LITTER_METRIC_VALUES[code].extraCols || ROADSIDE_LITTER_METRIC_VALUES[code].extraCols.length < 3) {
                         throw new Error(`Missing necessary columns to get Roadside Litter ${code} metric.`);
                     }
                     if (timePeriod.startMonth === undefined || timePeriod.endMonth === undefined) {
-                        throw new Error(`Missing start or end month to get Adopt-a-Spot ${code} metric.`);
+                        throw new Error(`Missing start or end month to get Roadside Litter ${code} metric.`);
                     }
                     result = await getHighestOccurrencesOfAThingMetricUsing3Tables(
                         timePeriod.startMonth,
@@ -122,7 +122,31 @@ export class RoadsideLitterEventDAO implements EventDAO {
                         ROADSIDE_LITTER_METRIC_VALUES[code].tables[2],
                         ROADSIDE_LITTER_METRIC_VALUES[code].extraCols[0],
                         ROADSIDE_LITTER_METRIC_VALUES[code].extraCols[1],
-                        ROADSIDE_LITTER_METRIC_VALUES[code].extraCols[2]
+                        ROADSIDE_LITTER_METRIC_VALUES[code].extraCols[2],
+                        'SUM',
+                        'quantity'
+                    );
+                    break;
+                case METRIC_CODES[4]:
+                    if (!ROADSIDE_LITTER_METRIC_VALUES[code].extraCols || ROADSIDE_LITTER_METRIC_VALUES[code].extraCols.length < 3) {
+                        throw new Error(`Missing necessary columns to get Roadside Litter ${code} metric.`);
+                    }
+                    if (timePeriod.startMonth === undefined || timePeriod.endMonth === undefined) {
+                        throw new Error(`Missing start or end month to get Roadside Litter ${code} metric.`);
+                    }
+                    result = await getHighestOccurrencesOfAThingMetricUsing3Tables(
+                        timePeriod.startMonth,
+                        timePeriod.startYear,
+                        timePeriod.endMonth,
+                        timePeriod.endYear,
+                        ROADSIDE_LITTER_METRIC_VALUES[code].tables[0],
+                        ROADSIDE_LITTER_METRIC_VALUES[code].tables[1],
+                        ROADSIDE_LITTER_METRIC_VALUES[code].tables[2],
+                        ROADSIDE_LITTER_METRIC_VALUES[code].extraCols[0],
+                        ROADSIDE_LITTER_METRIC_VALUES[code].extraCols[1],
+                        ROADSIDE_LITTER_METRIC_VALUES[code].extraCols[2],
+                        'COUNT',
+                        'id'
                     );
                     break;
             }
@@ -137,7 +161,6 @@ export class RoadsideLitterEventDAO implements EventDAO {
                     metric.metricTitle += ' by Year';
                     break;
             }
-            console.log(result);
             if (result !== null && result.length >= 1) {
                 result.forEach((row: any) => metric.data.push({ label: row.label, value: row.value }));
             }

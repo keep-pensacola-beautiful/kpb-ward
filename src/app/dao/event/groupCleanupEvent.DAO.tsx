@@ -1,4 +1,5 @@
-import { EventDAO } from './';
+import { EventDAO } from './event.DAO';
+import { MetricsDAO } from '../metrics/metrics.DAO';
 import { EventEntity } from '../../entities/event/event.entity';
 import { GroupCleanupEventEntity } from '../../entities/event/groupCleanupEvent.entity';
 import { EventModel } from '../../models';
@@ -19,7 +20,7 @@ const METRIC_CODES: MetricCode[] = [
     'topLocations'
 ];
 
-export class GroupCleanupEventDAO implements EventDAO {
+export class GroupCleanupEventDAO implements EventDAO, MetricsDAO {
     async getById(id: number): Promise<EventEntity | null> {
         return null;
     }
@@ -125,7 +126,6 @@ export class GroupCleanupEventDAO implements EventDAO {
                     metric.metricTitle += ' by Year';
                     break;
             }
-            console.log(result);
             if (result !== null && result.length >= 1) {
                 result.forEach((row: any) => metric.data.push({ label: row.label, value: row.value }));
             }

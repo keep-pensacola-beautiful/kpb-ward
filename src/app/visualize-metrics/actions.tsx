@@ -2,7 +2,7 @@
 
 import { AdoptASpotEventDAO, BagSwapEventDAO, CleanTeamEventDAO, CountyCleanupEventDAO, EducationEventDAO, RoadsideLitterEventDAO, TrashRoutesEventDAO, TreePlantingEventDAO } from '../dao/event';
 import { GroupCleanupEventDAO } from '../dao/event/groupCleanupEvent.DAO';
-import { TotalMetricsRetrieverDAO } from '../dao/totalMetrics/totalMetricsRetriever.DAO';
+import { TotalMetricsRetrieverDAO } from '../dao/metrics/totalMetrics.DAO';
 import { MetricSearchModel } from '../models/metrics';
 import { MetricVisualizeModel } from '../models/metrics';
 import { PROGRAM_CODES } from './visualizeMetricsJson';
@@ -19,7 +19,7 @@ export async function getDataToVisualize(filters: MetricSearchModel): Promise<Me
     switch (filters.program) {
         case PROGRAM_CODES[0]:
             const totalMetricsRetriever: TotalMetricsRetrieverDAO = new TotalMetricsRetrieverDAO();
-            return await totalMetricsRetriever.getTotalMetric(
+            return await totalMetricsRetriever.getMetric(
                 {
                     startMonth: filters.startMonth, endMonth: filters.endMonth,
                     startQuarter: filters.startQuarter, endQuarter: filters.endQuarter,

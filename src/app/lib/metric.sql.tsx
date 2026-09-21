@@ -374,7 +374,6 @@ export async function getHighestOccurrencesOfAThingMetricUsing2Tables(
             'LIMIT 10',
             [startMonth, endMonth, startYear, endYear]
         );
-        console.log(result);
         conn.release();
         return result;
     } catch (err) {
@@ -410,6 +409,8 @@ export async function getHighestOccurrencesOfAThingMetricUsing3Tables(
     aThingFKColToEvent: string,
     aThingFKColToRef: string,
     refPKCol: string,
+    sumOrCount: 'SUM' | 'COUNT',
+    sumOrCountCol: string
 ): Promise<QueryResult | null> {
     let conn = null;
     try {
@@ -451,7 +452,7 @@ export async function getHighestOccurrencesOfAThingMetricUsing3Tables(
         }
         conn = await getConnection();
         const [result]: any = await conn.execute(
-            `SELECT thing_ref_table.description AS label, COUNT(event_table.id) AS value FROM ${aThingTable} AS thing_table ` +
+            `SELECT thing_ref_table.description AS label, ${sumOrCount}(thing_table.${sumOrCountCol}) AS value FROM ${aThingTable} AS thing_table ` +
             `INNER JOIN ${aThingRefTable} AS thing_ref_table ON thing_table.${aThingFKColToRef} = thing_ref_table.${refPKCol} ` +
             `INNER JOIN ${eventTable} AS event_table ON thing_table.${aThingFKColToEvent} = event_table.id ` +
             'WHERE MONTH(event_table.date) >= ? ' +

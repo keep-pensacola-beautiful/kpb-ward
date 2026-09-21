@@ -6,13 +6,4 @@ export interface EventDAO {
     getById(id: number): Promise<EventEntity | null>;
     save(event: EventModel, isUpdate: boolean): Promise<number>;
     delete(id: number): void;
-    getMetric(
-        timePeriod: {
-            startMonth?: number, endMonth?: number,
-            startQuarter?: number, endQuarter?: number,
-            startYear: number, endYear: number
-        },
-        metricCode: string,
-        interval: IntervalCode
-    ): Promise<MetricVisualizeModel>;
 }

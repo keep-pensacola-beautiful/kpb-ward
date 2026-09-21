@@ -1,7 +1,7 @@
 import { IntervalCode, MetricVisualizeModel } from '../../models/metrics';
 
-export interface TotalMetricsDAO {
-    getTotalMetric(
+export interface MetricsDAO {
+    getMetric(
         timePeriod: {
             startMonth?: number, endMonth?: number,
             startQuarter?: number, endQuarter?: number,

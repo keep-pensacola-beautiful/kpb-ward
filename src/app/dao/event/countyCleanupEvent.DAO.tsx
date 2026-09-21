@@ -1,4 +1,5 @@
-import { EventDAO } from './';
+import { EventDAO } from './event.DAO';
+import { MetricsDAO } from '../metrics/metrics.DAO';
 import { BulkyItemEntity } from '../../entities/bulkyItem.entity';
 import { CountyCleanupEventEntity } from '../../entities/event/countyCleanupEvent.entity';
 import { EventEntity } from '../../entities/event/event.entity';
@@ -14,7 +15,7 @@ import { COUNTY_CLEANUP_METRIC_VALUES } from './metricValues';
 type MetricCode = 'tireCount' | 'paintChemicalCount' | 'bulkyLbs' | 'topBulkyItems';
 const METRIC_CODES: MetricCode[] = ['tireCount', 'paintChemicalCount', 'bulkyLbs', 'topBulkyItems'];
 
-export class CountyCleanupEventDAO implements EventDAO {
+export class CountyCleanupEventDAO implements EventDAO, MetricsDAO {
     private static TIRE_WEIGHT_CODE = 'TIRE';
     private static PAINT_CAN_HOUSEHOLD_CHEMICAL_WEIGHT_CODE = 'PCHC';
 
@@ -115,7 +116,9 @@ export class CountyCleanupEventDAO implements EventDAO {
                         COUNTY_CLEANUP_METRIC_VALUES[code].tables[2],
                         COUNTY_CLEANUP_METRIC_VALUES[code].extraCols[0],
                         COUNTY_CLEANUP_METRIC_VALUES[code].extraCols[1],
-                        COUNTY_CLEANUP_METRIC_VALUES[code].extraCols[2]
+                        COUNTY_CLEANUP_METRIC_VALUES[code].extraCols[2],
+                        'SUM',
+                        'quantity'
                     );
                     break;
             }
@@ -130,7 +133,6 @@ export class CountyCleanupEventDAO implements EventDAO {
                     metric.metricTitle += ' by Year';
                     break;
             }
-            console.log(result);
             if (result !== null && result.length >= 1) {
                 result.forEach((row: any) => metric.data.push({ label: row.label, value: row.value }));
             }

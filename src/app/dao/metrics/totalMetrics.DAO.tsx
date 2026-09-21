@@ -1,5 +1,5 @@
 import { IntervalCode, MetricVisualizeModel } from '../../models/metrics';
-import { TotalMetricsDAO } from './totalMetrics.DAO';
+import { MetricsDAO } from './metrics.DAO';
 import { callTotalMetricsStoredProcedure } from '../../lib/metric.sql';
 import { getFirstMonthOfQuarter } from '../../utils/getFirstMonthOfQuarter';
 import { TOTAL_METRIC_VALUES } from '../event/metricValues';
@@ -7,8 +7,8 @@ import { TOTAL_METRIC_VALUES } from '../event/metricValues';
 type MetricCode = 'trashLbs' | 'recyclingLbs' | 'volunteerHours' | 'volunteerCount';
 const METRIC_CODES: MetricCode[] = ['trashLbs', 'recyclingLbs', 'volunteerHours', 'volunteerCount'];
 
-export class TotalMetricsRetrieverDAO implements TotalMetricsDAO {
-    async getTotalMetric(
+export class TotalMetricsRetrieverDAO implements MetricsDAO {
+    async getMetric(
         timePeriod: {
             startMonth?: number, endMonth?: number,
             startQuarter?: number, endQuarter?: number,

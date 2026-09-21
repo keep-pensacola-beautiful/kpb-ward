@@ -1,4 +1,5 @@
-import { EventDAO } from './';
+import { EventDAO } from './event.DAO';
+import { MetricsDAO } from '../metrics/metrics.DAO';
 import { EventEntity } from '../../entities/event/event.entity';
 import { EducationEventEntity } from '../../entities/event/educationEvent.entity';
 import { EventModel } from '../../models';
@@ -11,7 +12,7 @@ import { EDUCATION_METRIC_VALUES } from './metricValues';
 type MetricCode = 'studentCount' | 'volunteerCount' | 'volunteerHours' | 'topRecipients' | 'topTopics';
 const METRIC_CODES: MetricCode[] = ['studentCount', 'volunteerCount', 'volunteerHours', 'topRecipients', 'topTopics'];
 
-export class EducationEventDAO implements EventDAO {
+export class EducationEventDAO implements EventDAO, MetricsDAO {
     async getById(id: number): Promise<EventEntity | null> {
         return null;
     }
@@ -108,7 +109,6 @@ export class EducationEventDAO implements EventDAO {
                     metric.metricTitle += ' by Year';
                     break;
             }
-            console.log(result);
             if (result !== null && result.length >= 1) {
                 result.forEach((row: any) => metric.data.push({ label: row.label, value: row.value }));
             }
