@@ -7,7 +7,7 @@ import { TOTAL_METRIC_VALUES } from '../event/metricValues';
 type MetricCode = 'trashLbs' | 'recyclingLbs' | 'volunteerHours' | 'volunteerCount';
 const METRIC_CODES: MetricCode[] = ['trashLbs', 'recyclingLbs', 'volunteerHours', 'volunteerCount'];
 
-export class TotalMetricsRetrieverDAO implements MetricsDAO {
+export class TotalMetricsDAO implements MetricsDAO {
     async getMetric(
         timePeriod: {
             startMonth?: number, endMonth?: number,
