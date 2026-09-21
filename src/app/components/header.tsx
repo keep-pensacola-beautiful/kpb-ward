@@ -102,7 +102,7 @@ export function Header() {
                     </li>
                     <li className="text-center">
                         <Link
-                            href="/enter-data/services"
+                            href="/visualize-metrics"
                             className="text-[#F4E2A3] decoration-[#092E6E]
                                 pl-0 pr-0 pt-1 pb-1 sm:p-2
                                 text-sm sm:text-lg md:text-xl

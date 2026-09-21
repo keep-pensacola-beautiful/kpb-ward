@@ -9,7 +9,7 @@ export function Alert({ id, type = 'info', header, body, onClose }: AlertModel) 
 
     useEffect(() => {
         if (type === 'info') {
-            setAlertBorderAndBg('border-[var(--foreground)] bg-[#e7f6f8]');
+            setAlertBorderAndBg('border-[var(--deepBlue)] bg-[#e7f6f8]');
             setIconCharacter('i');
         } else if (type === 'error') {
             setAlertBorderAndBg('border-red-700 bg-[#f4e3db]');

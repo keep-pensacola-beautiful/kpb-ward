@@ -43,13 +43,13 @@ export function AddOptionDialog(
                         type="button"
                         onClick={onClose}
                         className="border p-2 rounded-md
-                            bg-[var(--foreground)] text-[var(--background)] text-[1.06rem]
+                            bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem]
                             cursor-pointer"
                         >
                         { cancelBtnLabel }
                     </button>
                     <button className="border-2 p-2 rounded-md
-                        bg-[var(--background)] text-[var(--foreground)] text-[1.06rem]
+                        bg-[var(--tan)] text-[var(--deepBlue)] text-[1.06rem]
                         cursor-pointer"
                         >
                         { addBtnLabel }

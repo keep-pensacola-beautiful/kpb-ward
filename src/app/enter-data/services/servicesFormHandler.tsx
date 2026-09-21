@@ -36,16 +36,18 @@ export function ServicesFormHandler({ isUpdate, reportingDataType }: { isUpdate:
                 <h1 id="main-content-header" className="text-xl md:text-2xl mb-4" tabIndex={-1}>
                     Successfully Submitted { submittedDataType.label }
                 </h1>
-                <p className="mb-2">
-                    The { submittedDataType.label } { submittedData ? `that took place on ${getFormattedDate(submittedData.date)} ` : '' }
-                    was successfully saved.
-                </p>
-                <p>
-                    Select the 'Submit Another { submittedDataType.label }' button to return to the form.
-                </p>
-                <button onClick={handleSubmitAnotherEvent} className="border p-2 rounded-md bg-[var(--foreground)] text-[var(--background)] text-[1.06rem] mt-4">
-                    Submit Another { submittedDataType.label }
-                </button>
+                <main>
+                    <p className="mb-2">
+                        The { submittedDataType.label } { submittedData ? `that took place on ${getFormattedDate(submittedData.date)} ` : '' }
+                        was successfully saved.
+                    </p>
+                    <p>
+                        Select the 'Submit Another { submittedDataType.label }' button to return to the form.
+                    </p>
+                    <button onClick={handleSubmitAnotherEvent} className="border p-2 rounded-md bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem] mt-4">
+                        Submit Another { submittedDataType.label }
+                    </button>
+                </main>
             </div>
         );
     }

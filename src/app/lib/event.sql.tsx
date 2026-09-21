@@ -11,7 +11,6 @@ import { RoadsideLitterEventEntity } from '../entities/event/roadsideLitterEvent
 import { TrashRoutesEventEntity } from '../entities/event/trashRoutesEvent.entity';
 import { TreePlantingEventEntity } from '../entities/event/treePlantingEvent.entity';
 
-
 export async function insertAdoptASpotEvent(event: AdoptASpotEventEntity): Promise<number> {
     let conn = null;
     try {

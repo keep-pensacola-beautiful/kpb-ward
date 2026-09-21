@@ -2,10 +2,20 @@ import { isBlank } from './isBlank';
 import { BulkyItemModel, ErrorModel, ReferenceDataModel } from '../models';
 import { BulkyItemReferenceDataDAO } from '../dao/referenceData';
 
+/**
+ * Check if the value parameter is null or blank.
+ * @param value 
+ * @returns true if null or blank
+ */
 export function isFormDataEntryValueNullOrBlank(value: FormDataEntryValue | null): boolean {
     return value === null || isBlank(value.toString());
 }
 
+/**
+ * Check if the valueArray parameter is null or empty.
+ * @param valueArray 
+ * @returns true if null or empty
+ */
 export function isFormDataEntryValueArrayNullOrEmpty(valueArray: FormDataEntryValue[]): boolean {
     return valueArray === null || valueArray.length === 0;
 }

@@ -596,7 +596,7 @@ export function ComboBox({
                             border: 2px solid currentcolor; 
                             border-radius: 4px;
                         */
-                        outline: 3px solid var(--foreground);
+                        outline: 3px solid var(--deepBlue);
                         box-shadow: 0 0 0 6px white;
                     }
                     
