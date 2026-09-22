@@ -3,7 +3,8 @@ import { TableData } from './tableData';
 import { TableRow } from './tableRow';
 import { TableRowModel } from './tableRow.model';
 
-export function Table({ data, rowShading, children }: {
+export function Table({ caption, data, rowShading, children }: {
+    caption: string,
     data: string,
     rowShading: 'even' | 'odd',
     children: React.ReactNode
@@ -45,7 +46,8 @@ export function Table({ data, rowShading, children }: {
     }
 
     return (
-        <table>
+        <table className="max-w-md w-[100%]">
+            <caption className="border p-2 bg-white font-semibold text-left">{ caption }</caption>
             <thead>
                 { children }
             </thead>
