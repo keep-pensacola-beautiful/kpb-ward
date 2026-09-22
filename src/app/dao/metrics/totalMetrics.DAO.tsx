@@ -17,7 +17,13 @@ export class TotalMetricsDAO implements MetricsDAO {
         metricCode: string,
         interval: IntervalCode
     ): Promise<MetricVisualizeModel> {
-        let metric: MetricVisualizeModel = { metricTitle: 'Error: Unable to Retrieve Metric', dataLabel: 'error', chartType: 'bar', data: [] };
+        let metric: MetricVisualizeModel = {
+            metricTitle: 'Error: Unable to Retrieve Metric',
+            dataLabel: 'error',
+            dataColHeaders: { labelHeader: 'error', valueHeader: 'error' },
+            chartType: 'bar',
+            data: []
+        };
         try {
             if (!METRIC_CODES.includes(metricCode as any)) {
                 throw new Error(`Error: Invalid metric code '${metricCode}'`);
@@ -25,8 +31,9 @@ export class TotalMetricsDAO implements MetricsDAO {
             const code: MetricCode = metricCode as any;
             let result: any = null;
             metric.metricTitle = TOTAL_METRIC_VALUES[code].metricTitle;
-            metric.dataLabel = TOTAL_METRIC_VALUES[code].dataLabel;
+            metric.dataLabel = TOTAL_METRIC_VALUES[code].chartDataLabel;
             metric.chartType = TOTAL_METRIC_VALUES[code].chartType;
+            metric.dataColHeaders.valueHeader = TOTAL_METRIC_VALUES[code].tableDataLabels.unitLabel;
             switch (code) {
                 case METRIC_CODES[0]:
                 case METRIC_CODES[1]:
@@ -46,6 +53,8 @@ export class TotalMetricsDAO implements MetricsDAO {
                             timePeriod.endYear,
                             TOTAL_METRIC_VALUES[code].procedures[0]
                         );
+                        metric.metricTitle += ' by Month';
+                        metric.dataColHeaders.labelHeader = 'Month'
                     } else if (interval === 'quarter') {
                         if (timePeriod.startQuarter === undefined || timePeriod.endQuarter === undefined) {
                             throw new Error('Missing start or end quarter required to get total metric.');
@@ -59,6 +68,8 @@ export class TotalMetricsDAO implements MetricsDAO {
                             timePeriod.endYear,
                             TOTAL_METRIC_VALUES[code].procedures[1]
                         );
+                        metric.metricTitle += ' by Quarter';
+                        metric.dataColHeaders.labelHeader = 'Quarter'
                     } else if (interval === 'year') {
                         let month: number = getFirstMonthOfQuarter(4);
                         result = await callTotalMetricsStoredProcedure(
@@ -68,21 +79,11 @@ export class TotalMetricsDAO implements MetricsDAO {
                             timePeriod.endYear,
                             TOTAL_METRIC_VALUES[code].procedures[2]
                         );
+                        metric.metricTitle += ' by Year';
+                        metric.dataColHeaders.labelHeader = 'Year'
                     }
                     break;
             }
-            switch (interval) {
-                case 'month':
-                    metric.metricTitle += ' by Month';
-                    break;
-                case 'quarter':
-                    metric.metricTitle += ' by Quarter';
-                    break;
-                case 'year':
-                    metric.metricTitle += ' by Year';
-                    break;
-            }
-            console.log(result);
             if (result !== null && result.length >= 1) {
                 result[0].forEach((row: any) => metric.data.push({ label: row.label, value: row.value }));
             }
