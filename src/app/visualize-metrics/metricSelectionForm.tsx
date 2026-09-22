@@ -43,7 +43,10 @@ export function MetricSelectionForm({ onVisualize }: { onVisualize: (data: any) 
         const prgmCode: ProgramCode = PROGRAM_CODES_BY_CATEGORY[ctgyCode][0];
         setMetricOptions(JSON.stringify(METRIC_OPTIONS[prgmCode]));
         setMetric(METRIC_OPTIONS[prgmCode][0].value);
-        setInterval('month');
+        if (interval === '' && !/^top/.test(METRIC_OPTIONS[prgmCode][0].value)) {
+            console.log('Setting interval to month');
+            setInterval('month');
+        }
 
         setErrors(new Map<string, ErrorModel>());
         // setAlertHeader('');
@@ -55,7 +58,7 @@ export function MetricSelectionForm({ onVisualize }: { onVisualize: (data: any) 
         setProgram(prgmCode);
         setMetricOptions(JSON.stringify(METRIC_OPTIONS[prgmCode]));
         setMetric(METRIC_OPTIONS[prgmCode][0].value);
-        if (isBlank(interval) && !/^top/.test(METRIC_OPTIONS[prgmCode][0].value)) {
+        if (interval === '' && !/^top/.test(METRIC_OPTIONS[prgmCode][0].value)) {
             setInterval(INTERVAL_VALUES.month.code);
         }
         
@@ -67,7 +70,7 @@ export function MetricSelectionForm({ onVisualize }: { onVisualize: (data: any) 
         setMetric(event?.target.value);
         if (/^top/.test(event?.target.value)) {
             setInterval('');
-        } else if (isBlank(interval) && !/^top/.test(event?.target.value)) {
+        } else if (interval === '' && !/^top/.test(event?.target.value)) {
             setInterval(INTERVAL_VALUES.month.code);
         }
 
@@ -81,11 +84,8 @@ export function MetricSelectionForm({ onVisualize }: { onVisualize: (data: any) 
 
     function handleSubmit(e: any) {
         e.preventDefault();
-        console.log('handling submit');
-        console.log(new FormData(e.target));
         const result: { data: MetricSearchModel | null, errors: Map<string, ErrorModel> } =
             validateMetricFilters(new FormData(e.target), category, program, metric, interval);
-        console.log(result);
         setErrors(result.errors);
         if ((!result.errors || result.errors.size < 1) && result.data !== null) {
             onVisualize(result.data);

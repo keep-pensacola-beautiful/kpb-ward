@@ -128,5 +128,11 @@ export async function getDataToVisualize(filters: MetricSearchModel): Promise<Me
                 filters.interval
             );
     }
-    return { metricTitle: 'Error: Specified Metric Not Found', dataLabel: 'error', chartType: 'bar', data: [] };
+    return {
+        metricTitle: 'Error: Specified Metric Not Found',
+        dataLabel: 'error',
+        dataColHeaders: { labelHeader: 'error', valueHeader: 'error' },
+        chartType: 'bar',
+        data: []
+    };
 }
