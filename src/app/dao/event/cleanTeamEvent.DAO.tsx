@@ -52,13 +52,34 @@ export class CleanTeamEventDAO implements EventDAO, MetricsDAO {
         metricCode: string,
         interval: IntervalCode
     ): Promise<MetricVisualizeModel> {
-        let metric: MetricVisualizeModel = { metricTitle: 'Error: Unable to Retrieve Metric', dataLabel: 'error', chartType: 'bar', data: [] };
+        let metric: MetricVisualizeModel = {
+            metricTitle: 'Error: Unable to Retrieve Metric',
+            dataLabel: 'error',
+            dataColHeaders: { labelHeader: 'error', valueHeader: 'error' },
+            chartType: 'bar',
+            data: []
+        };
         if (METRIC_CODES.includes(metricCode as any)) {
             const code: MetricCode = metricCode as any;
             let result: any = null;
             metric.metricTitle = CLEAN_TEAM_METRIC_VALUES[code].metricTitle;
-            metric.dataLabel = CLEAN_TEAM_METRIC_VALUES[code].dataLabel;
+            metric.dataLabel = CLEAN_TEAM_METRIC_VALUES[code].chartDataLabel;
             metric.chartType = CLEAN_TEAM_METRIC_VALUES[code].chartType;
+            metric.dataColHeaders.valueHeader = CLEAN_TEAM_METRIC_VALUES[code].tableDataLabels.unitLabel;
+            switch (interval) {
+                case 'month':
+                    metric.metricTitle += ' by Month';
+                    metric.dataColHeaders.labelHeader = 'Month';
+                    break;
+                case 'quarter':
+                    metric.metricTitle += ' by Quarter';
+                    metric.dataColHeaders.labelHeader = 'Quarter';
+                    break;
+                case 'year':
+                    metric.metricTitle += ' by Year';
+                    metric.dataColHeaders.labelHeader = 'Year';
+                    break;
+            }
             switch (code) {
                 case METRIC_CODES[0]:
                 case METRIC_CODES[1]:
@@ -68,17 +89,6 @@ export class CleanTeamEventDAO implements EventDAO, MetricsDAO {
                         CLEAN_TEAM_METRIC_VALUES[code].tables[0],
                         CLEAN_TEAM_METRIC_VALUES[code].valueCol
                     );
-                    break;
-            }
-            switch (interval) {
-                case 'month':
-                    metric.metricTitle += ' by Month';
-                    break;
-                case 'quarter':
-                    metric.metricTitle += ' by Quarter';
-                    break;
-                case 'year':
-                    metric.metricTitle += ' by Year';
                     break;
             }
             if (result !== null && result.length >= 1) {

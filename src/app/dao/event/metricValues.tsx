@@ -2,7 +2,8 @@ interface MetricValuesModel {
     tables: string[];
     valueCol: string;
     metricTitle: string;
-    dataLabel: string;
+    chartDataLabel: string;
+    tableDataLabels: { dataLabel?: string, unitLabel: string };
     chartType: 'bar' | 'pie';
     extraCols?: string[];
     procedures?: string[];
@@ -18,42 +19,48 @@ export const ADOPT_A_SPOT_METRIC_VALUES: {
         tables: [ADOPT_A_SPOT_CLEANUPS_TABLE],
         valueCol: 'volunteer_count',
         metricTitle: 'Adopt-a-Spot Number of Volunteers',
-        dataLabel: 'number of volunteers',
+        chartDataLabel: 'number of volunteers',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar'
     },
     volunteerHours: {
         tables: [ADOPT_A_SPOT_CLEANUPS_TABLE],
         valueCol: 'volunteer_hours',
         metricTitle: 'Adopt-a-Spot Number of Volunteer Hours',
-        dataLabel: 'number of volunteer hours',
+        chartDataLabel: 'number of volunteer hours',
+        tableDataLabels: { unitLabel: 'Hours' },
         chartType: 'bar'
     },
     litterLbs: {
         tables: [ADOPT_A_SPOT_CLEANUPS_TABLE],
         valueCol: 'litter_lbs',
         metricTitle: 'Adopt-a-Spot Pounds of Litter Collected',
-        dataLabel: 'pounds of litter',
+        chartDataLabel: 'pounds of litter',
+        tableDataLabels: { unitLabel: 'Pounds' },
         chartType: 'bar'
     },
     recyclingLbs: {
         tables: [ADOPT_A_SPOT_CLEANUPS_TABLE],
         valueCol: 'recycling_lbs',
         metricTitle: 'Adopt-a-Spot Pounds of Recycling Collected',
-        dataLabel: 'pounds of recycling',
+        chartDataLabel: 'pounds of recycling',
+        tableDataLabels: { unitLabel: 'Pounds' },
         chartType: 'bar'
     },
     cleanupCount: {
         tables: [ADOPT_A_SPOT_CLEANUPS_TABLE],
         valueCol: 'id',
         metricTitle: 'Adopt-a-Spot Number of Cleanups',
-        dataLabel: 'number of cleanups',
+        chartDataLabel: 'number of cleanups',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar'
     },
     topGroups: {
         tables: [ADOPT_A_SPOT_CLEANUPS_TABLE, ADOPT_A_SPOT_ASSIGNMENTS_TABLE],
         valueCol: '',
         metricTitle: 'Adopt-a-Spot Most Active Groups',
-        dataLabel: 'most active groups',
+        chartDataLabel: 'most active groups',
+        tableDataLabels: { dataLabel: 'Group', unitLabel: 'Cleanup Count' },
         chartType: 'pie',
         extraCols: ['assignment_id','group_name']
     }
@@ -67,21 +74,24 @@ export const BAG_SWAP_METRIC_VALUES: {
         tables: [BAG_SWAP_EVENTS_TABLE],
         valueCol: 'bag_count',
         metricTitle: 'Bag Swap Event Number of Bags Collected',
-        dataLabel: 'number of bags collected',
+        chartDataLabel: 'number of bags collected',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar'
     },
     volunteerCount: {
         tables: [BAG_SWAP_EVENTS_TABLE],
         valueCol: 'volunteer_count',
         metricTitle: 'Bag Swap Event Number of Volunteers',
-        dataLabel: 'number of volunteers',
+        chartDataLabel: 'number of volunteers',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar'
     },
     volunteerHours: {
         tables: [BAG_SWAP_EVENTS_TABLE],
         valueCol: 'volunteer_hours',
         metricTitle: 'Bag Swap Event Number of Volunteer Hours',
-        dataLabel: 'number of volunteer hours',
+        chartDataLabel: 'number of volunteer hours',
+        tableDataLabels: { unitLabel: 'Hours' },
         chartType: 'bar'
     }
 };
@@ -94,14 +104,16 @@ export const CLEAN_TEAM_METRIC_VALUES: {
         tables: [CLEAN_TEAM_EVENTS_TABLE],
         valueCol: 'trash_lbs',
         metricTitle: 'Clean Team Pounds of Trash Collected',
-        dataLabel: 'pounds of trash collected',
+        chartDataLabel: 'pounds of trash collected',
+        tableDataLabels: { unitLabel: 'Pounds' },
         chartType: 'bar'
     },
     recyclingLbs: {
         tables: [CLEAN_TEAM_EVENTS_TABLE],
         valueCol: 'recycling_lbs',
         metricTitle: 'Clean Team Pounds of Recycling Collected',
-        dataLabel: 'pounds of recycling collected',
+        chartDataLabel: 'pounds of recycling collected',
+        tableDataLabels: { unitLabel: 'Pounds' },
         chartType: 'bar'
     }
 };
@@ -117,28 +129,32 @@ export const COUNTY_CLEANUP_METRIC_VALUES: {
         tables: [COUNTY_CLEANUPS_TABLE],
         valueCol: 'tire_count',
         metricTitle: 'County Neighborhood Cleanup Tires Collected',
-        dataLabel: 'number of tires collected',
+        chartDataLabel: 'number of tires collected',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar'
     },
     paintChemicalCount: {
         tables: [COUNTY_CLEANUPS_TABLE],
         valueCol: 'paint_can_and_household_chemical_count',
         metricTitle: 'County Neighborhood Cleanup Paint Cans & Household Chemicals Collected',
-        dataLabel: 'number of paint cans and household chemicals collected',
+        chartDataLabel: 'number of paint cans and household chemicals collected',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar'
     },
     bulkyLbs: {
         tables: [COUNTY_CLEANUPS_TABLE],
         valueCol: 'bulky_items_lbs',
         metricTitle: 'County Neighborhood Cleanup Pounds of Bulky Items Collected',
-        dataLabel: 'pounds of bulky items collected',
+        chartDataLabel: 'pounds of bulky items collected',
+        tableDataLabels: { unitLabel: 'Pounds' },
         chartType: 'bar'
     },
     topBulkyItems: {
         tables: [COUNTY_CLEANUPS_TABLE, COUNTY_CLEANUPS_BULKY_ITEMS_TABLE, CC_BULKY_ITEMS_REFERENCE_TABLE],
         valueCol: '',
         metricTitle: 'County Neighborhood Cleanup Most Collected Bulky Items',
-        dataLabel: 'most collected bulky items',
+        chartDataLabel: 'most collected bulky items',
+        tableDataLabels: { dataLabel: 'Bulky Item', unitLabel: 'Item Count' },
         chartType: 'pie',
         extraCols: ['county_cleanup_id','bulky_item_ref_id','id']
     }
@@ -155,28 +171,32 @@ export const EDUCATION_METRIC_VALUES: {
         tables: [EDUCATION_EVENTS_TABLE],
         valueCol: 'student_count',
         metricTitle: 'Education Event Number of Students Educated',
-        dataLabel: 'number of students educated',
+        chartDataLabel: 'number of students educated',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar'
     },
     volunteerCount: {
         tables: [EDUCATION_EVENTS_TABLE],
         valueCol: 'volunteer_count',
         metricTitle: 'Education Event Number of Volunteers',
-        dataLabel: 'number of volunteers',
+        chartDataLabel: 'number of volunteers',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar'
     },
     volunteerHours: {
         tables: [EDUCATION_EVENTS_TABLE],
         valueCol: 'volunteer_hours',
         metricTitle: 'Education Event Number of Volunteer Hours',
-        dataLabel: 'number of volunteer hours',
+        chartDataLabel: 'number of volunteer hours',
+        tableDataLabels: { unitLabel: 'Hours' },
         chartType: 'bar'
     },
     topRecipients: {
         tables: [EDUCATION_EVENTS_TABLE, EDUCATION_RECIPIENTS_TABLE],
         valueCol: '',
         metricTitle: 'Education Event Most Frequent Recipients',
-        dataLabel: 'most frequent recipients',
+        chartDataLabel: 'most frequent recipients',
+        tableDataLabels: { dataLabel: 'Recipient', unitLabel: 'Education Event Count' },
         chartType: 'pie',
         extraCols: ['recipient_id','name']
     },
@@ -184,7 +204,8 @@ export const EDUCATION_METRIC_VALUES: {
         tables: [EDUCATION_EVENTS_TABLE, EDUCATION_TOPICS],
         valueCol: '',
         metricTitle: 'Education Event Most Popular Topics',
-        dataLabel: 'most popular topics',
+        chartDataLabel: 'most popular topics',
+        tableDataLabels: { dataLabel: 'Topic', unitLabel: 'Education Event Count' },
         chartType: 'pie',
         extraCols: ['topic_id','topic']
     }
@@ -202,42 +223,48 @@ export const GROUP_CLEANUP_METRIC_VALUES: {
         tables: [GROUP_CLEANUPS_TABLE],
         valueCol: 'volunteer_count',
         metricTitle: 'Group Cleanup Number of Volunteers',
-        dataLabel: 'number of volunteers',
+        chartDataLabel: 'number of volunteers',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar'
     },
     volunteerHours: {
         tables: [GROUP_CLEANUPS_TABLE],
         valueCol: 'volunteer_hours',
         metricTitle: 'Group Cleanup Number of Volunteer Hours',
-        dataLabel: 'number of volunteer hours',
+        chartDataLabel: 'number of volunteer hours',
+        tableDataLabels: { unitLabel: 'Hours' },
         chartType: 'bar'
     },
     litterLbs: {
         tables: [GROUP_CLEANUPS_TABLE],
         valueCol: 'litter_lbs',
         metricTitle: 'Group Cleanup Pounds of Litter Collected',
-        dataLabel: 'pounds of litter',
+        chartDataLabel: 'pounds of litter',
+        tableDataLabels: { unitLabel: 'Pounds' },
         chartType: 'bar'
     },
     recyclingLbs: {
         tables: [GROUP_CLEANUPS_TABLE],
         valueCol: 'recycling_lbs',
         metricTitle: 'Group Cleanup Pounds of Recycling Collected',
-        dataLabel: 'pounds of recycling',
+        chartDataLabel: 'pounds of recycling',
+        tableDataLabels: { unitLabel: 'Pounds' },
         chartType: 'bar'
     },
     cleanupCount: {
         tables: [GROUP_CLEANUPS_TABLE],
         valueCol: 'id',
         metricTitle: 'Group Cleanup Number of Cleanups',
-        dataLabel: 'number of cleanups',
+        chartDataLabel: 'number of cleanups',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar'
     },
     topOrganizations: {
         tables: [GROUP_CLEANUPS_TABLE, ORGANIZATIONS_TABLE],
         valueCol: '',
         metricTitle: 'Group Cleanup Most Active Organizations',
-        dataLabel: 'most active organizations',
+        chartDataLabel: 'most active organizations',
+        tableDataLabels: { dataLabel: 'Organization', unitLabel: 'Cleanup Count' },
         chartType: 'pie',
         extraCols: ['organization_id','name']
     },
@@ -245,7 +272,8 @@ export const GROUP_CLEANUP_METRIC_VALUES: {
         tables: [GROUP_CLEANUPS_TABLE, CLEANUP_LOCATIONS_TABLE],
         valueCol: '',
         metricTitle: 'Group Cleanup Most Cleaned Locations',
-        dataLabel: 'most cleaned locations',
+        chartDataLabel: 'most cleaned locations',
+        tableDataLabels: { dataLabel: 'Location', unitLabel: 'Cleanup Count' },
         chartType: 'pie',
         extraCols: ['location_id','location']
     }
@@ -267,21 +295,24 @@ export const ROADSIDE_LITTER_METRIC_VALUES: {
         tables: [ROADSIDE_LITTER_CLEANUPS_TABLE],
         valueCol: 'litter_lbs',
         metricTitle: 'Roadside Litter Pounds of Litter Collected',
-        dataLabel: 'pounds of litter collected',
+        chartDataLabel: 'pounds of litter collected',
+        tableDataLabels: { unitLabel: 'Pounds' },
         chartType: 'bar'
     },
     recyclingLbs: {
         tables: [ROADSIDE_LITTER_CLEANUPS_TABLE],
         valueCol: 'recycling_lbs',
         metricTitle: 'Roadside Litter Pounds of Recycling Collected',
-        dataLabel: 'pounds of recycling collected',
+        chartDataLabel: 'pounds of recycling collected',
+        tableDataLabels: { unitLabel: 'Pounds' },
         chartType: 'bar'
     },
     bulkyCount: {
         tables: [ROADSIDE_LITTER_BULKY_ITEMS_TABLE, ROADSIDE_LITTER_CLEANUPS_TABLE],
         valueCol: '',
         metricTitle: 'Roadside Litter Number of Bulky Items Collected',
-        dataLabel: 'number of bulky items collected',
+        chartDataLabel: 'number of bulky items collected',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar',
         extraCols: ['roadside_litter_cleanup_id']
     },
@@ -289,7 +320,8 @@ export const ROADSIDE_LITTER_METRIC_VALUES: {
         tables: [ROADSIDE_LITTER_CLEANUPS_TABLE, ROADSIDE_LITTER_BULKY_ITEMS_TABLE, RL_BULKY_ITEMS_REFERENCE_TABLE],
         valueCol: '',
         metricTitle: 'Roadside Litter Most Collected Bulky Items',
-        dataLabel: 'most collected bulky items',
+        chartDataLabel: 'most collected bulky items',
+        tableDataLabels: { dataLabel: 'Bulky Item', unitLabel: 'Item Count' },
         chartType: 'pie',
         extraCols: ['roadside_litter_cleanup_id','bulky_item_ref_id','id']
     },
@@ -297,7 +329,8 @@ export const ROADSIDE_LITTER_METRIC_VALUES: {
         tables: [ROADSIDE_LITTER_CLEANUPS_TABLE, ROADSIDE_LITTER_DISTRICTS_TABLE, DISTRICT_REFERENCE_TABLE],
         valueCol: '',
         metricTitle: 'Roadside Litter Most Cleaned Districts',
-        dataLabel: 'most collected bulky items',
+        chartDataLabel: 'most cleaned districts',
+        tableDataLabels: { dataLabel: 'District', unitLabel: 'Cleanup Count' },
         chartType: 'pie',
         extraCols: ['roadside_litter_cleanup_id','district_code','code']
     }
@@ -313,7 +346,8 @@ export const TOTAL_METRIC_VALUES: {
         tables: [],
         valueCol: '',
         metricTitle: 'Total Pounds of Trash Collected Across KPB Programs',
-        dataLabel: 'pounds of trash collected',
+        chartDataLabel: 'pounds of trash collected',
+        tableDataLabels: { unitLabel: 'Pounds' },
         chartType: 'bar',
         procedures: [
             'ward_production.get_total_trash_litter_by_month(?,?,?,?)',
@@ -325,7 +359,8 @@ export const TOTAL_METRIC_VALUES: {
         tables: [],
         valueCol: '',
         metricTitle: 'Total Pounds of Recycling Collected Across KPB Programs',
-        dataLabel: 'pounds of recycling collected',
+        chartDataLabel: 'pounds of recycling collected',
+        tableDataLabels: { unitLabel: 'Pounds' },
         chartType: 'bar',
         procedures: [
             'ward_production.get_total_recycling_by_month(?,?,?,?)',
@@ -337,7 +372,8 @@ export const TOTAL_METRIC_VALUES: {
         tables: [],
         valueCol: '',
         metricTitle: 'Total Number of Volunteer Hours Across KPB Programs',
-        dataLabel: 'number of volunteer hours',
+        chartDataLabel: 'number of volunteer hours',
+        tableDataLabels: { unitLabel: 'Hours' },
         chartType: 'bar',
         procedures: [
             'ward_production.get_total_volunteer_hours_by_month(?,?,?,?)',
@@ -349,7 +385,8 @@ export const TOTAL_METRIC_VALUES: {
         tables: [],
         valueCol: '',
         metricTitle: 'Total Number of Volunteers Across KPB Programs',
-        dataLabel: 'number of volunteers',
+        chartDataLabel: 'number of volunteers',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar',
         procedures: [
             'ward_production.get_total_volunteer_count_by_month(?,?,?,?)',
@@ -367,14 +404,16 @@ export const TRASH_ROUTES_METRIC_VALUES: {
         tables: [TRASH_CAN_ROUTES_TABLE],
         valueCol: 'trash_lbs',
         metricTitle: 'Trash Can Routes Pounds of Trash Collected',
-        dataLabel: 'pounds of trash collected',
+        chartDataLabel: 'pounds of trash collected',
+        tableDataLabels: { unitLabel: 'Pounds' },
         chartType: 'bar'
     },
     recyclingLbs: {
         tables: [TRASH_CAN_ROUTES_TABLE],
         valueCol: 'recycling_lbs',
         metricTitle: 'Trash Can Routes Pounds of Recycling Collected',
-        dataLabel: 'pounds of recycling collected',
+        chartDataLabel: 'pounds of recycling collected',
+        tableDataLabels: { unitLabel: 'Pounds' },
         chartType: 'bar'
     }
 };
@@ -387,21 +426,24 @@ export const TREE_PLANTING_METRIC_VALUES: {
         tables: [TREE_PLANTING_EVENTS_TABLE],
         valueCol: 'tree_count',
         metricTitle: 'Tree Planting Event Number of Trees Planted',
-        dataLabel: 'number of trees planted',
+        chartDataLabel: 'number of trees planted',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar'
     },
     volunteerCount: {
         tables: [TREE_PLANTING_EVENTS_TABLE],
         valueCol: 'volunteer_count',
         metricTitle: 'Tree Planting Event Number of Volunteers',
-        dataLabel: 'number of volunteers',
+        chartDataLabel: 'number of volunteers',
+        tableDataLabels: { unitLabel: 'Count' },
         chartType: 'bar'
     },
     volunteerHours: {
         tables: [TREE_PLANTING_EVENTS_TABLE],
         valueCol: 'volunteer_hours',
         metricTitle: 'Tree Planting Event Number of Volunteer Hours',
-        dataLabel: 'number of volunteer hours',
+        chartDataLabel: 'number of volunteer hours',
+        tableDataLabels: { unitLabel: 'Hours' },
         chartType: 'bar'
     }
 };
