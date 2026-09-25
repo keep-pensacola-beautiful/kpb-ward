@@ -55,7 +55,7 @@ export function validateTreePlantingData(formData: FormData): { data: TreePlanti
             'Number of Volunteers',
             UNSIGNED_SMALL_INT_MAX,
             'count',
-            true
+            false
         );
         errors = volunteerCountValidation.errors;
 
@@ -66,7 +66,7 @@ export function validateTreePlantingData(formData: FormData): { data: TreePlanti
             'Volunteer Hours',
             DECIMAL_4_DOT_2_MAX,
             'hours',
-            true,
+            false,
             2
         );
         errors = volunteerHoursValidation.errors;
