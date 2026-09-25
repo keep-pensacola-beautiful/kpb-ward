@@ -55,7 +55,7 @@ export function validateBagSwapData(formData: FormData): { data: BagSwapEventMod
             'Number of Volunteers',
             UNSIGNED_SMALL_INT_MAX,
             'count',
-            true
+            false
         );
         errors = volunteerCountValidation.errors;
 
@@ -66,7 +66,7 @@ export function validateBagSwapData(formData: FormData): { data: BagSwapEventMod
             'Volunteer Hours',
             DECIMAL_3_DOT_2_MAX,
             'hours',
-            true,
+            false,
             2
         );
         errors = volunteerHoursValidation.errors;
