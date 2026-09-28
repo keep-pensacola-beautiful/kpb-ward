@@ -197,13 +197,14 @@ export function ServicesForm({
             }
 
             
-            <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-                {(errors && errors.size >= 1) &&
-                    <ErrorSummary errors={JSON.stringify(Array.from(errors.values()))}></ErrorSummary>}
-                <h1 id="main-content-header" className="text-xl md:text-2xl" tabIndex={-1}>
-                    {isUpdate ? 'Update' : 'Enter'} Data: Services Data
-                </h1>
-                <main>
+            
+            {(errors && errors.size >= 1) &&
+                <ErrorSummary errors={JSON.stringify(Array.from(errors.values()))}></ErrorSummary>}
+            <h1 id="main-content-header" className="text-xl md:text-2xl mb-2" tabIndex={-1}>
+                {isUpdate ? 'Update' : 'Enter'} Data: Services Data
+            </h1>
+            <main>
+                <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
                     {!isUpdate &&
                         <RadioList
                             label="Reporting Data Type"
@@ -216,12 +217,12 @@ export function ServicesForm({
                     }
                     { getFormByActivity(reportingDataType) }
                     {reportingDataType !== '' &&
-                        <button className="border p-2 w-25 rounded-md bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem] mt-4 mb-4">
+                        <button className="border p-2 w-25 rounded-md bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem] mt-4 mb-4 cursor-pointer">
                             Submit
                         </button>
                     }
-                </main>
-            </form>
+                </form>
+            </main>
         </div>
     );
 }

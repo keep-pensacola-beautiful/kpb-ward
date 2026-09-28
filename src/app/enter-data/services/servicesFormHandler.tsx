@@ -44,7 +44,7 @@ export function ServicesFormHandler({ isUpdate, reportingDataType }: { isUpdate:
                     <p>
                         Select the 'Submit Another { submittedDataType.label }' button to return to the form.
                     </p>
-                    <button onClick={handleSubmitAnotherEvent} className="border p-2 rounded-md bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem] mt-4">
+                    <button onClick={handleSubmitAnotherEvent} className="border p-2 rounded-md bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem] mt-4 cursor-pointer">
                         Submit Another { submittedDataType.label }
                     </button>
                 </main>
