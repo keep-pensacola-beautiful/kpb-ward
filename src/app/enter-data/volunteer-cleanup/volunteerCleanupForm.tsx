@@ -267,7 +267,7 @@ export function VolunteerCleanupForm({
                 {isUpdate ? 'Update' : 'Enter'} Data: Volunteer Cleanup Data
             </h1>
             <main>
-                <form ref={formRef} className="flex flex-col gap-2 mt-2" onSubmit={handleSubmit}>
+                <form ref={formRef} className="flex flex-col gap-2" onSubmit={handleSubmit}>
                     {!isUpdate &&
                         <RadioList
                             label="Reporting Data Type"
