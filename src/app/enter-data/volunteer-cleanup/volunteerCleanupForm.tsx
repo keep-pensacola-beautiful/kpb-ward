@@ -175,7 +175,10 @@ export function VolunteerCleanupForm({
             await saveAdoptASpotData(formData, selectedSpotId ? selectedSpotId : '', isUpdate);
         setErrors(adoptResult.errors);
         if (adoptResult.isSuccessful && adoptResult.data) {
-            onSuccessfulSubmit(adoptResult.data, REPORTING_DATA_VALUES.adoptASpot);
+            onSuccessfulSubmit(adoptResult.data, {
+                code: REPORTING_DATA_VALUES.adoptASpot.code,
+                label: `${REPORTING_DATA_VALUES.adoptASpot.label} Cleanup`
+            });
         } else if (adoptResult.errors !== null && adoptResult.errors.size > 0) {
             scrollToTopAndFocusAnElementById('error-header', MS_DELAY_100);
         } else if (!adoptResult.isSuccessful) {
@@ -198,7 +201,10 @@ export function VolunteerCleanupForm({
             );
         setErrors(groupResult.errors);
         if (groupResult.isSuccessful && groupResult.data) {
-            onSuccessfulSubmit(groupResult.data, REPORTING_DATA_VALUES.groupCleanup);
+            onSuccessfulSubmit(groupResult.data, {
+                code: REPORTING_DATA_VALUES.groupCleanup.code,
+                label: REPORTING_DATA_VALUES.groupCleanup.label
+            });
         } else if (groupResult.errors !== null && groupResult.errors.size > 0) {
             scrollToTopAndFocusAnElementById('error-header', MS_DELAY_100);
         } else if (!groupResult.isSuccessful) {
@@ -270,7 +276,7 @@ export function VolunteerCleanupForm({
                 <form ref={formRef} className="flex flex-col gap-2" onSubmit={handleSubmit}>
                     {!isUpdate &&
                         <RadioList
-                            label="Reporting Data Type"
+                            label="KPB Program"
                             listName={REPORTING_DATA_TYPE_LIST_NAME}
                             options={JSON.stringify(REPORTING_DATA_TYPE_OPTIONS)}
                             isRequired={true}

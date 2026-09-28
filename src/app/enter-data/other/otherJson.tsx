@@ -1,15 +1,15 @@
 export const REPORTING_DATA_VALUES = {
     bagSwap: {
         code: 'bag-swap',
-        label: 'Bag Swap Event'
+        label: 'Bag Swap'
     },
     education: {
         code: 'education',
-        label: 'Education Event'
+        label: 'Education'
     },
     treePlanting: {
         code: 'tree-planting',
-        label: 'Tree Planting Event'
+        label: 'Tree Planting'
     }
 };
 

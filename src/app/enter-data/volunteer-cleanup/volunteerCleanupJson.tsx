@@ -1,7 +1,7 @@
 export const REPORTING_DATA_VALUES = {
     adoptASpot: {
         code: 'adopt-a-spot',
-        label: 'Adopt-a-Spot Cleanup'
+        label: 'Adopt-a-Spot'
     },
     groupCleanup: {
         code: 'group-cleanup',
