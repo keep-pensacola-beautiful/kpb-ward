@@ -5,7 +5,7 @@ export const REPORTING_DATA_VALUES = {
     },
     cleanTeam: {
         code: 'clean-team',
-        label: 'Clean Team Event'
+        label: 'Clean Team'
     },
     trashRoutes: {
         code: 'routes',
