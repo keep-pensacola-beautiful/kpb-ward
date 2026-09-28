@@ -263,7 +263,7 @@ export function VolunteerCleanupForm({
 
             {(errors && errors.size >= 1) &&
                 <ErrorSummary errors={JSON.stringify(Array.from(errors.values()))}></ErrorSummary>}
-            <h1 id="main-content-header" className="text-xl md:text-2xl" tabIndex={-1}>
+            <h1 id="main-content-header" className="text-xl md:text-2xl mb-2" tabIndex={-1}>
                 {isUpdate ? 'Update' : 'Enter'} Data: Volunteer Cleanup Data
             </h1>
             <main>
@@ -280,7 +280,7 @@ export function VolunteerCleanupForm({
                     }
                     { getFormByActivity(reportingDataType) }
                     {reportingDataType !== '' &&
-                        <button className="border p-2 w-25 rounded-md bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem] mt-4 mb-4">
+                        <button className="border p-2 w-25 rounded-md bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem] mt-4 mb-4 cursor-pointer">
                             Submit
                         </button>
                     }
