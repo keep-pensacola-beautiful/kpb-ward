@@ -85,7 +85,7 @@ export async function validateRoadsideLitterData(
     const districtValidation = await validateDistricts(
         errors,
         formData.getAll(ROADSIDE_LITTER_FORM_DATA_IDS.districts),
-        `${ROADSIDE_LITTER_FORM_DATA_IDS.districts}-1`
+        `district-1`
     );
     errors = districtValidation.errors;
 
