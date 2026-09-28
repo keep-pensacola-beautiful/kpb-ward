@@ -3,8 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: "Home | WARD",
-  description: "Web Application for Reporting Data home page",
-  icons: ["/favicon.png"]
+  description: "Web Application for Reporting Data home page"
 };
 
 export default function Page() {
