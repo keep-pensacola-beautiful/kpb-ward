@@ -67,7 +67,7 @@ export function RoadsideLitterFormFields({ bulkyItemsReferenceString, districtsR
                 isRequired={true}
                 selectedValuesMap={selectedDistricts}
                 handleChange={handleChangeDistrict}
-                errorText={ifErrorThenGetErrorText(errors, `${ROADSIDE_LITTER_FORM_DATA_IDS.districts}-1`)}>
+                errorText={ifErrorThenGetErrorText(errors, `district-1`)}>
             </MultiSelect>
             <Textarea
                 textareaId={ROADSIDE_LITTER_FORM_DATA_IDS.locations}
