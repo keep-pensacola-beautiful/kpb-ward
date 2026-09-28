@@ -3,8 +3,7 @@ import { VisualizationHandler } from './visualizationHandler';
 
 export const metadata: Metadata = {
   title: 'Enter Data | WARD',
-  description: 'Enter reporting data for various KPB activities',
-  icons: ['./favicon.png']
+  description: 'Enter reporting data for various KPB activities'
 };
 
 export default function VisualizeMetrics() {
