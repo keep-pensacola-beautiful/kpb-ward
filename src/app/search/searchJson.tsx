@@ -95,3 +95,30 @@ export const PROGRAM_OPTIONS: {
         }
     ]
 };
+
+export const CRITERIA_FORM_FIELD_IDS = {
+    cleanTeam: ['trash-min', 'trash-max', 'recycling-min', 'recycling-max', 'event-desc'],
+    countyCleanup: [
+        'tire-count-min', 'tire-count-max', 'cans-chemicals-min', 'cans-chemicals-max',
+        'bulky-item-lbs-min', 'bulky-item-lbs-max', 'bulky-item-count-min', 'bulky-item-count-max'
+    ],
+    roadside: [
+        'litter-min', 'litter-max', 'recycling-min', 'recycling-max', 'district', 'location',
+        'bulky-item-count-min', 'bulky-item-count-max'
+    ],
+    routes: ['trash-min', 'trash-max', 'recycling-min', 'recycling-max'],
+    adoptASpot: [ 
+        'litter-min', 'litter-max', 'recycling-min', 'recycling-max',
+        'adopted-spot-combobox-input', 'vol-count-min', 'vol-count-max'
+    ],
+    groupCleanup: [
+        'litter-min', 'litter-max', 'recycling-min', 'recycling-max',
+        'organization-combobox-input', 'location-combobox-input', 'vol-count-min', 'vol-count-max'
+    ],
+    bagSwap: ['bag-min', 'bag-max', 'vol-count-min', 'vol-count-max', 'event-desc'],
+    education: [
+        'student-min', 'student-max', 'topic-combobox-input', 'recipient-combobox-input',
+        'vol-count-min', 'vol-count-max'
+    ],
+    treePlanting: ['tree-min', 'tree-max', 'vol-count-min', 'vol-count-max', 'event-desc']
+}
