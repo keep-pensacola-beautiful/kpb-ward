@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react';
-import { Alert, Button, ErrorSummary, RadioList } from '../../components';
+import { Alert, Button, ErrorSummary, LoadingDialog, RadioList } from '../../components';
 import { REPORTING_DATA_TYPE_LIST_NAME, REPORTING_DATA_TYPE_OPTIONS, REPORTING_DATA_VALUES } from './servicesJson';
 import {
     getBulkyItemRefData,
@@ -50,6 +50,7 @@ export function ServicesForm({
     const [districtOptions, setDistrictOptions] = useState<string>('[]');
     const [selectedBulkyItemValues, setSelectedBulkyItemValues] = useState<string[]>([]);
     const [alertHeader, setAlertHeader] = useState<string>('');
+    const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState<boolean>(false);
     const MS_DELAY_100: number = 100;
 
     useEffect(() => {
@@ -116,6 +117,7 @@ export function ServicesForm({
 
     async function handleSubmit(e: any) {
         e.preventDefault();
+        setIsLoadingDialogOpen(true);
         switch (reportingDataType) {
             case (REPORTING_DATA_VALUES.cleanTeam.code):
                 handleCleanTeamEventSubmit(new FormData(e.target));
@@ -136,6 +138,7 @@ export function ServicesForm({
         const cleanResult: { isSuccessful: boolean, data: CleanTeamEventModel | null, errors: Map<string, ErrorModel> } =
             await saveCleanTeamData(formData, isUpdate, data?.id);
         setErrors(cleanResult.errors);
+        setIsLoadingDialogOpen(false);
         if (cleanResult.isSuccessful && cleanResult.data) {
             onSuccessfulSubmit(cleanResult.data, {
                 code: REPORTING_DATA_VALUES.cleanTeam.code,
@@ -154,6 +157,7 @@ export function ServicesForm({
         const countyResult: { isSuccessful: boolean, data: CountyCleanupEventModel | null, errors: Map<string, ErrorModel> } =
             await saveCountyCleanupData(formData, selectedBulkyItemValues, isUpdate, data?.id, prevSavedBulkyItems);
         setErrors(countyResult.errors);
+        setIsLoadingDialogOpen(false);
         if (countyResult.isSuccessful && countyResult.data) {
             onSuccessfulSubmit(countyResult.data, {
                 code: REPORTING_DATA_VALUES.countyCleanup.code,
@@ -177,6 +181,7 @@ export function ServicesForm({
         const roadsideResult: { isSuccessful: boolean, data: RoadsideLitterEventModel | null, errors: Map<string, ErrorModel> } =
             await saveRoadsideLitterData(formData, selectedBulkyItemValues, isUpdate, data?.id, prevSavedBulkyItems, prevSavedDistricts);
         setErrors(roadsideResult.errors);
+        setIsLoadingDialogOpen(false);
         if (roadsideResult.isSuccessful && roadsideResult.data) {
             onSuccessfulSubmit(roadsideResult.data, {
                 code: REPORTING_DATA_VALUES.roadsideLitter.code,
@@ -194,6 +199,7 @@ export function ServicesForm({
         const routesResult: { isSuccessful: boolean, data: TrashRoutesEventModel | null, errors: Map<string, ErrorModel> } =
             await saveTrashRoutesData(formData, isUpdate, data?.id);
         setErrors(routesResult.errors);
+        setIsLoadingDialogOpen(false);
         if (routesResult.isSuccessful && routesResult.data) {
             onSuccessfulSubmit(routesResult.data, {
                 code: REPORTING_DATA_VALUES.trashRoutes.code,
@@ -220,6 +226,12 @@ export function ServicesForm({
 
     return (
         <div>
+            <LoadingDialog
+                isOpen={isLoadingDialogOpen}
+                dialogId="saving-dialog"
+                dialogTitle="Please wait while the Event is saved">
+            </LoadingDialog>
+
             { alertHeader !== '' &&
                 <Alert
                     id="save-failure-alert"
@@ -231,8 +243,6 @@ export function ServicesForm({
                     onClose={() => setAlertHeader('')}>
                 </Alert>
             }
-
-            
             
             {(errors && errors.size >= 1) &&
                 <ErrorSummary errors={JSON.stringify(Array.from(errors.values()))}></ErrorSummary>}

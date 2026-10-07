@@ -30,6 +30,7 @@ export function OtherForm({
 }) {
     const [isRecipientDialogOpen, setIsRecipientDialogOpen] = useState<boolean>(false);
     const [isTopicDialogOpen, setIsTopicDialogOpen] = useState<boolean>(false);
+    const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState<boolean>(false);
     const [reportingDataType, setReportingDataType] = useState<string>(selectedDataType);
     const [errors, setErrors] = useState<Map<string, ErrorModel>>(new Map<string, ErrorModel>());
     const [isInitialLoad, setIsInitialLoad] = useState<boolean>(false);
@@ -144,6 +145,7 @@ export function OtherForm({
 
     async function handleSubmit(e: any) {
         e.preventDefault();
+        setIsLoadingDialogOpen(true);
         switch (reportingDataType) {
             case REPORTING_DATA_VALUES.bagSwap.code:
                 handleBagSwapEventSubmit(new FormData(e.target));
@@ -161,6 +163,7 @@ export function OtherForm({
         const bagResult: { isSuccessful: boolean, data: BagSwapEventModel | null, errors: Map<string, ErrorModel> } =
             await saveBagSwapData(formData, isUpdate, data?.id);
         setErrors(bagResult.errors);
+        setIsLoadingDialogOpen(false);
         if (bagResult.isSuccessful && bagResult.data) {
             onSuccessfulSubmit(bagResult.data, {
                 code: REPORTING_DATA_VALUES.bagSwap.code,
@@ -188,6 +191,7 @@ export function OtherForm({
                 data?.id
             );
         setErrors(edResult.errors);
+        setIsLoadingDialogOpen(false);
         if (edResult.isSuccessful && edResult.data) {
             onSuccessfulSubmit(edResult.data, {
                 code: REPORTING_DATA_VALUES.education.code,
@@ -205,6 +209,7 @@ export function OtherForm({
         const treeResult: { isSuccessful: boolean, data: TreePlantingEventModel | null, errors: Map<string, ErrorModel> } =
             await saveTreePlantingData(formData, isUpdate, data?.id);
         setErrors(treeResult.errors);
+        setIsLoadingDialogOpen(false);
         if (treeResult.isSuccessful && treeResult.data) {
             onSuccessfulSubmit(treeResult.data, {
                 code: REPORTING_DATA_VALUES.treePlanting.code,
@@ -246,7 +251,8 @@ export function OtherForm({
                 isTopicOpen={isTopicDialogOpen}
                 onCloseTopic={(e: any) => setIsTopicDialogOpen(false)}
                 onAddTopic={handleAddTopic}
-                currentTopicValues={edTopicValueToIdMap}>
+                currentTopicValues={edTopicValueToIdMap}
+                isLoadingDialogOpen={isLoadingDialogOpen}>
             </OtherDialogs>
             { alertHeader !== '' &&
                 <Alert

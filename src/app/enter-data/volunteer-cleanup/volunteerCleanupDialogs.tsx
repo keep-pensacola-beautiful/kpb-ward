@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Textbox } from '../../components';
+import { LoadingDialog, Textbox } from '../../components';
 import { ErrorModel, ReferenceDataModel } from '../../models';
 import { AddOptionDialog, StatusDialog } from '../../components';
 import { ifErrorThenGetErrorText } from '../../utils/ifErrorThenGetErrorText';
@@ -20,7 +20,8 @@ export function VolunteerCleanupDialogs(
     isOrganizationOpen,
     onAddOrganization,
     onCloseOrganization,
-    currentOrganizationValues
+    currentOrganizationValues,
+    isLoadingDialogOpen
 }: {
     isAssignmentOpen: boolean,
     onAddAssignment?: (newAssignment: string) => void,
@@ -33,7 +34,8 @@ export function VolunteerCleanupDialogs(
     isOrganizationOpen: boolean,
     onAddOrganization?: (newOrganization: string) => void,
     onCloseOrganization: (e: any) => void,
-    currentOrganizationValues: Map<string, string>
+    currentOrganizationValues: Map<string, string>,
+    isLoadingDialogOpen: boolean
 }) {
     const [errors, setErrors] = useState<Map<string, ErrorModel>>(new Map<string, ErrorModel>());
     const [isStatusDialogOpen, setIsStatusDialogOpen] = useState<boolean>(false);
@@ -311,6 +313,12 @@ export function VolunteerCleanupDialogs(
                 body={statusDialogContent.body}
                 type={statusDialogContent.type}>
             </StatusDialog>
+
+            <LoadingDialog
+                isOpen={isLoadingDialogOpen}
+                dialogId="saving-dialog"
+                dialogTitle="Please wait while the Event is saved">
+            </LoadingDialog>
         </span>
     );
 }

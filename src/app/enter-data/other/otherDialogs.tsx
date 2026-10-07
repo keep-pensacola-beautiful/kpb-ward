@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Textbox } from '../../components';
+import { LoadingDialog, Textbox } from '../../components';
 import { ErrorModel, ReferenceDataModel } from '../../models';
 import { AddOptionDialog, StatusDialog } from '../../components';
 import { DialogType } from '../../components/dialog/dialogType.model';
@@ -16,7 +16,8 @@ export function OtherDialogs(
     isTopicOpen,
     onAddTopic,
     onCloseTopic,
-    currentTopicValues
+    currentTopicValues,
+    isLoadingDialogOpen
 }: { 
     isRecipientOpen: boolean,
     onAddRecipient?: (newRecipient: string) => void,
@@ -25,7 +26,8 @@ export function OtherDialogs(
     isTopicOpen: boolean,
     onAddTopic?: (newTopic: string) => void,
     onCloseTopic: (e: any) => void,
-    currentTopicValues: Map<string, string>
+    currentTopicValues: Map<string, string>,
+    isLoadingDialogOpen: boolean
 }) {
     const [errors, setErrors] = useState<Map<string, ErrorModel>>(new Map<string, ErrorModel>());
     const [isStatusDialogOpen, setIsStatusDialogOpen] = useState<boolean>(false);
@@ -200,6 +202,12 @@ export function OtherDialogs(
                 body={statusDialogContent.body}
                 type={statusDialogContent.type}>
             </StatusDialog>
+
+            <LoadingDialog
+                isOpen={isLoadingDialogOpen}
+                dialogId="saving-dialog"
+                dialogTitle="Please wait while the Event is saved">
+            </LoadingDialog>
         </span>
     );
 }
