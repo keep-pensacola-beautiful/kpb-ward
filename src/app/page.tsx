@@ -3,8 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: "Home | WARD",
-  description: "Web Application for Reporting Data home page",
-  icons: ["/favicon.png"]
+  description: "Web Application for Reporting Data home page"
 };
 
 export default function Page() {
@@ -28,21 +27,21 @@ export default function Page() {
             enter information about&nbsp;
             <Link href="/enter-data/services" className="underline" aria-label="enter services activities">services activities</Link>
             &nbsp;like roadside litter and park routes,&nbsp;
-            <Link href="/enter-data/services" className="underline" aria-label="enter volunteer cleanup activities">volunteer cleanup activities</Link>
+            <Link href="/enter-data/volunteer-cleanup" className="underline" aria-label="enter volunteer cleanup activities">volunteer cleanup activities</Link>
             &nbsp;like group cleanups and adopt-a-spot cleanups, and&nbsp;
-            <Link href="/enter-data/services" className="underline" aria-label="enter other activities">other activities</Link>
+            <Link href="/enter-data/other" className="underline" aria-label="enter other activities">other activities</Link>
             &nbsp;like education events.
           </p>
         </li>
         <li className="mt-1">
           <p className="mt-2 text-[1.06rem]">
-            <Link href="/enter-data/services" className="underline">get metrics about KPB's activities</Link>
+            <Link href="/visualize-metrics" className="underline">get metrics about KPB's activities</Link>
             &nbsp;by month, quarter, or year, and
           </p>
         </li>
         <li className="mt-1">
           <p className="mt-2 text-[1.06rem]">
-            <Link href="/enter-data/services" className="underline">search for individual events and cleanups</Link>
+            <Link href="/search" className="underline">search for individual events and cleanups</Link>
             &nbsp;to view and to update or correct granular data.
           </p>
         </li>
