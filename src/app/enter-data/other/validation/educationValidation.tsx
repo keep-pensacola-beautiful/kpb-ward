@@ -90,7 +90,7 @@ export async function validateEducationData(formData: FormData, recipientId: str
             'Number of Volunteers',
             UNSIGNED_SMALL_INT_MAX,
             'count',
-            true
+            false
         );
         errors = volunteerCountValidation.errors;
 
@@ -101,7 +101,7 @@ export async function validateEducationData(formData: FormData, recipientId: str
             'Volunteer Hours',
             DECIMAL_3_DOT_2_MAX,
             'hours',
-            true,
+            false,
             2
         );
         errors = volunteerHoursValidation.errors;
