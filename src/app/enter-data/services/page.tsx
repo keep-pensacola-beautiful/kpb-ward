@@ -4,8 +4,7 @@ import { REPORTING_DATA_VALUES } from './servicesJson';
 
 export const metadata: Metadata = {
   title: 'Enter Data | WARD',
-  description: 'Enter reporting data for various KPB activities',
-  icons: ['./favicon.png']
+  description: 'Enter reporting data for various KPB activities'
 };
 
 export default async function EnterServicesData() {
