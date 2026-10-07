@@ -1,7 +1,19 @@
 import { TextareaModel } from './textarea.model';
 import { isBlank } from '../../utils/isBlank';
 
-export function Textarea({ textareaId, textareaName, labelText, descriptionText, maxlength, rows, cols, isRequired, labelFontWeight, errorText }: TextareaModel) {
+export function Textarea({
+    textareaId,
+    textareaName,
+    labelText,
+    descriptionText,
+    maxlength,
+    rows,
+    cols,
+    isRequired,
+    defaultValue,
+    labelFontWeight,
+    errorText
+}: TextareaModel) {
     const DEFAULT_ROWS = 3;
     const DEFAULT_COLS = 100;
     
@@ -21,6 +33,7 @@ export function Textarea({ textareaId, textareaName, labelText, descriptionText,
                 maxLength={maxlength}
                 rows={rows ? rows : DEFAULT_ROWS}
                 cols={cols ? cols : DEFAULT_COLS}
+                {...((defaultValue !== undefined) ? { defaultValue: defaultValue } : {})}
                 aria-required={isRequired}
                 aria-invalid={!isBlank(errorText)}
                 aria-describedby={`${textareaId}-label ${descriptionText ? `${textareaId}-description` : ''} ${errorText ? `${textareaId}-error` : ''}`}>
