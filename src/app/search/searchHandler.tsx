@@ -6,15 +6,15 @@ import { SearchResultsTable } from './searchResultsTable';
 import { EventModel } from '../models/event';
 import { ProgramCode } from '../models/search';
 import { ModifyEventForm } from './modifyEventForm';
-import { deleteEventById, searchEventsByProgramAndByCriteria } from './actions';
-import { Button, Dialog, StatusDialog } from '../components';
+import { deleteEventById, getEventByProgramAndById, searchEventsByProgramAndByCriteria } from './actions';
+import { Button, Dialog, LoadingDialog, StatusDialog } from '../components';
 import { DialogType } from '../components/dialog/dialogType.model';
 
 export function SearchHandler() {
     const [currentPage, setCurrentPage] = useState<'search' | 'table' | 'modify'>('search');
     const [searchResults, setSearchResults] = useState<EventModel[]>([]);
     const [program, setProgram] = useState<ProgramCode>('cleanTeam');
-    const [eventId, setEventId] = useState<number>(-1);
+    const [event, setEvent] = useState<EventModel>();
     const [searchCriteria, setSearchCriteria] = useState<Map<string, string>>(new Map<string, string>());
     const [isNoResultsDialogOpen, setIsNoResultsDialogOpen] = useState<boolean>(false);
     const [confirmActionDialogContent, setConfirmActionDialogContent] = useState<{
@@ -24,6 +24,8 @@ export function SearchHandler() {
         id: string, title: string, body: string, type: DialogType
     }>({ id: '', title: '', body: '', type: 'info' });
     const [eventToDelete, setEventToDelete] = useState<{ id: number, date: string, index: number }>();
+    const [isModifyLoadingDialogOpen, setIsModifyLoadingDialogOpen] = useState<boolean>(false);
+    const [isDeleteLoadingDialogOpen, setIsDeleteLoadingDialogOpen] = useState<boolean>(false);
 
     function handleSearch(pgrmCode: ProgramCode, events: EventModel[], searchCriteria: Map<string, string>): void {
         if (events.length >= 1) {
@@ -40,21 +42,34 @@ export function SearchHandler() {
         setCurrentPage('search');
     }
 
-    function handleModify(pgrmCode: ProgramCode, eventId: number | undefined): void {
+    function displayModifyFailureDialog(eventId: number | undefined) {
+        setStatusDialogContent({
+            id: 'modify-failure-dialog',
+            title: 'Unable to modify Event',
+            body: `Unable to modify Event with ID ${eventId} due to an unexpected error. ` +
+                `Please try again later.`,
+            type: 'danger'
+        });
+    }
+
+    async function handleModify(pgrmCode: ProgramCode, eventId: number | undefined): Promise<void> {
         if (eventId === undefined || eventId < 1) {
-            setStatusDialogContent({
-                id: 'modify-failure-dialog',
-                title: 'Unable to modify Event',
-                body: `Unable to modify Event with ID ${eventId} due to an unexpected error. ` +
-                    `Please try again later.`,
-                type: 'danger'
-            });
+            displayModifyFailureDialog(eventId);
             console.error('Error: Unable to modify event. Event ID was undefined or invalid.');
             return;
         }
-        setProgram(pgrmCode);
-        setEventId(eventId);
-        setCurrentPage('modify');
+        setIsModifyLoadingDialogOpen(true);
+        let data: EventModel | null = await getEventByProgramAndById(pgrmCode, eventId);
+        if (data === null) {
+            setIsModifyLoadingDialogOpen(false);
+            displayModifyFailureDialog(eventId);
+            console.error(`Error: Unable to modify event. Event (id=${eventId}) could not be retrieved.`);
+        } else {
+            setProgram(pgrmCode);
+            setEvent(data);
+            setIsModifyLoadingDialogOpen(false);
+            setCurrentPage('modify');
+        }
     }
 
     async function handleSuccessfulModify(nextPage: 'search' | 'table' | 'modify'): Promise<void> {
@@ -83,10 +98,23 @@ export function SearchHandler() {
         }
     }
 
+    function displayDeleteFailureStatusDialog(bodyText: string) {
+        setStatusDialogContent({
+            id: 'delete-failure-dialog',
+            title: 'Unable to delete Event',
+            body: bodyText,
+            type: 'danger'
+        });
+    }
+
     async function deleteEvent() {
         if (eventToDelete !== undefined && eventToDelete.id !== undefined) {
-            let isSuccessfulDelete: boolean = await deleteEventById(program, eventToDelete.id);
             clearConfirmActionDialogContent();
+            setIsDeleteLoadingDialogOpen(true);
+
+            let isSuccessfulDelete: boolean = await deleteEventById(program, eventToDelete.id);
+            
+            setIsDeleteLoadingDialogOpen(false);
             if (isSuccessfulDelete) {
                 setStatusDialogContent({
                     id: 'delete-success-dialog',
@@ -98,15 +126,15 @@ export function SearchHandler() {
                 });
                 setSearchResults(searchResults.toSpliced(eventToDelete.index, 1));
             } else {
-                setStatusDialogContent({
-                    id: 'delete-failure-dialog',
-                    title: 'Unable to delete Event',
-                    body: `The Event that took place on ${eventToDelete.date} with ` +
-                        `ID ${eventToDelete.id} was NOT deleted due to an unexpected error. ` +
-                        `Please try again later.`,
-                    type: 'danger'
-                });
+                displayDeleteFailureStatusDialog(
+                    `The Event that took place on ${eventToDelete.date} with ID ${eventToDelete.id} ` +
+                    `was NOT deleted due to an unexpected error. Please try again later.`
+                );
+                console.error(`Error: Unable to delete Event (id=${eventToDelete.id}). Delete returned unsuccessful.`);
             }
+        } else {
+            displayDeleteFailureStatusDialog(`Unable to modify Event due to an unexpected error. Please try again later.`);
+            console.error(`Error: Unable to delete Event because event to delete or the event ID was undefined.`);
         }
     }
 
@@ -182,6 +210,18 @@ export function SearchHandler() {
                             </p>}
                         type={statusDialogContent.type}>
                     </StatusDialog>
+                    <LoadingDialog
+                        isOpen={isModifyLoadingDialogOpen}
+                        dialogId="modify-dialog"
+                        dialogTitle="Please wait while we prepare to modify the Event">
+                    </LoadingDialog>
+                    <LoadingDialog
+                        isOpen={isDeleteLoadingDialogOpen}
+                        dialogId="delete-dialog"
+                        dialogTitle="Please wait while we prepare to delete the Event">
+                    </LoadingDialog>
+
+
                     <h1 id="main-content-header" className="text-xl md:text-2xl" tabIndex={-1}>
                         Search Events & Cleanups
                     </h1>
@@ -197,7 +237,7 @@ export function SearchHandler() {
             return (
                 <ModifyEventForm
                     pgrmCode={program}
-                    eventId={eventId}
+                    event={event}
                     onModifySuccess={handleSuccessfulModify}
                     onModifyCancel={handleModifyCancel}>
                 </ModifyEventForm>);

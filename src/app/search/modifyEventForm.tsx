@@ -1,27 +1,16 @@
-import { useEffect, useState } from 'react';
-import { CleanTeamEventDAO } from '../dao/event';
-import { CleanTeamEventModel, EventModel } from '../models/event';
+import { EventModel } from '../models/event';
 import { ProgramCode } from '../models/search';
 import { PROGRAM_CODES } from './searchJson';
 import { ServicesFormHandler } from '../enter-data/services/servicesFormHandler';
 import { VolunteerCleanupFormHandler } from '../enter-data/volunteer-cleanup/volunteerCleanupFormHandler';
-import { getEventByProgramAndById } from './actions';
 import { OtherFormHandler } from '../enter-data/other/otherFormHandler';
 
-export function ModifyEventForm({ pgrmCode, eventId, onModifySuccess, onModifyCancel }: {
+export function ModifyEventForm({ pgrmCode, event, onModifySuccess, onModifyCancel }: {
     pgrmCode: ProgramCode,
-    eventId: number,
+    event: EventModel | undefined,
     onModifySuccess: (nextPage: 'search' | 'table' | 'modify') => void,
     onModifyCancel: () => void
 }) {
-    const [data, setData] = useState<EventModel | undefined>(undefined);
-
-    useEffect(() => {
-        getEventByProgramAndById(pgrmCode, eventId).then(
-            (event: EventModel | null) => setData(event === null ? undefined : event)
-        );
-    }, [eventId])
-
     switch (pgrmCode) {
         case PROGRAM_CODES[0]:
         case PROGRAM_CODES[1]:
@@ -32,7 +21,7 @@ export function ModifyEventForm({ pgrmCode, eventId, onModifySuccess, onModifyCa
                     <ServicesFormHandler
                         isUpdate={true}
                         reportingDataType={pgrmCode}
-                        data={data}
+                        data={event}
                         onSuccessfulUpdate={onModifySuccess}
                         onModifyCancel={onModifyCancel}>
                     </ServicesFormHandler>
@@ -45,7 +34,7 @@ export function ModifyEventForm({ pgrmCode, eventId, onModifySuccess, onModifyCa
                     <VolunteerCleanupFormHandler
                         isUpdate={true}
                         reportingDataType={pgrmCode}
-                        data={data}
+                        data={event}
                         onSuccessfulUpdate={onModifySuccess}
                         onModifyCancel={onModifyCancel}>
                     </VolunteerCleanupFormHandler>
@@ -59,7 +48,7 @@ export function ModifyEventForm({ pgrmCode, eventId, onModifySuccess, onModifyCa
                     <OtherFormHandler
                         isUpdate={true}
                         reportingDataType={pgrmCode}
-                        data={data}
+                        data={event}
                         onSuccessfulUpdate={onModifySuccess}
                         onModifyCancel={onModifyCancel}>
                     </OtherFormHandler>
