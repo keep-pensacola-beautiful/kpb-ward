@@ -2,7 +2,20 @@ import { TextboxModel } from './textbox.model';
 import { isBlank } from '../../utils/isBlank';
 
 export function Textbox({
-    inputId, inputType, inputName, labelText, descriptionText, maxlength, step, width, isRequired, labelFontWeight, errorText, compact, ariaDescribedBy
+    inputId,
+    inputType,
+    inputName,
+    labelText,
+    descriptionText,
+    maxlength,
+    step,
+    width,
+    isRequired,
+    defaultValue,
+    labelFontWeight,
+    errorText,
+    compact,
+    ariaDescribedBy
 }: TextboxModel) {
     const DEFAULT_TEXT_WIDTH: string = 'sm:w-32';
     const DEFAULT_DATE_WIDTH: string = 'sm:w-[138px]';
@@ -28,6 +41,7 @@ export function Textbox({
                     ${errorText && !isBlank(errorText) ? 'border-2 border-red-500' : ''}`}
                 maxLength={maxlength}
                 step={step ? step : 1}
+                {...((defaultValue !== undefined) ? { defaultValue: defaultValue } : {})}
                 aria-required={isRequired}
                 aria-invalid={!isBlank(errorText)}
                 aria-describedby={`${descriptionText ? `${inputId}-description` : ''} ${errorText ? `${inputId}-error` : ''} ${ariaDescribedBy !== undefined ? ariaDescribedBy : ''}`}>
