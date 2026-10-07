@@ -47,7 +47,7 @@ export function ComboBox({
         return () => {
             document.body.removeEventListener('pointerup', onBackgroundPointerUp, true);
         }
-    }, [options])
+    }, [options, value])
     
     let hasHover: boolean = false;
     let isNone: boolean = (autocomplete === 'none' || autocomplete === undefined);
@@ -631,6 +631,7 @@ export function ComboBox({
                     <div className={`group inline-flex  cursor-pointer rounded-md ${comboBoxHasVisualFocus ? 'focus' : ''}`}>
                         <input
                             id={searchInputId}
+                            name={searchInputId}
                             className={`cb_edit w-64 bg-white text-black box-border p-1 m-0
                                 align-bottom border-t-1 border-b-1 border-l-1 border-gray 
                                 border-solid relative cursor-pointer border-r-none
