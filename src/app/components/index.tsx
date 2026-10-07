@@ -3,6 +3,7 @@ export { Button } from './button/button';
 export { ComboBox } from './comboBox/comboBox';
 export { Dialog } from './dialog/dialog';
 export { AddOptionDialog } from './dialog/addOptionDialog';
+export { LoadingDialog } from './dialog/loadingDialog';
 export { StatusDialog } from './dialog/statusDialog';
 export { ErrorSummary } from './errorSummary';
 export { Footer } from './footer';

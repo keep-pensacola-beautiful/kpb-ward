@@ -8,5 +8,6 @@ export interface DialogModel {
     type?: DialogType;
     heightCss?: string;
     widthCss?: string;
+    closeButton?: boolean;
     onClose?: (event: any) => void;
 }

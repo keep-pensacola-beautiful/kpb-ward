@@ -93,52 +93,54 @@ export function MetricSelectionForm({ onVisualize }: { onVisualize: (data: any) 
     }
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-[var(--gold)] p-2">
-            <RadioList
-                label="Data Category"
-                listName={DATA_CATEGORY_LIST_NAME}
-                options={JSON.stringify(DATA_CATEGORY_OPTIONS)}
-                selectedValue={category}
-                handleChange={handleCategoryChange}>
-            </RadioList>
-
-            { !isBlank(category) && category !== CATEGORY_CODES[0] &&
+        <div>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-[var(--gold)] p-2">
                 <RadioList
-                    label="KPB Program"
-                    listName={PROGRAM_LIST_NAME}
-                    options={programOptions}
-                    selectedValue={program}
-                    handleChange={handleProgramChange}
-                    >
+                    label="Data Category"
+                    listName={DATA_CATEGORY_LIST_NAME}
+                    options={JSON.stringify(DATA_CATEGORY_OPTIONS)}
+                    selectedValue={category}
+                    handleChange={handleCategoryChange}>
                 </RadioList>
-            }
 
-            { (category === CATEGORY_CODES[0] || (!isBlank(program) && !isBlank(programOptions))) &&
-                <RadioList
-                    label="Metric"
-                    listName={METRIC_LIST_NAME}
-                    options={metricOptions}
-                    selectedValue={metric}
-                    handleChange={handleMetricChange}>
-                </RadioList>
-            }
+                { !isBlank(category) && category !== CATEGORY_CODES[0] &&
+                    <RadioList
+                        label="KPB Program"
+                        listName={PROGRAM_LIST_NAME}
+                        options={programOptions}
+                        selectedValue={program}
+                        handleChange={handleProgramChange}
+                        >
+                    </RadioList>
+                }
 
-            { !/^top/.test(metric) &&
-                <RadioList
-                    label="Interval"
-                    listName={INTERVAL_LIST_NAME}
-                    options={JSON.stringify(INTERVAL_OPTIONS)}
-                    selectedValue={interval}
-                    handleChange={handleIntervalChange}>
-                </RadioList>
-            }
+                { (category === CATEGORY_CODES[0] || (!isBlank(program) && !isBlank(programOptions))) &&
+                    <RadioList
+                        label="Metric"
+                        listName={METRIC_LIST_NAME}
+                        options={metricOptions}
+                        selectedValue={metric}
+                        handleChange={handleMetricChange}>
+                    </RadioList>
+                }
 
-            <TimePeriodFields
-                interval={interval}
-                errors={errors}>
-            </TimePeriodFields>
+                { !/^top/.test(metric) &&
+                    <RadioList
+                        label="Interval"
+                        listName={INTERVAL_LIST_NAME}
+                        options={JSON.stringify(INTERVAL_OPTIONS)}
+                        selectedValue={interval}
+                        handleChange={handleIntervalChange}>
+                    </RadioList>
+                }
 
-            <Button design="primary">Visualize</Button>
-        </form>
+                <TimePeriodFields
+                    interval={interval}
+                    errors={errors}>
+                </TimePeriodFields>
+
+                <Button design="primary">Visualize</Button>
+            </form>
+        </div>
     );
 }

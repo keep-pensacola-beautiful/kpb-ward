@@ -9,9 +9,9 @@ export function Button({ compact, width, design, color = 'info', type, ariaLabel
             success: 'bg-green-800 text-[var(--tan)]'
         },
         secondary: {
-            info: 'bg-transparent text-[var(--deepBlue)] border-2',
-            danger: 'bg-transparent text-red-700 border-2',
-            success: 'bg-transparent text-green-800 border-2'
+            info: 'bg-white text-[var(--deepBlue)] border-2',
+            danger: 'bg-white text-red-700 border-2',
+            success: 'bg-white text-green-800 border-2'
         }
     }
 

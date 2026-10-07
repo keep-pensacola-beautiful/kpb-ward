@@ -6,6 +6,10 @@
   --gold: #E4BA24;
 }
 
+@theme {
+  --animate-spin: spin 1.3s linear infinite;
+}
+
 /* @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

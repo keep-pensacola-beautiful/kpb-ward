@@ -31,6 +31,7 @@ export function VolunteerCleanupForm({
     const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState<boolean>(false);
     const [isLocationDialogOpen, setIsLocationDialogOpen] = useState<boolean>(false);
     const [isOrganizationDialogOpen, setIsOrganizationDialogOpen] = useState<boolean>(false);
+    const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState<boolean>(false);
     const [reportingDataType, setReportingDataType] = useState<string>(selectedDataType);
     const [errors, setErrors] = useState<Map<string, ErrorModel>>(new Map<string, ErrorModel>());
     const [isInitialLoad, setIsInitialLoad] = useState<boolean>(false);
@@ -173,6 +174,7 @@ export function VolunteerCleanupForm({
 
     async function handleSubmit(e: any) {
         e.preventDefault();
+        setIsLoadingDialogOpen(true);
         switch (reportingDataType) {
             case (REPORTING_DATA_VALUES.adoptASpot.code):
                 handleAdoptASpotEventSubmit(new FormData(e.target));
@@ -189,6 +191,7 @@ export function VolunteerCleanupForm({
         const adoptResult: { isSuccessful: boolean, data: AdoptASpotEventModel | null, errors: Map<string, ErrorModel> } =
             await saveAdoptASpotData(formData, selectedSpotId ? selectedSpotId : '', isUpdate, data?.id);
         setErrors(adoptResult.errors);
+        setIsLoadingDialogOpen(false);
         if (adoptResult.isSuccessful && adoptResult.data) {
             onSuccessfulSubmit(adoptResult.data, {
                 code: REPORTING_DATA_VALUES.adoptASpot.code,
@@ -216,6 +219,7 @@ export function VolunteerCleanupForm({
                 data?.id
             );
         setErrors(groupResult.errors);
+        setIsLoadingDialogOpen(false);
         if (groupResult.isSuccessful && groupResult.data) {
             onSuccessfulSubmit(groupResult.data, {
                 code: REPORTING_DATA_VALUES.groupCleanup.code,
@@ -270,7 +274,8 @@ export function VolunteerCleanupForm({
                 isOrganizationOpen={isOrganizationDialogOpen}
                 onCloseOrganization={(e: any) => setIsOrganizationDialogOpen(false)}
                 onAddOrganization={handleAddOrganization}
-                currentOrganizationValues={cleanupOrganizationValueToIdMap}>
+                currentOrganizationValues={cleanupOrganizationValueToIdMap}
+                isLoadingDialogOpen={isLoadingDialogOpen}>
             </VolunteerCleanupDialogs>
             { alertHeader !== '' &&
                 <Alert

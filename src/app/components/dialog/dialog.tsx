@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { DialogModel } from './dialog.model';
 
-export function Dialog({ isOpen, id, title, children, type = 'info', heightCss, widthCss, onClose }: DialogModel) {
+export function Dialog({ isOpen, id, title, children, type = 'info', heightCss, widthCss, closeButton = true, onClose }: DialogModel) {
     const modalRef = useRef<HTMLDialogElement>(null);
     const titleRef = useRef<HTMLParagraphElement>(null);
     
@@ -33,14 +33,16 @@ export function Dialog({ isOpen, id, title, children, type = 'info', heightCss, 
                 <p ref={titleRef} id={`${id}-title`} tabIndex={-1} className="font-semibold text-lg text-[var(--tan)]">{ title }</p>
             </div>
             <div className="p-[1em]">{children}</div>
-            <button
-                id={`${id}-close`}
-                aria-label="close"
-                onClick={onClose}
-                className="cursor-pointer pt-[0.125em] pb-[0.125em] pr-[0.5em] pl-[0.5em]
-                    absolute top-[0.5em] right-[0.5em] mt-[0] leading-none text-2xl text-[var(--tan)]"
-                >&times;
-            </button>
+            { closeButton &&
+                <button
+                    id={`${id}-close`}
+                    aria-label="close"
+                    onClick={onClose}
+                    className="cursor-pointer pt-[0.125em] pb-[0.125em] pr-[0.5em] pl-[0.5em]
+                        absolute top-[0.5em] right-[0.5em] mt-[0] leading-none text-2xl text-[var(--tan)]"
+                    >&times;
+                </button>
+            }
         </dialog>
     );
 }
