@@ -162,7 +162,10 @@ export function OtherForm({
             await saveBagSwapData(formData, isUpdate, data?.id);
         setErrors(bagResult.errors);
         if (bagResult.isSuccessful && bagResult.data) {
-            onSuccessfulSubmit(bagResult.data, REPORTING_DATA_VALUES.bagSwap);
+            onSuccessfulSubmit(bagResult.data, {
+                code: REPORTING_DATA_VALUES.bagSwap.code,
+                label: `${REPORTING_DATA_VALUES.bagSwap.label} Event`
+            });
         } else if (bagResult.errors !== null && bagResult.errors.size > 0) {
             scrollToTopAndFocusAnElementById('error-header', MS_DELAY_100);
         } else if (!bagResult.isSuccessful) {
@@ -186,7 +189,10 @@ export function OtherForm({
             );
         setErrors(edResult.errors);
         if (edResult.isSuccessful && edResult.data) {
-            onSuccessfulSubmit(edResult.data, REPORTING_DATA_VALUES.education);
+            onSuccessfulSubmit(edResult.data, {
+                code: REPORTING_DATA_VALUES.education.code,
+                label: `${REPORTING_DATA_VALUES.education.label} Event`
+            });
         } else if (edResult.errors !== null && edResult.errors.size > 0) {
             scrollToTopAndFocusAnElementById('error-header', MS_DELAY_100);
         } else if (!edResult.isSuccessful) {
@@ -200,7 +206,10 @@ export function OtherForm({
             await saveTreePlantingData(formData, isUpdate, data?.id);
         setErrors(treeResult.errors);
         if (treeResult.isSuccessful && treeResult.data) {
-            onSuccessfulSubmit(treeResult.data, REPORTING_DATA_VALUES.treePlanting);
+            onSuccessfulSubmit(treeResult.data, {
+                code: REPORTING_DATA_VALUES.treePlanting.code,
+                label: `${REPORTING_DATA_VALUES.treePlanting.label} Event`
+            });
         } else if (treeResult.errors !== null && treeResult.errors.size > 0) {
             scrollToTopAndFocusAnElementById('error-header', MS_DELAY_100);
         } else if (!treeResult.isSuccessful) {
@@ -251,16 +260,16 @@ export function OtherForm({
                 </Alert>
             }
             
-            <form ref={formRef} className="flex flex-col gap-2 mt-2" onSubmit={handleSubmit}>
-                {(errors && errors.size >= 1) &&
-                    <ErrorSummary errors={JSON.stringify(Array.from(errors.values()))}></ErrorSummary>}
-                <h1 id="main-content-header" className="text-xl md:text-2xl" tabIndex={-1}>
-                    {isUpdate ? 'Update' : 'Enter'} Data: Other Data
-                </h1>
-                <main>
+            {(errors && errors.size >= 1) &&
+                <ErrorSummary errors={JSON.stringify(Array.from(errors.values()))}></ErrorSummary>}
+            <h1 id="main-content-header" className="text-xl md:text-2xl mb-2" tabIndex={-1}>
+                {isUpdate ? 'Update' : 'Enter'} Data: Other Data
+            </h1>
+            <main>
+                <form ref={formRef} className="flex flex-col gap-2" onSubmit={handleSubmit}>
                     {!isUpdate &&
                         <RadioList
-                            label="Reporting Data Type"
+                            label="KPB Program"
                             listName={REPORTING_DATA_TYPE_LIST_NAME}
                             options={JSON.stringify(REPORTING_DATA_TYPE_OPTIONS)}
                             isRequired={true}
@@ -283,8 +292,8 @@ export function OtherForm({
                             </Button>
                         }
                     </div>
-                </main>
-            </form>
+                </form>
+            </main>
         </div>
     );
 }

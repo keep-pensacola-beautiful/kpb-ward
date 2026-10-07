@@ -137,7 +137,10 @@ export function ServicesForm({
             await saveCleanTeamData(formData, isUpdate, data?.id);
         setErrors(cleanResult.errors);
         if (cleanResult.isSuccessful && cleanResult.data) {
-            onSuccessfulSubmit(cleanResult.data, REPORTING_DATA_VALUES.cleanTeam);
+            onSuccessfulSubmit(cleanResult.data, {
+                code: REPORTING_DATA_VALUES.cleanTeam.code,
+                label: `${REPORTING_DATA_VALUES.cleanTeam.label} Event`
+            });
         } else if (cleanResult.errors !== null && cleanResult.errors.size > 0) {
             scrollToTopAndFocusAnElementById('error-header', MS_DELAY_100);
         } else if (!cleanResult.isSuccessful) {
@@ -152,7 +155,10 @@ export function ServicesForm({
             await saveCountyCleanupData(formData, selectedBulkyItemValues, isUpdate, data?.id, prevSavedBulkyItems);
         setErrors(countyResult.errors);
         if (countyResult.isSuccessful && countyResult.data) {
-            onSuccessfulSubmit(countyResult.data, REPORTING_DATA_VALUES.countyCleanup);
+            onSuccessfulSubmit(countyResult.data, {
+                code: REPORTING_DATA_VALUES.countyCleanup.code,
+                label: REPORTING_DATA_VALUES.countyCleanup.label
+            });
         } else if (countyResult.errors !== null && countyResult.errors.size > 0) {
             scrollToTopAndFocusAnElementById('error-header', MS_DELAY_100);
         } else if (!countyResult.isSuccessful) {
@@ -172,7 +178,10 @@ export function ServicesForm({
             await saveRoadsideLitterData(formData, selectedBulkyItemValues, isUpdate, data?.id, prevSavedBulkyItems, prevSavedDistricts);
         setErrors(roadsideResult.errors);
         if (roadsideResult.isSuccessful && roadsideResult.data) {
-            onSuccessfulSubmit(roadsideResult.data, REPORTING_DATA_VALUES.roadsideLitter);
+            onSuccessfulSubmit(roadsideResult.data, {
+                code: REPORTING_DATA_VALUES.roadsideLitter.code,
+                label: `${REPORTING_DATA_VALUES.roadsideLitter.label} Cleanup`
+            });
         } else if (roadsideResult.errors !== null && roadsideResult.errors.size > 0) {
             scrollToTopAndFocusAnElementById('error-header', MS_DELAY_100);
         } else if (!roadsideResult.isSuccessful) {
@@ -186,7 +195,10 @@ export function ServicesForm({
             await saveTrashRoutesData(formData, isUpdate, data?.id);
         setErrors(routesResult.errors);
         if (routesResult.isSuccessful && routesResult.data) {
-            onSuccessfulSubmit(routesResult.data, REPORTING_DATA_VALUES.trashRoutes);
+            onSuccessfulSubmit(routesResult.data, {
+                code: REPORTING_DATA_VALUES.trashRoutes.code,
+                label: REPORTING_DATA_VALUES.trashRoutes.label
+            });
         } else if (routesResult.errors !== null && routesResult.errors.size > 0) {
             scrollToTopAndFocusAnElementById('error-header', MS_DELAY_100);
         } else if (!routesResult.isSuccessful) {
@@ -221,16 +233,17 @@ export function ServicesForm({
             }
 
             
-            <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-                {(errors && errors.size >= 1) &&
-                    <ErrorSummary errors={JSON.stringify(Array.from(errors.values()))}></ErrorSummary>}
-                <h1 id="main-content-header" className="text-xl md:text-2xl" tabIndex={-1}>
-                    {isUpdate ? 'Update' : 'Enter'} Data: Services Data
-                </h1>
-                <main>
+            
+            {(errors && errors.size >= 1) &&
+                <ErrorSummary errors={JSON.stringify(Array.from(errors.values()))}></ErrorSummary>}
+            <h1 id="main-content-header" className="text-xl md:text-2xl mb-2" tabIndex={-1}>
+                {isUpdate ? 'Update' : 'Enter'} Data: Services Data
+            </h1>
+            <main>
+                <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
                     {!isUpdate &&
                         <RadioList
-                            label="Reporting Data Type"
+                            label="KPB Program"
                             listName={REPORTING_DATA_TYPE_LIST_NAME}
                             options={JSON.stringify(REPORTING_DATA_TYPE_OPTIONS)}
                             isRequired={true}
@@ -253,8 +266,8 @@ export function ServicesForm({
                             </Button>
                         }
                     </div>
-                </main>
-            </form>
+                </form>
+            </main>
         </div>
     );
 }
