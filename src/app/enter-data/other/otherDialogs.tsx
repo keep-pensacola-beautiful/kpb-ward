@@ -79,7 +79,7 @@ export function OtherDialogs(
                     body: <p>Recipient <strong>{result.data?.name}</strong> was not added.
                         If it is outside of normal business hours, the database may be off.
                         Please try again later. Select 'Okay' to return to the Add a New Education Recipient dialog window.</p>,
-                    type: 'error'
+                    type: 'danger'
                 });
                 setTimeout(() => setIsStatusDialogOpen(true), 100);
                 if (onAddRecipient) {
@@ -127,7 +127,7 @@ export function OtherDialogs(
                     body: <p>Topic <strong>{result.data?.description}</strong> was not added.
                         If it is outside of normal business hours, the database may be off.
                         Please try again later. Select 'Okay' to return to the Add a New Educational Topic dialog window.</p>,
-                    type: 'error'
+                    type: 'danger'
                 });
                 setTimeout(() => setIsStatusDialogOpen(true), 100);
                 if (onAddTopic) {

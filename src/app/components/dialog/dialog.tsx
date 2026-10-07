@@ -20,14 +20,14 @@ export function Dialog({ isOpen, id, title, children, type = 'info', heightCss, 
         <dialog ref={modalRef} id={id} role="dialog" aria-modal="true" aria-labelledby={`${id}-title`}
             className={`m-auto rounded-lg bg-[var(--tan)] border-2
                 ${type === 'info' ? 'border-[var(--deepBlue)]' : ''}
-                ${type === 'error' ? 'border-red-700' : ''}
+                ${type === 'danger' ? 'border-red-700' : ''}
                 ${type === 'success' ? 'border-green-800' : ''}
                 ${heightCss ? heightCss : ''}
                 ${widthCss ? widthCss : ''}`}
             >
             <div className={`p-[1em] pr-[2em]
                     ${type === 'info' ? 'bg-[var(--deepBlue)]' : ''}
-                    ${type === 'error' ? 'bg-red-700' : ''}
+                    ${type === 'danger' ? 'bg-red-700' : ''}
                     ${type === 'success' ? 'bg-green-800' : ''}`}
                 >
                 <p ref={titleRef} id={`${id}-title`} tabIndex={-1} className="font-semibold text-lg text-[var(--tan)]">{ title }</p>

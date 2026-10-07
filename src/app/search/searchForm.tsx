@@ -269,7 +269,7 @@ export function SearchForm({ onSearch }: {
                 { displayNoCriteriaError &&
                     <Alert
                         id="criteria-missing-error"
-                        type="error"
+                        type="danger"
                         header="No Search Criteria Provided"
                         body="Please enter at least one search criteria."
                         closeButton={false}

@@ -11,7 +11,7 @@ export function Alert({ id, type = 'info', header, body, closeButton, onClose }:
         if (type === 'info') {
             setAlertBorderAndBg('border-[var(--deepBlue)] bg-[#e7f6f8]');
             setIconCharacter('i');
-        } else if (type === 'error') {
+        } else if (type === 'danger') {
             setAlertBorderAndBg('border-red-700 bg-[#f4e3db]');
             setIconCharacter('!');
         } else if (type === 'success') {

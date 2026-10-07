@@ -47,7 +47,7 @@ export function SearchHandler() {
                 title: 'Unable to modify Event',
                 body: `Unable to modify Event with ID ${eventId} due to an unexpected error. ` +
                     `Please try again later.`,
-                type: 'error'
+                type: 'danger'
             });
             console.error('Error: Unable to modify event. Event ID was undefined or invalid.');
             return;
@@ -78,7 +78,7 @@ export function SearchHandler() {
                 title: `Are you sure you want to delete the Event?`,
                 body: `To delete the Event that took place on ${date} with ID ${id}, please select 'Delete'.` +
                     `To cancel deleting, please select 'Cancel'.`,
-                type: 'error'
+                type: 'danger'
             });
         }
     }
@@ -104,7 +104,7 @@ export function SearchHandler() {
                     body: `The Event that took place on ${eventToDelete.date} with ` +
                         `ID ${eventToDelete.id} was NOT deleted due to an unexpected error. ` +
                         `Please try again later.`,
-                    type: 'error'
+                    type: 'danger'
                 });
             }
         }
@@ -149,7 +149,7 @@ export function SearchHandler() {
                         title={confirmActionDialogContent.title}
                         widthCss="w-[400px]"
                         onClose={() => clearConfirmActionDialogContent()}
-                        type="error"
+                        type="danger"
                         >
                         <p>
                             { confirmActionDialogContent.body }
