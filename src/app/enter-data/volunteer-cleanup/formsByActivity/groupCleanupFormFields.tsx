@@ -1,12 +1,14 @@
 import { ComboBox, Textbox } from '../../../components';
 import { ErrorModel } from '../../../models';
+import { GroupCleanupEventModel } from '../../../models/event';
 import { ifErrorThenGetErrorText } from '../../../utils/ifErrorThenGetErrorText';
 import { GROUP_CLEANUP_FORM_DATA_IDS } from '../volunteerCleanupJson';
 
 export function GroupCleanupFormFields(
 {
-    organizationOptions, selectedOrganization, locationOptions, selectedLocation, errors, handleLocationChange, handleOrganizationChange, onAddLocation, onAddOrganization
-}: { 
+    data, organizationOptions, selectedOrganization, locationOptions, selectedLocation, errors, handleLocationChange, handleOrganizationChange, onAddLocation, onAddOrganization
+}: {
+    data?: GroupCleanupEventModel
     organizationOptions: string,
     selectedOrganization: string,
     locationOptions: string,
@@ -25,6 +27,7 @@ export function GroupCleanupFormFields(
                 labelText="Date"
                 descriptionText="Please enter the date of the Group Cleanup."
                 isRequired={true}
+                defaultValue={data !== undefined ? data.date : undefined}
                 errorText={ifErrorThenGetErrorText(errors, GROUP_CLEANUP_FORM_DATA_IDS.date)}>
             </Textbox>
             <ComboBox
@@ -73,6 +76,7 @@ export function GroupCleanupFormFields(
                 labelText="Number of Volunteers"
                 width="sm:w-24"
                 isRequired={true}
+                defaultValue={data !== undefined ? `${data.volunteerCount}` : undefined}
                 errorText={ifErrorThenGetErrorText(errors, GROUP_CLEANUP_FORM_DATA_IDS.volunteerCount)}>
             </Textbox>
             <Textbox
@@ -83,6 +87,7 @@ export function GroupCleanupFormFields(
                 step={0.25}
                 width="sm:w-24"
                 isRequired={true}
+                defaultValue={data !== undefined ? `${data.volunteerHours}` : undefined}
                 errorText={ifErrorThenGetErrorText(errors, GROUP_CLEANUP_FORM_DATA_IDS.volunteerHours)}>
             </Textbox>
             <Textbox
@@ -91,6 +96,7 @@ export function GroupCleanupFormFields(
                 labelText="Pounds of Litter Collected"
                 width="sm:w-24"
                 isRequired={true}
+                defaultValue={data !== undefined ? `${data.litterCollected}` : undefined}
                 errorText={ifErrorThenGetErrorText(errors, GROUP_CLEANUP_FORM_DATA_IDS.litterCollected)}>
             </Textbox>
             <Textbox
@@ -99,6 +105,7 @@ export function GroupCleanupFormFields(
                 labelText="Pounds of Recycling Collected"
                 width="sm:w-24"
                 isRequired={true}
+                defaultValue={data !== undefined ? `${data.recyclingCollected}` : undefined}
                 errorText={ifErrorThenGetErrorText(errors, GROUP_CLEANUP_FORM_DATA_IDS.recyclingCollected)}>
             </Textbox>
         </div>

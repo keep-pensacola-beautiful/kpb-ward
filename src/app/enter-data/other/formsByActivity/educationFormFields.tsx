@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ComboBox, RadioList, Textbox } from '../../../components';
 import { ErrorModel } from '../../../models';
+import { EducationEventModel } from '../../../models/event';
 import { ifErrorThenGetErrorText } from '../../../utils/ifErrorThenGetErrorText';
 import { EDUCATION_FORM_DATA_IDS, HAS_VOLUNTEERS_OPTIONS } from '../otherJson';
 
 export function EducationFormFields(
 { 
-    recipientOptions, selectedRecipient, topicOptions, selectedTopic, errors, handleRecipientChange, handleTopicChange, onAddRecipient, onAddTopic
+    data, recipientOptions, selectedRecipient, topicOptions, selectedTopic, errors,
+    handleRecipientChange, handleTopicChange, onAddRecipient, onAddTopic
 }: {
+    data?: EducationEventModel,
     recipientOptions: string,
     selectedRecipient?: string,
     topicOptions: string,
@@ -20,6 +23,12 @@ export function EducationFormFields(
 }) {
     const [hasVolunteers, setHasVolunteers] = useState<string>('no');
 
+    useEffect(() => {
+        if (data !== undefined && data.volunteerCount > 0) {
+            setHasVolunteers('yes');
+        }
+    }, [data])
+
     return (
         <div className="flex flex-col gap-4 mt-3">
             <Textbox
@@ -28,6 +37,7 @@ export function EducationFormFields(
                 labelText="Date"
                 descriptionText="Please enter the date of the educational event."
                 isRequired={true}
+                defaultValue={data !== undefined ? data.date : undefined}
                 errorText={ifErrorThenGetErrorText(errors, EDUCATION_FORM_DATA_IDS.date)}>
             </Textbox>
             <ComboBox
@@ -77,6 +87,7 @@ export function EducationFormFields(
                 step={0.25}
                 width="sm:w-24"
                 isRequired={true}
+                defaultValue={data !== undefined ? `${data.duration}` : undefined}
                 errorText={ifErrorThenGetErrorText(errors, EDUCATION_FORM_DATA_IDS.duration)}>
             </Textbox>
             <Textbox
@@ -85,6 +96,7 @@ export function EducationFormFields(
                 labelText="Number of Students"
                 width="sm:w-24"
                 isRequired={true}
+                defaultValue={data !== undefined ? `${data.studentCount}` : undefined}
                 errorText={ifErrorThenGetErrorText(errors, EDUCATION_FORM_DATA_IDS.studentCount)}>
             </Textbox>
             <RadioList
@@ -105,6 +117,7 @@ export function EducationFormFields(
                             including any parents who acted as chaperones."
                         width="sm:w-24"
                         isRequired={true}
+                        defaultValue={data !== undefined ? `${data.volunteerCount}` : undefined}
                         errorText={ifErrorThenGetErrorText(errors, EDUCATION_FORM_DATA_IDS.volunteerCount)}>
                     </Textbox>
                     <Textbox
@@ -116,6 +129,7 @@ export function EducationFormFields(
                         step={0.25}
                         width="sm:w-24"
                         isRequired={true}
+                        defaultValue={data !== undefined ? `${data.volunteerCount}` : undefined}
                         errorText={ifErrorThenGetErrorText(errors, EDUCATION_FORM_DATA_IDS.volunteerHours)}>
                     </Textbox>
                 </div>

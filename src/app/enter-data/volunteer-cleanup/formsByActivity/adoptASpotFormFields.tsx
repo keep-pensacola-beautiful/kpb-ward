@@ -1,12 +1,14 @@
 import { ComboBox, Textbox } from '../../../components';
 import { ErrorModel } from '../../../models';
+import { AdoptASpotEventModel } from '../../../models/event';
 import { ifErrorThenGetErrorText } from '../../../utils/ifErrorThenGetErrorText';
 import { ADOPT_A_SPOT_FORM_DATA_IDS } from '../volunteerCleanupJson';
 
 export function AdoptASpotFormFields(
 {
-    assignmentOptions, selectedAssignment, errors, handleSpotChange, onAddAssignment
-}: { 
+    data, assignmentOptions, selectedAssignment, errors, handleSpotChange, onAddAssignment
+}: {
+    data?: AdoptASpotEventModel,
     assignmentOptions: string,
     selectedAssignment: string,
     errors: Map<string, ErrorModel>,
@@ -21,6 +23,7 @@ export function AdoptASpotFormFields(
                 labelText="Date"
                 descriptionText="Please enter the date of the Adopt-a-Spot cleanup."
                 isRequired={true}
+                defaultValue={data !== undefined ? data.date : undefined}
                 errorText={ifErrorThenGetErrorText(errors, ADOPT_A_SPOT_FORM_DATA_IDS.date)}>
             </Textbox>
             <ComboBox
@@ -49,6 +52,7 @@ export function AdoptASpotFormFields(
                 labelText="Number of Volunteers"
                 width="sm:w-24"
                 isRequired={true}
+                defaultValue={data !== undefined ? `${data.volunteerCount}` : undefined}
                 errorText={ifErrorThenGetErrorText(errors, ADOPT_A_SPOT_FORM_DATA_IDS.volunteerCount)}>
             </Textbox>
             <Textbox
@@ -59,6 +63,7 @@ export function AdoptASpotFormFields(
                 step={0.25}
                 width="sm:w-24"
                 isRequired={true}
+                defaultValue={data !== undefined ? `${data.volunteerHours}` : undefined}
                 errorText={ifErrorThenGetErrorText(errors, ADOPT_A_SPOT_FORM_DATA_IDS.volunteerHours)}>
             </Textbox>
             <Textbox
@@ -67,6 +72,7 @@ export function AdoptASpotFormFields(
                 labelText="Pounds of Litter Collected"
                 width="sm:w-24"
                 isRequired={true}
+                defaultValue={data !== undefined ? `${data.litterCollected}` : undefined}
                 errorText={ifErrorThenGetErrorText(errors, ADOPT_A_SPOT_FORM_DATA_IDS.litterCollected)}>
             </Textbox>
             <Textbox
@@ -75,6 +81,7 @@ export function AdoptASpotFormFields(
                 labelText="Pounds of Recycling Collected"
                 width="sm:w-24"
                 isRequired={true}
+                defaultValue={data !== undefined ? `${data.recyclingCollected}` : undefined}
                 errorText={ifErrorThenGetErrorText(errors, ADOPT_A_SPOT_FORM_DATA_IDS.recyclingCollected)}>
             </Textbox>
         </div>

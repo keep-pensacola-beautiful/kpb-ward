@@ -4,8 +4,15 @@ import { useState } from 'react';
 import { EventModel } from '../../models';
 import { VolunteerCleanupForm } from './volunteerCleanupForm';
 import { getFormattedDate } from '../../utils/getFormattedDate';
+import { Button } from '../../components';
 
-export function VolunteerCleanupFormHandler({ isUpdate, reportingDataType }: { isUpdate: boolean, reportingDataType: string }) {
+export function VolunteerCleanupFormHandler({ isUpdate, reportingDataType, data, onSuccessfulUpdate, onModifyCancel }: {
+    isUpdate: boolean,
+    reportingDataType: string,
+    data?: EventModel,
+    onSuccessfulUpdate?: (nextPage: 'search' | 'table' | 'modify') => void,
+    onModifyCancel?: () => void
+}) {
     const [isFormSubmittedSuccessfully, setIsFormSubmittedSuccessfully] = useState<boolean>(false);
     const [dataType, setDataType] = useState<string>(reportingDataType);
     const [submittedDataType, setSubmittedDataType] = useState<{ code: string, label: string}>({ code: '', label: '' });
@@ -27,26 +34,54 @@ export function VolunteerCleanupFormHandler({ isUpdate, reportingDataType }: { i
             <VolunteerCleanupForm
                 isUpdate={isUpdate}
                 selectedDataType={dataType}
-                onSuccessfulSubmit={onSuccessfulFormSubmit}>
+                data={data}
+                onSuccessfulSubmit={onSuccessfulFormSubmit}
+                onModifyCancel={onModifyCancel}>
             </VolunteerCleanupForm>
         );
     } else {
         return (
             <div>
                 <h1 id="main-content-header" className="text-xl md:text-2xl mb-4" tabIndex={-1}>
-                    Successfully Submitted { submittedDataType.label }
+                    Successfully { isUpdate ? 'Updated' : 'Submitted' } { submittedDataType.label }
                 </h1>
                 <main>
                     <p className="mb-2">
                         The { submittedDataType.label } { submittedData ? `that took place on ${getFormattedDate(submittedData.date)} ` : '' }
                         was successfully saved.
                     </p>
-                    <p>
-                        Select the 'Submit Another { submittedDataType.label }' button to return to the form.
-                    </p>
-                    <button onClick={handleSubmitAnotherEvent} className="border p-2 rounded-md bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem] mt-4">
-                        Submit Another { submittedDataType.label }
-                    </button>
+                    { !isUpdate &&
+                        <div>
+                            <p className="mb-4">
+                                Select the 'Submit Another { submittedDataType.label }' button to return to the form.
+                            </p>
+                            <Button design="primary" width="sm:w-85" onClick={handleSubmitAnotherEvent}>
+                                Submit Another { submittedDataType.label }
+                            </Button>
+                        </div>
+                    }
+                    { isUpdate &&
+                        <div>
+                            <p className="mb-4">
+                                Select the 'Return to Search Results' button to return to the search results table, or
+                                select the 'Conduct a New Search' button to return to the search criteria form.
+                            </p>
+                            <div className="flex flex-row gap-2">
+                                <Button
+                                    onClick={() => { if (onSuccessfulUpdate) { onSuccessfulUpdate('table') }}}
+                                    width="sm:w-55"
+                                    design="primary">
+                                    Return to Search Results
+                                </Button>
+                                <Button
+                                    onClick={() => { if (onSuccessfulUpdate) { onSuccessfulUpdate('search') }}}
+                                    width="sm:w-55"
+                                    design="primary">
+                                    Conduct a New Search
+                                </Button>
+                            </div>
+                        </div>
+                    }
                 </main>
             </div>
         );

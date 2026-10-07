@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { ErrorModel } from '../../models';
 import { AdoptASpotEventModel, EventModel, GroupCleanupEventModel } from '../../models/event';
-import { Alert, ErrorSummary, RadioList } from '../../components';
+import { Alert, Button, ErrorSummary, RadioList } from '../../components';
 import { AdoptASpotFormFields, GroupCleanupFormFields } from './formsByActivity';
 import { REPORTING_DATA_TYPE_LIST_NAME, REPORTING_DATA_TYPE_OPTIONS, REPORTING_DATA_VALUES } from './volunteerCleanupJson';
 import {
@@ -17,20 +17,23 @@ import { isBlank } from '../../utils/isBlank';
 import { scrollToTopAndFocusAnElementById } from '../../utils/scrollToTopAndFocusHeader';
 import { ComboBoxListItemModel } from '../../components/comboBox/comboBoxListItem.model';
 import { VolunteerCleanupDialogs } from './volunteerCleanupDialogs';
+import { isAdoptASpotEvent, isGroupCleanupEvent } from '../../utils/eventTypeGuards';
 
 export function VolunteerCleanupForm({
-    isUpdate, selectedDataType, onSuccessfulSubmit
+    isUpdate, selectedDataType, data, onSuccessfulSubmit, onModifyCancel
 }: {
     isUpdate: boolean,
     selectedDataType: string,
-    onSuccessfulSubmit: (event: EventModel, reportingDataType: { code: string, label: string }) => void
+    data?: EventModel,
+    onSuccessfulSubmit: (event: EventModel, reportingDataType: { code: string, label: string }) => void,
+    onModifyCancel?: () => void
 }) {
     const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState<boolean>(false);
     const [isLocationDialogOpen, setIsLocationDialogOpen] = useState<boolean>(false);
     const [isOrganizationDialogOpen, setIsOrganizationDialogOpen] = useState<boolean>(false);
     const [reportingDataType, setReportingDataType] = useState<string>(selectedDataType);
     const [errors, setErrors] = useState<Map<string, ErrorModel>>(new Map<string, ErrorModel>());
-    const [hasReferenceDataBeenRequested, setHasReferenceDataBeenRequested] = useState<boolean>(false);
+    const [isInitialLoad, setIsInitialLoad] = useState<boolean>(false);
 
     const [adoptASpotAssignmentOptions, setAdoptASpotAssignmentOptions] = useState<string>('[]');
     const [adoptASpotAssignmentValueToIdMap, setAdoptASpotAssignmentValueToIdMap] = useState<Map<string, string>>(new Map<string, string>());
@@ -50,21 +53,31 @@ export function VolunteerCleanupForm({
     const MS_DELAY_100: number = 100;
 
     useEffect(() => {
-        if (!hasReferenceDataBeenRequested) {
-            setHasReferenceDataBeenRequested(true);
+        if (!isInitialLoad) {
+            setIsInitialLoad(true);
             getAssignments();
             getLocations();
             getOrganizations();
+
+            if (formRef.current) {
+                formRef.current.addEventListener('keydown', (event: any) => {
+                    if (event.target && event.key === 'Enter' && event.target.role === 'comboBox') {
+                        event.preventDefault();
+                    }
+                });
+            }
         }
 
-        if (formRef.current) {
-            formRef.current.addEventListener('keydown', (event: any) => {
-                if (event.target && event.key === 'Enter' && event.target.role === 'comboBox') {
-                    event.preventDefault();
-                }
-            });
+        if (data !== undefined) {
+            if (isAdoptASpotEvent(data)) {
+                setSelectedAdoptASpot(`${data.spot.location} - ${data.spot.name}`);
+                
+            } else if (isGroupCleanupEvent(data)) {
+                setSelectedCleanupLoc(data.location.description);
+                setSelectedCleanupOrg(data.organization.name);
+            }
         }
-    }, [hasReferenceDataBeenRequested]);
+    }, [data]);
 
     const getAssignments: any = useCallback((onSuccessFn?: () => void) => {
         getAdoptASpotAssignmentOptions().then((assignments: string) => {
@@ -129,6 +142,7 @@ export function VolunteerCleanupForm({
                 return (
                     <div>
                         <AdoptASpotFormFields
+                            data={isAdoptASpotEvent(data) ? data : undefined}
                             assignmentOptions={adoptASpotAssignmentOptions}
                             selectedAssignment={selectedAdoptASpot}
                             errors={errors}
@@ -137,10 +151,11 @@ export function VolunteerCleanupForm({
                         </AdoptASpotFormFields>
                     </div>
                 );
-            case(REPORTING_DATA_VALUES.groupCleanup.code):
+            case (REPORTING_DATA_VALUES.groupCleanup.code):
                 return (
                     <div>
                         <GroupCleanupFormFields
+                            data={isGroupCleanupEvent(data) ? data : undefined}
                             locationOptions={cleanupLocationOptions}
                             selectedLocation={selectedCleanupLoc}
                             organizationOptions={cleanupOrganizationOptions}
@@ -172,7 +187,7 @@ export function VolunteerCleanupForm({
         const selectedSpotId: string | undefined = adoptASpotAssignmentValueToIdMap.has(selectedAdoptASpot)
             ? adoptASpotAssignmentValueToIdMap.get(selectedAdoptASpot) : '';
         const adoptResult: { isSuccessful: boolean, data: AdoptASpotEventModel | null, errors: Map<string, ErrorModel> } =
-            await saveAdoptASpotData(formData, selectedSpotId ? selectedSpotId : '', isUpdate);
+            await saveAdoptASpotData(formData, selectedSpotId ? selectedSpotId : '', isUpdate, data?.id);
         setErrors(adoptResult.errors);
         if (adoptResult.isSuccessful && adoptResult.data) {
             onSuccessfulSubmit(adoptResult.data, REPORTING_DATA_VALUES.adoptASpot);
@@ -194,7 +209,8 @@ export function VolunteerCleanupForm({
                 formData,
                 selectedOrgId ? selectedOrgId : '',
                 selectedLocationId ? selectedLocationId : '',
-                isUpdate
+                isUpdate,
+                data?.id
             );
         setErrors(groupResult.errors);
         if (groupResult.isSuccessful && groupResult.data) {
@@ -257,6 +273,7 @@ export function VolunteerCleanupForm({
                     header={alertHeader}
                     body="If it is outside of normal business hours, the database may be off.
                         Please copy the values you entered and try again later."
+                    closeButton={true}
                     onClose={() => setAlertHeader('')}>
                 </Alert>
             }
@@ -279,14 +296,26 @@ export function VolunteerCleanupForm({
                         </RadioList>
                     }
                     { getFormByActivity(reportingDataType) }
-                    {reportingDataType !== '' &&
-                        <button className="border p-2 w-25 rounded-md bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem] mt-4 mb-4">
-                            Submit
-                        </button>
-                    }
+                    <div className="flex flex-row gap-2 mt-4 mb-4">
+                        {reportingDataType !== '' &&
+                            <Button
+                                design="primary"
+                                width="sm:w-22">
+                                Submit
+                            </Button>
+                        }
+                        { (isUpdate && onModifyCancel !== undefined) &&
+                            <Button
+                                design="secondary"
+                                type="button"
+                                width="sm:w-35"
+                                onClick={onModifyCancel}>
+                                Cancel Update
+                            </Button>
+                        }
+                    </div>
                 </form>
             </main>
-            
         </div>
     );
 }

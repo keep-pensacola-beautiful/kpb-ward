@@ -1,6 +1,6 @@
 export const REPORTING_DATA_VALUES = {
     bagSwap: {
-        code: 'bag-swap',
+        code: 'bagSwap',
         label: 'Bag Swap Event'
     },
     education: {
@@ -8,7 +8,7 @@ export const REPORTING_DATA_VALUES = {
         label: 'Education Event'
     },
     treePlanting: {
-        code: 'tree-planting',
+        code: 'treePlanting',
         label: 'Tree Planting Event'
     }
 };
