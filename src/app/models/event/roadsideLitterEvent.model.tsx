@@ -8,4 +8,6 @@ export interface RoadsideLitterEventModel extends EventModel {
     locations: string;
     districts: DistrictModel[];
     bulkyItems: BulkyItemModel[];
+    bulkyItemCount?: number;
+    districtsDisplay?: string;
 };
