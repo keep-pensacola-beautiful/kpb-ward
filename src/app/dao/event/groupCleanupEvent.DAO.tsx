@@ -1,16 +1,21 @@
 import { EventDAO } from './event.DAO';
 import { MetricsDAO } from '../metrics/metrics.DAO';
-import { EventEntity } from '../../entities/event/event.entity';
 import { GroupCleanupEventEntity } from '../../entities/event/groupCleanupEvent.entity';
-import { EventModel } from '../../models';
+import { EventModel, GroupCleanupEventModel } from '../../models/event';
 import { MetricVisualizeModel, IntervalCode } from '../../models/metrics';
 import { isGroupCleanupEvent } from '../../utils/eventTypeGuards';
-import { insertGroupCleanupEvent, updateGroupCleanupEvent } from '../../lib/event.sql';
+import {
+    deleteGroupCleanupEventById,
+    getGroupCleanupEventById,
+    insertGroupCleanupEvent,
+    updateGroupCleanupEvent
+} from '../../lib/event.sql';
 import {
     getColumnSumAsMetricByInterval,
     getHighestOccurrencesOfAThingMetricUsing2Tables,
     getRowCountAsMetricByInterval
 } from '../../lib/metric.sql';
+import { searchGroupCleanupEvents } from '../../lib/search.sql';
 import { GROUP_CLEANUP_METRIC_VALUES } from './metricValues';
 
 type MetricCode = 'volunteerCount' | 'volunteerHours' | 'litterLbs' | 'recyclingLbs' | 'cleanupCount' | 'topOrganizations' | 'topLocations';
@@ -21,8 +26,25 @@ const METRIC_CODES: MetricCode[] = [
 ];
 
 export class GroupCleanupEventDAO implements EventDAO, MetricsDAO {
-    async getById(id: number): Promise<EventEntity | null> {
-        return null;
+    async getById(id: number): Promise<GroupCleanupEventModel | null> {
+        if (id <= 0) {
+            return null;
+        }
+        let event: GroupCleanupEventModel | null = null;
+        let result: any = await getGroupCleanupEventById(id);
+        if (result !== null && result.length > 0) {
+            event = {
+                id: result[0].id,
+                date: result[0].date,
+                litterCollected: result[0].litterLbs,
+                recyclingCollected: result[0].recyclingLbs,
+                volunteerCount: result[0].volunteerCount,
+                volunteerHours: result[0].volunteerHours,
+                organization: { id: result[0].organizationId, name: result[0].organization },
+                location: { code: result[0].locationId, description: result[0].location }
+            }
+        }
+        return event;
     }
 
     async save(event: EventModel, isUpdate: boolean): Promise<number> {
@@ -55,8 +77,42 @@ export class GroupCleanupEventDAO implements EventDAO, MetricsDAO {
         return -1;
     }
 
-    delete(id: number): void {
-        console.log('Deleting');
+    async deleteById(id: number): Promise<number> {
+        if (id <= 0) {
+            return 0;
+        }
+        return await deleteGroupCleanupEventById(id);
+    }
+
+    async search(searchCriteria: Map<string, string>): Promise<GroupCleanupEventModel[]> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to search for Group Cleanup Events due to missing start date or end date.');
+            return [];
+        }
+        const result: any = await searchGroupCleanupEvents(
+            startDate, endDate,
+            searchCriteria.get('litter-min'), searchCriteria.get('litter-max'),
+            searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max'),
+            searchCriteria.get('organization-combobox-input'),
+            searchCriteria.get('location-combobox-input'),
+            searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max')
+        );
+        let events: GroupCleanupEventModel[] = [];
+        if (result !== null && result.length >= 1) {
+            result.forEach((row: any) => events.push({
+                id: row.id,
+                date: row.date,
+                litterCollected: row.litterLbs,
+                recyclingCollected: row.recyclingLbs,
+                volunteerCount: row.volunteerCount,
+                volunteerHours: row.volunteerHours,
+                organization: { name: row.name },
+                location: { description: row.location }
+            }));
+        }
+        return events;
     }
 
     async getMetric(

@@ -1,16 +1,22 @@
 import { EventDAO } from './event.DAO';
 import { MetricsDAO } from '../metrics/metrics.DAO';
-import { EventEntity } from '../../entities/event/event.entity';
 import { AdoptASpotEventEntity } from '../../entities/event/adoptASpotEvent.entity';
-import { EventModel } from '../../models';
+import {  } from '../../models';
+import { AdoptASpotEventModel, EventModel } from '../../models/event';
 import { IntervalCode, MetricVisualizeModel } from '../../models/metrics';
 import { isAdoptASpotEvent } from '../../utils/eventTypeGuards';
-import { insertAdoptASpotEvent, updateAdoptASpotEvent } from '../../lib/event.sql';
+import {
+    deleteAdoptASpotEventById,
+    getAdoptASpotEventById,
+    insertAdoptASpotEvent,
+    updateAdoptASpotEvent
+} from '../../lib/event.sql';
 import {
     getColumnSumAsMetricByInterval,
     getHighestOccurrencesOfAThingMetricUsing2Tables,
     getRowCountAsMetricByInterval
 } from '../../lib/metric.sql';
+import { searchAdoptASpotEvents } from '../../lib/search.sql';
 import { ADOPT_A_SPOT_METRIC_VALUES } from './metricValues';
 
 type MetricCode = 'volunteerCount' | 'volunteerHours' | 'litterLbs' | 'recyclingLbs' | 'cleanupCount' | 'topGroups';
@@ -20,8 +26,24 @@ const METRIC_CODES: MetricCode[] = [
 ];
 
 export class AdoptASpotEventDAO implements EventDAO, MetricsDAO {
-    async getById(id: number): Promise<EventEntity | null> {
-        return null;
+    async getById(id: number): Promise<AdoptASpotEventModel | null> {
+        if (id <= 0) {
+            return null;
+        }
+        let event: AdoptASpotEventModel | null = null;
+        let result: any = await getAdoptASpotEventById(id);
+        if (result !== null && result.length > 0) {
+            event = {
+                id: result[0].id,
+                date: result[0].date,
+                litterCollected: result[0].litterLbs,
+                recyclingCollected: result[0].recyclingLbs,
+                volunteerCount: result[0].volunteerCount,
+                volunteerHours: result[0].volunteerHours,
+                spot: { id: result[0].spotId, name: result[0].spotGroupName, location: result[0].spotLocation }
+            }
+        }
+        return event;
     }
 
     async save(event: EventModel, isUpdate: boolean): Promise<number> {
@@ -52,8 +74,40 @@ export class AdoptASpotEventDAO implements EventDAO, MetricsDAO {
         return -1;
     }
 
-    delete(id: number): void {
-        console.log('Deleting');
+    async deleteById(id: number): Promise<number> {
+        if (id <= 0) {
+            return 0;
+        }
+        return await deleteAdoptASpotEventById(id);
+    }
+
+    async search(searchCriteria: Map<string, string>): Promise<AdoptASpotEventModel[]> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to search for Adopt-a-Spot Cleanup Events due to missing start date or end date.');
+            return [];
+        }
+        const result: any = await searchAdoptASpotEvents(
+            startDate, endDate,
+            searchCriteria.get('litter-min'), searchCriteria.get('litter-max'),
+            searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max'),
+            searchCriteria.get('adopted-spot-combobox-input'),
+            searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max')
+        );
+        let events: AdoptASpotEventModel[] = [];
+        if (result !== null && result.length >= 1) {
+            result.forEach((row: any) => events.push({
+                id: row.id,
+                date: row.date,
+                litterCollected: row.litterLbs,
+                recyclingCollected: row.recyclingLbs,
+                volunteerCount: row.volunteerCount,
+                volunteerHours: row.volunteerHours,
+                spot: { name: row.groupName, location: row.location }
+            }));
+        }
+        return events;
     }
 
     async getMetric(

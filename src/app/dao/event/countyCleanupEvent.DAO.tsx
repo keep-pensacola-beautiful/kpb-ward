@@ -2,13 +2,20 @@ import { EventDAO } from './event.DAO';
 import { MetricsDAO } from '../metrics/metrics.DAO';
 import { BulkyItemEntity } from '../../entities/bulkyItem.entity';
 import { CountyCleanupEventEntity } from '../../entities/event/countyCleanupEvent.entity';
-import { EventEntity } from '../../entities/event/event.entity';
 import { ItemWeightReferenceDataEntity } from '../../entities/referenceData/itemWeightReferenceData.entity';
-import { BulkyItemModel, EventModel } from '../../models';
+import { BulkyItemModel } from '../../models';
+import { CountyCleanupEventModel, EventModel } from '../../models/event';
 import { IntervalCode, MetricVisualizeModel } from '../../models/metrics';
 import { isCountyCleanupEvent } from '../../utils/eventTypeGuards';
-import { insertCountyCleanupEvent, updateCountyCleanupEvent } from '../../lib/event.sql';
+import {
+    deleteCountyCleanupEventById,
+    getCountyCleanupEventById,
+    insertCountyCleanupEvent,
+    updateCountyCleanupEvent
+} from '../../lib/event.sql';
+import { searchCountyCleanupEvents } from '../../lib/search.sql';
 import { getColumnSumAsMetricByInterval, getHighestOccurrencesOfAThingMetricUsing3Tables } from '../../lib/metric.sql';
+import { getCountyCleanupBulkyItemsByEventId } from '../../lib/eventBulkyItems.sql';
 import { ItemWeightReferenceDataDAO } from '../referenceData';
 import { COUNTY_CLEANUP_METRIC_VALUES } from './metricValues';
 
@@ -19,8 +26,34 @@ export class CountyCleanupEventDAO implements EventDAO, MetricsDAO {
     private static TIRE_WEIGHT_CODE = 'TIRE';
     private static PAINT_CAN_HOUSEHOLD_CHEMICAL_WEIGHT_CODE = 'PCHC';
 
-    async getById(id: number): Promise<EventEntity | null> {
-        return null;
+    async getById(id: number): Promise<CountyCleanupEventModel | null> {
+        if (id <= 0) {
+            return null;
+        }
+        let event: CountyCleanupEventModel | null = null;
+        const eventResult: any = await getCountyCleanupEventById(id);
+        if (eventResult !== null && eventResult.length > 0) {
+            const itemsResult: any = await getCountyCleanupBulkyItemsByEventId(id);
+            let items: BulkyItemModel[] = [];
+            if (itemsResult !== null && itemsResult.length > 0) {
+                itemsResult.forEach((item: any) => items.push({
+                    id: item.id,
+                    bulkyItemRef: { code: item.bulkyItemRefId, description: item.description },
+                    quantity: item.quantity
+                }));
+            }
+            event = {
+                id: eventResult[0].id,
+                date: eventResult[0].date,
+                tireCount: eventResult[0].tireCount,
+                tirePounds: eventResult[0].tireLbs,
+                paintCanAndHouseholdChemicalCount: eventResult[0].paintCanAndHouseholdChemicalCount,
+                paintCanAndHouseholdChemicalPounds: eventResult[0].paintCanAndHouseholdChemicalLbs,
+                otherBulkyItems: items,
+                otherBulkyItemPounds: eventResult[0].bulkyItemsLbs
+            }
+        }
+        return event;
     }
 
     async save(event: EventModel, isUpdate: boolean): Promise<number> {
@@ -56,7 +89,7 @@ export class CountyCleanupEventDAO implements EventDAO, MetricsDAO {
                     quantity: item.quantity
                 });
             });
-
+ 
             if (isUpdate) {
                 return await updateCountyCleanupEvent(eventEntity, bulkyItemEntities);
             } else {
@@ -68,8 +101,42 @@ export class CountyCleanupEventDAO implements EventDAO, MetricsDAO {
         return -1;
     }
 
-    delete(id: number): void {
-        console.log('Deleting');
+    async deleteById(id: number): Promise<number> {
+        if (id <= 0) {
+            return 0;
+        }
+        return await deleteCountyCleanupEventById(id);
+    }
+
+    async search(searchCriteria: Map<string, string>): Promise<CountyCleanupEventModel[]> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to search for County Neighborhood Cleanup Events due to missing start date or end date.');
+            return [];
+        }
+        const result: any = await searchCountyCleanupEvents(
+            startDate, endDate,
+            searchCriteria.get('tire-count-min'), searchCriteria.get('tire-count-max'),
+            searchCriteria.get('cans-chemicals-min'), searchCriteria.get('cans-chemicals-max'),
+            searchCriteria.get('bulky-item-lbs-min'), searchCriteria.get('bulky-item-lbs-max'),
+            searchCriteria.get('bulky-item-count-min'), searchCriteria.get('bulky-item-count-max')
+        );
+        let events: CountyCleanupEventModel[] = [];
+        if (result !== null && result.length >= 1) {
+            result.forEach((row: any) => events.push({
+                id: row.id,
+                date: row.date,
+                tireCount: row.tireCount,
+                tirePounds: row.tireLbs,
+                paintCanAndHouseholdChemicalCount: row.paintCanAndHouseholdChemicalCount,
+                paintCanAndHouseholdChemicalPounds: row.paintCanAndHouseholdChemicalLbs,
+                otherBulkyItemPounds: row.bulkyItemsLbs,
+                bulkyItemCount: row.bulkyItemCount,
+                otherBulkyItems: []
+            }));
+        }
+        return events;
     }
 
     async getMetric(

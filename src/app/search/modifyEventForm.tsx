@@ -1,0 +1,69 @@
+import { useEffect, useState } from 'react';
+import { CleanTeamEventDAO } from '../dao/event';
+import { CleanTeamEventModel, EventModel } from '../models/event';
+import { ProgramCode } from '../models/search';
+import { PROGRAM_CODES } from './searchJson';
+import { ServicesFormHandler } from '../enter-data/services/servicesFormHandler';
+import { VolunteerCleanupFormHandler } from '../enter-data/volunteer-cleanup/volunteerCleanupFormHandler';
+import { getEventByProgramAndById } from './actions';
+import { OtherFormHandler } from '../enter-data/other/otherFormHandler';
+
+export function ModifyEventForm({ pgrmCode, eventId, onModifySuccess, onModifyCancel }: {
+    pgrmCode: ProgramCode,
+    eventId: number,
+    onModifySuccess: (nextPage: 'search' | 'table' | 'modify') => void,
+    onModifyCancel: () => void
+}) {
+    const [data, setData] = useState<EventModel | undefined>(undefined);
+
+    useEffect(() => {
+        getEventByProgramAndById(pgrmCode, eventId).then(
+            (event: EventModel | null) => setData(event === null ? undefined : event)
+        );
+    }, [eventId])
+
+    switch (pgrmCode) {
+        case PROGRAM_CODES[0]:
+        case PROGRAM_CODES[1]:
+        case PROGRAM_CODES[2]:
+        case PROGRAM_CODES[3]:
+            return (
+                <div>
+                    <ServicesFormHandler
+                        isUpdate={true}
+                        reportingDataType={pgrmCode}
+                        data={data}
+                        onSuccessfulUpdate={onModifySuccess}
+                        onModifyCancel={onModifyCancel}>
+                    </ServicesFormHandler>
+                </div>
+            );
+        case PROGRAM_CODES[4]:
+        case PROGRAM_CODES[5]:
+            return (
+                <div>
+                    <VolunteerCleanupFormHandler
+                        isUpdate={true}
+                        reportingDataType={pgrmCode}
+                        data={data}
+                        onSuccessfulUpdate={onModifySuccess}
+                        onModifyCancel={onModifyCancel}>
+                    </VolunteerCleanupFormHandler>
+                </div>
+            );
+        case PROGRAM_CODES[6]:
+        case PROGRAM_CODES[7]:
+        case PROGRAM_CODES[8]:
+            return (
+                <div>
+                    <OtherFormHandler
+                        isUpdate={true}
+                        reportingDataType={pgrmCode}
+                        data={data}
+                        onSuccessfulUpdate={onModifySuccess}
+                        onModifyCancel={onModifyCancel}>
+                    </OtherFormHandler>
+                </div>
+            )
+    }
+}

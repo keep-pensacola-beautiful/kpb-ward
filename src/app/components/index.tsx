@@ -1,4 +1,5 @@
 export { Alert } from './alert/alert';
+export { Button } from './button/button';
 export { ComboBox } from './comboBox/comboBox';
 export { Dialog } from './dialog/dialog';
 export { AddOptionDialog } from './dialog/addOptionDialog';
@@ -8,6 +9,7 @@ export { Footer } from './footer';
 export { Header } from './header';
 export { MultiSelect } from './multiSelect/multiSelect';
 export { RadioList } from './radioList/radioList';
+export { SortableTable } from './table/sortableTable';
 export { Table } from './table/table';
 export { TableData } from './table/tableData';
 export { TableHeader } from './table/tableHeader';

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react';
-import { Alert, ErrorSummary, RadioList } from '../../components';
+import { Alert, Button, ErrorSummary, RadioList } from '../../components';
 import { REPORTING_DATA_TYPE_LIST_NAME, REPORTING_DATA_TYPE_OPTIONS, REPORTING_DATA_VALUES } from './servicesJson';
 import {
     getBulkyItemRefData,
@@ -11,7 +11,7 @@ import {
     saveRoadsideLitterData,
     saveTrashRoutesData
 } from './actions';
-import { ErrorModel } from '../../models';
+import { BulkyItemModel, DistrictModel, ErrorModel } from '../../models';
 import {
     CleanTeamEventModel,
     CountyCleanupEventModel,
@@ -27,13 +27,21 @@ import {
 } from './formsByActivity';
 import { isBlank } from '../../utils/isBlank';
 import { scrollToTopAndFocusAnElementById } from '../../utils/scrollToTopAndFocusHeader';
+import {
+    isCleanTeamEvent,
+    isCountyCleanupEvent,
+    isRoadsideLitterEvent,
+    isTrashRoutesEvent
+} from '../../utils/eventTypeGuards';
 
 export function ServicesForm({
-    isUpdate, selectedDataType, onSuccessfulSubmit
+    isUpdate, selectedDataType, data, onSuccessfulSubmit, onModifyCancel
 }: {
     isUpdate: boolean,
     selectedDataType: string,
-    onSuccessfulSubmit: (event: EventModel, reportingDataType: { code: string, label: string }) => void
+    data?: EventModel,
+    onSuccessfulSubmit: (event: EventModel, reportingDataType: { code: string, label: string }) => void,
+    onModifyCancel?: () => void
 }) {
     const [reportingDataType, setReportingDataType] = useState<string>(selectedDataType);
     const [errors, setErrors] = useState<Map<string, ErrorModel>>(new Map<string, ErrorModel>());
@@ -72,11 +80,15 @@ export function ServicesForm({
         switch (activity) {
             case (REPORTING_DATA_VALUES.cleanTeam.code):
                 return (
-                    <CleanTeamFormFields errors={errors}></CleanTeamFormFields>
+                    <CleanTeamFormFields
+                        data={isCleanTeamEvent(data) ? data : undefined}
+                        errors={errors}>
+                    </CleanTeamFormFields>
                 );
             case (REPORTING_DATA_VALUES.countyCleanup.code):
                 return (
                     <CountyCleanupFormFields
+                        data={isCountyCleanupEvent(data) ? data : undefined}
                         bulkyItemsReferenceString={bulkyItemOptions}
                         errors={errors}
                         handleBulkyItemChange={handleBulkyItemChange}>
@@ -85,6 +97,7 @@ export function ServicesForm({
             case (REPORTING_DATA_VALUES.roadsideLitter.code):
                 return (
                     <RoadsideLitterFormFields
+                        data={isRoadsideLitterEvent(data) ? data : undefined}
                         bulkyItemsReferenceString={bulkyItemOptions}
                         districtsReferenceString={districtOptions}
                         errors={errors}
@@ -93,7 +106,10 @@ export function ServicesForm({
                 );
             case (REPORTING_DATA_VALUES.trashRoutes.code):
                 return (
-                    <TrashRoutesFormFields errors={errors}></TrashRoutesFormFields>
+                    <TrashRoutesFormFields
+                        data={isTrashRoutesEvent(data) ? data : undefined}
+                        errors={errors}>
+                    </TrashRoutesFormFields>
                 );
         }
     }
@@ -118,7 +134,7 @@ export function ServicesForm({
 
     async function handleCleanTeamEventSubmit(formData: FormData): Promise<void> {
         const cleanResult: { isSuccessful: boolean, data: CleanTeamEventModel | null, errors: Map<string, ErrorModel> } =
-            await saveCleanTeamData(formData, isUpdate);
+            await saveCleanTeamData(formData, isUpdate, data?.id);
         setErrors(cleanResult.errors);
         if (cleanResult.isSuccessful && cleanResult.data) {
             onSuccessfulSubmit(cleanResult.data, {
@@ -134,8 +150,9 @@ export function ServicesForm({
     }
 
     async function handleCountyCleanupEventSubmit(formData: FormData): Promise<void> {
+        let prevSavedBulkyItems: BulkyItemModel[] = isCountyCleanupEvent(data) ? data.otherBulkyItems : [];
         const countyResult: { isSuccessful: boolean, data: CountyCleanupEventModel | null, errors: Map<string, ErrorModel> } =
-            await saveCountyCleanupData(formData, selectedBulkyItemValues, isUpdate);
+            await saveCountyCleanupData(formData, selectedBulkyItemValues, isUpdate, data?.id, prevSavedBulkyItems);
         setErrors(countyResult.errors);
         if (countyResult.isSuccessful && countyResult.data) {
             onSuccessfulSubmit(countyResult.data, {
@@ -151,8 +168,14 @@ export function ServicesForm({
     }
 
     async function handleRoadsideLitterEventSubmit(formData: FormData): Promise<void> {
+        let prevSavedBulkyItems: BulkyItemModel[] = [];
+        let prevSavedDistricts: DistrictModel[] = [];
+        if (isRoadsideLitterEvent(data)) {
+            prevSavedBulkyItems = data.bulkyItems;
+            prevSavedDistricts = data.districts;
+        }
         const roadsideResult: { isSuccessful: boolean, data: RoadsideLitterEventModel | null, errors: Map<string, ErrorModel> } =
-            await saveRoadsideLitterData(formData, selectedBulkyItemValues, isUpdate);
+            await saveRoadsideLitterData(formData, selectedBulkyItemValues, isUpdate, data?.id, prevSavedBulkyItems, prevSavedDistricts);
         setErrors(roadsideResult.errors);
         if (roadsideResult.isSuccessful && roadsideResult.data) {
             onSuccessfulSubmit(roadsideResult.data, {
@@ -169,7 +192,7 @@ export function ServicesForm({
 
     async function handleTrashRoutesEventSubmit(formData: FormData): Promise<void> {
         const routesResult: { isSuccessful: boolean, data: TrashRoutesEventModel | null, errors: Map<string, ErrorModel> } =
-            await saveTrashRoutesData(formData, isUpdate);
+            await saveTrashRoutesData(formData, isUpdate, data?.id);
         setErrors(routesResult.errors);
         if (routesResult.isSuccessful && routesResult.data) {
             onSuccessfulSubmit(routesResult.data, {
@@ -204,6 +227,7 @@ export function ServicesForm({
                     header={alertHeader}
                     body="If it is outside of normal business hours, the database may be off.
                         Please copy the values you entered and try again later."
+                    closeButton={true}
                     onClose={() => setAlertHeader('')}>
                 </Alert>
             }
@@ -228,11 +252,20 @@ export function ServicesForm({
                         </RadioList>
                     }
                     { getFormByActivity(reportingDataType) }
-                    {reportingDataType !== '' &&
-                        <button className="border p-2 w-25 rounded-md bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem] mt-4 mb-4 cursor-pointer">
-                            Submit
-                        </button>
-                    }
+                    <div className="flex flex-row gap-2 mt-4 mb-4">
+                        {reportingDataType !== '' &&
+                            <Button design="primary" width="sm:w-22">Submit</Button>
+                        }
+                        { (isUpdate && onModifyCancel !== undefined) &&
+                            <Button
+                                design="secondary"
+                                type="button"
+                                width="sm:w-35"
+                                onClick={onModifyCancel}>
+                                Cancel Update
+                            </Button>
+                        }
+                    </div>
                 </form>
             </main>
         </div>

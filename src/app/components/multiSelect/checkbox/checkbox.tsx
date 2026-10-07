@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CheckboxModel } from './checkbox.model';
 
 export function Checkbox({ inputId, inputName, label, value, isChecked, handleChange }: CheckboxModel) {
     const [checked, setChecked] = useState(isChecked);
+
+    useEffect(() => {
+        setChecked(isChecked);
+    }, [isChecked])
 
     function updateCheckbox(event: any) {
         setChecked(!checked);

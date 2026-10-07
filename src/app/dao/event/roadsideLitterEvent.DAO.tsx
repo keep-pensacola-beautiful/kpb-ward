@@ -2,25 +2,66 @@ import { EventDAO } from './event.DAO';
 import { MetricsDAO } from '../metrics/metrics.DAO';
 import { BulkyItemEntity } from '../../entities/bulkyItem.entity';
 import { DistrictEntity } from '../../entities/district.entity';
-import { EventEntity } from '../../entities/event/event.entity';
 import { RoadsideLitterEventEntity } from '../../entities/event/roadsideLitterEvent.entity';
 import { BulkyItemModel, DistrictModel, EventModel } from '../../models';
 import { IntervalCode, MetricVisualizeModel } from '../../models/metrics';
 import { isRoadsideLitterEvent } from '../../utils/eventTypeGuards';
-import { insertRoadsideLitterEvent, updateRoadsideLitterEvent } from '../../lib/event.sql';
+import {
+    deleteRoadsiteLitterEventById,
+    getRoadsideLitterEventById,
+    insertRoadsideLitterEvent,
+    updateRoadsideLitterEvent
+} from '../../lib/event.sql';
+import { searchRoadsideLitterEvents } from '../../lib/search.sql';
+import { getRoadsideLitterBulkyItemsByEventId } from '../../lib/eventBulkyItems.sql';
+import { getRoadsideLitterDistrictsByEventId } from '../../lib/eventDistricts.sql';
 import {
     getBulkyItemCountByInterval,
     getColumnSumAsMetricByInterval,
     getHighestOccurrencesOfAThingMetricUsing3Tables
 } from '../../lib/metric.sql';
 import { ROADSIDE_LITTER_METRIC_VALUES } from './metricValues';
+import { RoadsideLitterEventModel } from '../../models/event';
 
 type MetricCode = 'litterLbs' | 'recyclingLbs' | 'bulkyCount' | 'topBulkyItems' | 'topDistricts';
 const METRIC_CODES: MetricCode[] = ['litterLbs', 'recyclingLbs', 'bulkyCount', 'topBulkyItems', 'topDistricts'];
 
 export class RoadsideLitterEventDAO implements EventDAO, MetricsDAO {
-    async getById(id: number): Promise<EventEntity | null> {
-        return null;
+    async getById(id: number): Promise<RoadsideLitterEventModel | null> {
+        if (id <= 0) {
+            return null;
+        }
+        let event: RoadsideLitterEventModel | null = null;
+        const eventResult: any = await getRoadsideLitterEventById(id);
+        if (eventResult !== null && eventResult.length > 0) {
+            const itemsResult: any = await getRoadsideLitterBulkyItemsByEventId(id);
+            let items: BulkyItemModel[] = [];
+            if (itemsResult !== null && itemsResult.length > 0) {
+                itemsResult.forEach((item: any) => items.push({
+                    id: item.id,
+                    bulkyItemRef: { code: item.bulkyItemRefId, description: item.description },
+                    quantity: item.quantity
+                }));
+            }
+            const districtsResult: any = await getRoadsideLitterDistrictsByEventId(id);
+            let districts: DistrictModel[] = [];
+            if (districtsResult !== null && districtsResult.length > 0) {
+                districtsResult.forEach((district: any) => districts.push({
+                    id: district.id,
+                    districtRef: { code: district.districtCode, description: district.description }
+                }));
+            }
+            event = {
+                id: eventResult[0].id,
+                date: eventResult[0].date,
+                litterPounds: eventResult[0].litterLbs,
+                recyclingPounds: eventResult[0].recyclingLbs,
+                locations: eventResult[0].locations,
+                bulkyItems: items,
+                districts: districts
+            }
+        }
+        return event;
     }
 
     async save(event: EventModel, isUpdate: boolean): Promise<number> {
@@ -63,8 +104,44 @@ export class RoadsideLitterEventDAO implements EventDAO, MetricsDAO {
         return -1;
     }
 
-    delete(id: number): void {
-        console.log('Deleting');
+    async deleteById(id: number): Promise<number> {
+        if (id <= 0) {
+            return 0;
+        }
+        return await deleteRoadsiteLitterEventById(id);
+    }
+
+    async search(searchCriteria: Map<string, string>): Promise<RoadsideLitterEventModel[]> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to search for Roadside Litter Events due to missing start date or end date.');
+            return [];
+        }
+        const result: any = await searchRoadsideLitterEvents(
+            startDate, endDate,
+            searchCriteria.get('litter-min'), searchCriteria.get('litter-max'),
+            searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max'),
+            searchCriteria.get('district'), searchCriteria.get('location'),
+            searchCriteria.get('bulky-item-count-min'), searchCriteria.get('bulky-item-count-max')
+        );
+        let events: RoadsideLitterEventModel[] = [];
+        if (result !== null && result.length >= 1) {
+            result.forEach((row: any) => events.push({
+                id: row.id,
+                date: row.date,
+                litterPounds: row.litterLbs,
+                recyclingPounds: row.recyclingLbs,
+                districts: [],
+                locations: row.locations,
+                bulkyItems: [],
+                bulkyItemCount: row.bulkyItemCount,
+                districtsDisplay: row.districts
+            }));
+        }
+        console.log(result);
+        console.log(events);
+        return events;
     }
 
     async getMetric(

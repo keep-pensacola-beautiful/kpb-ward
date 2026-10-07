@@ -4,7 +4,7 @@ export const REPORTING_DATA_VALUES = {
         label: 'Roadside Litter'
     },
     cleanTeam: {
-        code: 'clean-team',
+        code: 'cleanTeam',
         label: 'Clean Team'
     },
     trashRoutes: {
@@ -12,7 +12,7 @@ export const REPORTING_DATA_VALUES = {
         label: 'Trash Can Routes'
     },
     countyCleanup: {
-        code: 'county-cleanup',
+        code: 'countyCleanup',
         label: 'County Neighborhood Cleanup'
     }
 };

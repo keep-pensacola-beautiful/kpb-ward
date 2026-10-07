@@ -41,7 +41,7 @@ export default function Page() {
         </li>
         <li className="mt-1">
           <p className="mt-2 text-[1.06rem]">
-            <Link href="/" className="underline">search for individual events and cleanups</Link>
+            <Link href="/search" className="underline">search for individual events and cleanups</Link>
             &nbsp;to view and to update or correct granular data.
           </p>
         </li>

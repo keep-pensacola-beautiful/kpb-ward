@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { VisualizationHandler } from './visualizationHandler';
 
 export const metadata: Metadata = {
-  title: 'Enter Data | WARD',
-  description: 'Enter reporting data for various KPB activities'
+  title: 'Visualize Metrics | WARD',
+  description: 'Visualize and analyze metrics for various KPB activities'
 };
 
 export default function VisualizeMetrics() {

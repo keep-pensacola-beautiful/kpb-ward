@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AlertModel } from './alert.model';
 
-export function Alert({ id, type = 'info', header, body, onClose }: AlertModel) {
+export function Alert({ id, type = 'info', header, body, closeButton, onClose }: AlertModel) {
     const [alertBorderAndBg, setAlertBorderAndBg] = useState<string>('');
     const [iconCharacter, setIconCharacter] = useState<string>('');
 
@@ -44,14 +44,16 @@ export function Alert({ id, type = 'info', header, body, onClose }: AlertModel) 
                         <div id={`${id}-body`}>{ body }</div>
                     </div>
                 </div>
-                <button
-                    id={`${id}-close`}
-                    aria-label="close"
-                    onClick={onClose}
-                    className="cursor-pointer pt-[0.125em] pb-[0.125em] pr-[0.5em] pl-[0.5em]
-                        mt-[0] leading-none text-2xl text-black self-start"
-                    >&times;
-                </button>
+                { closeButton &&
+                    <button
+                        id={`${id}-close`}
+                        aria-label="close"
+                        onClick={onClose}
+                        className="cursor-pointer pt-[0.125em] pb-[0.125em] pr-[0.5em] pl-[0.5em]
+                            mt-[0] leading-none text-2xl text-black self-start"
+                        >&times;
+                    </button>
+                }
             </div>
         </div>
     );

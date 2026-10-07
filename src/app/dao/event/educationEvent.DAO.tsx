@@ -1,21 +1,42 @@
 import { EventDAO } from './event.DAO';
 import { MetricsDAO } from '../metrics/metrics.DAO';
-import { EventEntity } from '../../entities/event/event.entity';
 import { EducationEventEntity } from '../../entities/event/educationEvent.entity';
-import { EventModel } from '../../models';
+import { EducationEventModel, EventModel } from '../../models/event';
 import { IntervalCode, MetricVisualizeModel } from '../../models/metrics';
 import { isEducationEvent } from '../../utils/eventTypeGuards';
-import { insertEducationEvent, updateEducationEvent } from '../../lib/event.sql';
+import {
+    deleteEducationEventById,
+    getEducationEventById,
+    insertEducationEvent,
+    updateEducationEvent
+} from '../../lib/event.sql';
 import { getColumnSumAsMetricByInterval, getHighestOccurrencesOfAThingMetricUsing2Tables } from '../../lib/metric.sql';
+import { searchEducationEvents } from '../../lib/search.sql';
 import { EDUCATION_METRIC_VALUES } from './metricValues';
-import { isBlank } from '../../utils/isBlank';
 
 type MetricCode = 'studentCount' | 'volunteerCount' | 'volunteerHours' | 'topRecipients' | 'topTopics';
 const METRIC_CODES: MetricCode[] = ['studentCount', 'volunteerCount', 'volunteerHours', 'topRecipients', 'topTopics'];
 
 export class EducationEventDAO implements EventDAO, MetricsDAO {
-    async getById(id: number): Promise<EventEntity | null> {
-        return null;
+    async getById(id: number): Promise<EducationEventModel | null> {
+        if (id <= 0) {
+            return null;
+        }
+        let event: EducationEventModel | null = null;
+        let result: any = await getEducationEventById(id);
+        if (result !== null && result.length > 0) {
+            event = {
+                id: result[0].id,
+                date: result[0].date,
+                duration: result[0].eventLength,
+                studentCount: result[0].studentCount,
+                volunteerCount: result[0].volunteerCount,
+                volunteerHours: result[0].volunteerHours,
+                recipient: { id: result[0].recipientId, name: result[0].recipient },
+                topic: { code: result[0].topicId, description: result[0].topic }
+            }
+        }
+        return event;
     }
 
     async save(event: EventModel, isUpdate: boolean): Promise<number> {
@@ -48,8 +69,41 @@ export class EducationEventDAO implements EventDAO, MetricsDAO {
         return -1;
     }
 
-    delete(id: number): void {
-        console.log('Deleting');
+    async deleteById(id: number): Promise<number> {
+        if (id <= 0) {
+            return 0;
+        }
+        return await deleteEducationEventById(id);
+    }
+
+    async search(searchCriteria: Map<string, string>): Promise<EducationEventModel[]> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to search for Education Events due to missing start date or end date.');
+            return [];
+        }
+        const result: any = await searchEducationEvents(
+            startDate, endDate,
+            searchCriteria.get('student-min'), searchCriteria.get('student-max'),
+            searchCriteria.get('topic-combobox-input'),
+            searchCriteria.get('recipient-combobox-input'),
+            searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max'),
+        );
+        let events: EducationEventModel[] = [];
+        if (result !== null && result.length >= 1) {
+            result.forEach((row: any) => events.push({
+                id: row.id,
+                date: row.date,
+                studentCount: row.studentCount,
+                duration: row.eventLength,
+                volunteerCount: row.volunteerCount,
+                volunteerHours: row.volunteerHours,
+                topic: { description: row.topic },
+                recipient: { name: row.name }
+            }));
+        }
+        return events;
     }
 
     async getMetric(

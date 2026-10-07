@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState, useRef } from 'react';
-import { Alert, ErrorSummary, RadioList } from '../../components';
+import { Alert, Button, ErrorSummary, RadioList } from '../../components';
 import { ErrorModel } from '../../models';
 import { BagSwapEventModel, EducationEventModel, EventModel, TreePlantingEventModel } from '../../models/event';
 import { ComboBoxListItemModel } from '../../components/comboBox/comboBoxListItem.model';
@@ -17,19 +17,22 @@ import { REPORTING_DATA_TYPE_LIST_NAME, REPORTING_DATA_TYPE_OPTIONS, REPORTING_D
 import { isBlank } from '../../utils/isBlank';
 import { scrollToTopAndFocusAnElementById } from '../../utils/scrollToTopAndFocusHeader';
 import { OtherDialogs } from './otherDialogs';
+import { isBagSwapEvent, isEducationEvent, isTreePlantingEvent } from '../../utils/eventTypeGuards';
 
 export function OtherForm({
-    isUpdate, selectedDataType, onSuccessfulSubmit
+    isUpdate, selectedDataType, data, onSuccessfulSubmit, onModifyCancel
 }: {
     isUpdate: boolean,
     selectedDataType: string,
-    onSuccessfulSubmit: (event: EventModel, reportingDataType: { code: string, label: string }) => void
+    data?: EventModel,
+    onSuccessfulSubmit: (event: EventModel, reportingDataType: { code: string, label: string }) => void,
+    onModifyCancel?: () => void
 }) {
     const [isRecipientDialogOpen, setIsRecipientDialogOpen] = useState<boolean>(false);
     const [isTopicDialogOpen, setIsTopicDialogOpen] = useState<boolean>(false);
     const [reportingDataType, setReportingDataType] = useState<string>(selectedDataType);
     const [errors, setErrors] = useState<Map<string, ErrorModel>>(new Map<string, ErrorModel>());
-    const [hasReferenceDataBeenRequested, setHasReferenceDataBeenRequested] = useState<boolean>(false);
+    const [isInitialLoad, setIsInitialLoad] = useState<boolean>(false);
 
     const [edRecipientOptions, setEdRecipientOptions] = useState<string>('[]');
     const [edRecipientValueToIdMap, setEdRecipientValueToIdMap] = useState<Map<string, string>>(new Map<string, string>());
@@ -45,20 +48,27 @@ export function OtherForm({
     const MS_DELAY_100: number = 100;
 
     useEffect(() => {
-        if (!hasReferenceDataBeenRequested) {
-            setHasReferenceDataBeenRequested(true);
+        if (!isInitialLoad) {
+            setIsInitialLoad(true);
             getEdRecipients();
             getEdTopics();
+
+            if (formRef.current) {
+                formRef.current.addEventListener('keydown', (event: any) => {
+                    if (event.target && event.key === 'Enter' && event.target.role === 'comboBox') {
+                        event.preventDefault();
+                    }
+                });
+            }
         }
 
-        if (formRef.current) {
-            formRef.current.addEventListener('keydown', (event: any) => {
-                if (event.target && event.key === 'Enter' && event.target.role === 'comboBox') {
-                    event.preventDefault();
-                }
-            });
+        if (data !== undefined) {
+            if (isEducationEvent(data)) {
+                setSelectedEdTopic(data.topic.description);
+                setSelectedEdRecipient(data.recipient.name);
+            }
         }
-    }, [hasReferenceDataBeenRequested]);
+    }, [data]);
 
     const getEdRecipients: any = useCallback((onSuccessFn?: () => void) => {
         getEducationRecipients().then((recipients) => {
@@ -101,10 +111,16 @@ export function OtherForm({
     const getFormByActivity: any = (activity: string) => {
         switch (activity) {
             case REPORTING_DATA_VALUES.bagSwap.code:
-                return (<BagSwapFormFields errors={errors}></BagSwapFormFields>);
+                return (
+                    <BagSwapFormFields
+                        data={isBagSwapEvent(data) ? data : undefined}
+                        errors={errors}>
+                    </BagSwapFormFields>
+                );
             case REPORTING_DATA_VALUES.education.code:
                 return (
                     <EducationFormFields
+                        data={isEducationEvent(data) ? data : undefined}
                         recipientOptions={edRecipientOptions}
                         selectedRecipient={selectedEdRecipient}
                         topicOptions={edTopicOptions}
@@ -117,7 +133,12 @@ export function OtherForm({
                     </EducationFormFields>
                 );
             case REPORTING_DATA_VALUES.treePlanting.code:
-                return (<TreePlantingFormFields errors={errors}></TreePlantingFormFields>);
+                return (
+                    <TreePlantingFormFields
+                        data={isTreePlantingEvent(data) ? data : undefined}
+                        errors={errors}>
+                    </TreePlantingFormFields>
+                );
         }
     }
 
@@ -138,7 +159,7 @@ export function OtherForm({
 
     async function handleBagSwapEventSubmit(formData: FormData): Promise<void> {
         const bagResult: { isSuccessful: boolean, data: BagSwapEventModel | null, errors: Map<string, ErrorModel> } =
-            await saveBagSwapData(formData, isUpdate);
+            await saveBagSwapData(formData, isUpdate, data?.id);
         setErrors(bagResult.errors);
         if (bagResult.isSuccessful && bagResult.data) {
             onSuccessfulSubmit(bagResult.data, {
@@ -163,7 +184,8 @@ export function OtherForm({
                 formData,
                 selectedRecipientId ? selectedRecipientId : '',
                 selectedTopicId ? selectedTopicId : '',
-                isUpdate
+                isUpdate,
+                data?.id
             );
         setErrors(edResult.errors);
         if (edResult.isSuccessful && edResult.data) {
@@ -181,7 +203,7 @@ export function OtherForm({
 
     async function handleTreePlantingEventSubmit(formData: FormData): Promise<void> {
         const treeResult: { isSuccessful: boolean, data: TreePlantingEventModel | null, errors: Map<string, ErrorModel> } =
-            await saveTreePlantingData(formData, isUpdate);
+            await saveTreePlantingData(formData, isUpdate, data?.id);
         setErrors(treeResult.errors);
         if (treeResult.isSuccessful && treeResult.data) {
             onSuccessfulSubmit(treeResult.data, {
@@ -233,11 +255,10 @@ export function OtherForm({
                     header={alertHeader}
                     body="If it is outside of normal business hours, the database may be off.
                         Please copy the values you entered and try again later."
+                    closeButton={true}
                     onClose={() => setAlertHeader('')}>
                 </Alert>
             }
-            
-            
             
             {(errors && errors.size >= 1) &&
                 <ErrorSummary errors={JSON.stringify(Array.from(errors.values()))}></ErrorSummary>}
@@ -257,11 +278,20 @@ export function OtherForm({
                         </RadioList>
                     }
                     { getFormByActivity(reportingDataType) }
-                    {reportingDataType !== '' &&
-                        <button className="border p-2 w-25 rounded-md bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem] mt-4 mb-4 cursor-pointer">
-                            Submit
-                        </button>
-                    }
+                    <div className="flex flex-row gap-2 mt-4 mb-4">
+                        {reportingDataType !== '' &&
+                            <Button design="primary" width="sm:w-22">Submit</Button>
+                        }
+                        { (isUpdate && onModifyCancel !== undefined) &&
+                            <Button
+                                design="secondary"
+                                type="button"
+                                width="sm:w-35"
+                                onClick={onModifyCancel}>
+                                Cancel Update
+                            </Button>
+                        }
+                    </div>
                 </form>
             </main>
         </div>

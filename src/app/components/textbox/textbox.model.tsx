@@ -8,6 +8,7 @@ export interface TextboxModel {
     step?: number;
     width?: string;
     isRequired?: boolean;
+    defaultValue?: string;
     labelFontWeight?: string;
     errorText?: string;
     compact?: boolean;

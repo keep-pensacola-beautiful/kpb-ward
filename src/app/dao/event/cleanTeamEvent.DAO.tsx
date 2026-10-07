@@ -1,24 +1,44 @@
 import { EventDAO } from './event.DAO';
 import { MetricsDAO } from '../metrics/metrics.DAO';
-import { EventEntity } from '../../entities/event/event.entity';
 import { CleanTeamEventEntity } from '../../entities/event/cleanTeamEvent.entity';
-import { EventModel } from '../../models';
+import { CleanTeamEventModel, EventModel } from '../../models/event';
 import { IntervalCode, MetricVisualizeModel } from '../../models/metrics';
 import { isCleanTeamEvent } from '../../utils/eventTypeGuards';
-import { insertCleanTeamEvent, updateCleanTeamEvent } from '../../lib/event.sql';
+import {
+    deleteCleanTeamEventById,
+    getCleanTeamEventById,
+    insertCleanTeamEvent,
+    updateCleanTeamEvent
+} from '../../lib/event.sql';
 import { getColumnSumAsMetricByInterval } from '../../lib/metric.sql';
+import { searchCleanTeamEvents } from '../../lib/search.sql';
 import { CLEAN_TEAM_METRIC_VALUES } from './metricValues';
 
 type MetricCode = 'trashLbs' | 'recyclingLbs';
 const METRIC_CODES: MetricCode[] = ['trashLbs', 'recyclingLbs'];
 
 export class CleanTeamEventDAO implements EventDAO, MetricsDAO {
-    async getById(id: number): Promise<EventEntity | null> {
-        return null;
+    async getById(id: number): Promise<CleanTeamEventModel | null> {
+        if (id <= 0) {
+            return null;
+        }
+        let event: CleanTeamEventModel | null = null;
+        let result: any = await getCleanTeamEventById(id);
+        if (result !== null && result.length > 0) {
+            event = {
+                id: result[0].id,
+                date: result[0].date,
+                trashPounds: result[0].trash_lbs,
+                recyclingPounds: result[0].recycling_lbs,
+                eventDescription: result[0].event_desc
+            }
+        }
+        return event;
     }
 
     async save(event: EventModel, isUpdate: boolean): Promise<number> {
         if (isCleanTeamEvent(event)) {
+            console.log(event);
             const eventEntity: CleanTeamEventEntity = {
                 id: event.id ? event.id : -1,
                 date: event.date,
@@ -28,9 +48,11 @@ export class CleanTeamEventDAO implements EventDAO, MetricsDAO {
             };
 
             if (isUpdate) {
-                return await updateCleanTeamEvent(eventEntity);
+                const affectedRowCount: number = await updateCleanTeamEvent(eventEntity);
+                return affectedRowCount === 1 ? 1 : -1;
             } else {
-                return await insertCleanTeamEvent(eventEntity);
+                const insertedId: number = await insertCleanTeamEvent(eventEntity);
+                return insertedId;
             }
         } else {
             console.error(`Error in save(): invalid data did not adhere to CleanTeamModel.`);
@@ -38,9 +60,37 @@ export class CleanTeamEventDAO implements EventDAO, MetricsDAO {
         return -1;
     }
 
-    async delete(id: number): Promise<void> {
-        console.log('Deleting');
-        return;
+    async deleteById(id: number): Promise<number> {
+        if (id <= 0) {
+            return 0;
+        }
+        return await deleteCleanTeamEventById(id);
+    }
+
+    async search(searchCriteria: Map<string, string>): Promise<CleanTeamEventModel[]> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to search for Clean Team Events due to missing start date or end date.');
+            return [];
+        }
+        const result: any = await searchCleanTeamEvents(
+            startDate, endDate,
+            searchCriteria.get('trash-min'), searchCriteria.get('trash-max'),
+            searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max'),
+            searchCriteria.get('event-desc')
+        );
+        let events: CleanTeamEventModel[] = [];
+        if (result !== null && result.length >= 1) {
+            result.forEach((row: any) => events.push({
+                id: row.id,
+                date: row.date,
+                trashPounds: row.trashLbs,
+                recyclingPounds: row.recyclingLbs,
+                eventDescription: row.eventDesc
+            }));
+        }
+        return events;
     }
 
     async getMetric(

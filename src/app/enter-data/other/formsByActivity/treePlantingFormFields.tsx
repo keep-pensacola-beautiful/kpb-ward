@@ -1,11 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RadioList, Textbox } from '../../../components';
 import { ErrorModel } from '../../../models';
+import { TreePlantingEventModel } from '../../../models/event';
 import { ifErrorThenGetErrorText } from '../../../utils/ifErrorThenGetErrorText';
 import { HAS_VOLUNTEERS_OPTIONS, TREE_PLANTING_FORM_DATA_IDS } from '../otherJson';
 
-export function TreePlantingFormFields({ errors }: { errors: Map<string, ErrorModel> }) {
+export function TreePlantingFormFields({ data, errors }: {
+    data?: TreePlantingEventModel, errors: Map<string, ErrorModel>
+}) {
     const [hasVolunteers, setHasVolunteers] = useState<string>('no');
+
+    useEffect(() => {
+        if (data !== undefined && data.volunteerCount > 0) {
+            setHasVolunteers('yes');
+        }
+    }, [data])
 
     return (
         <div className="flex flex-col gap-4 mt-3">
@@ -15,6 +24,7 @@ export function TreePlantingFormFields({ errors }: { errors: Map<string, ErrorMo
                 labelText="Date"
                 descriptionText="Please enter the date of the tree planting event."
                 isRequired={true}
+                defaultValue={data !== undefined ? data.date : undefined}
                 errorText={ifErrorThenGetErrorText(errors, TREE_PLANTING_FORM_DATA_IDS.date)}> 
             </Textbox>
             <Textbox
@@ -23,6 +33,7 @@ export function TreePlantingFormFields({ errors }: { errors: Map<string, ErrorMo
                 labelText="Number of Trees Planted"
                 width="sm:w-24"
                 isRequired={true}
+                defaultValue={data !== undefined ? `${data.treesPlanted}` : undefined}
                 errorText={ifErrorThenGetErrorText(errors, TREE_PLANTING_FORM_DATA_IDS.treesPlanted)}>
             </Textbox>
             <Textbox
@@ -33,6 +44,7 @@ export function TreePlantingFormFields({ errors }: { errors: Map<string, ErrorMo
                 maxlength={70}
                 width="sm:w-150"
                 isRequired={true}
+                defaultValue={data !== undefined ? data.eventDescription : undefined}
                 errorText={ifErrorThenGetErrorText(errors, TREE_PLANTING_FORM_DATA_IDS.description)}>
             </Textbox>
             <RadioList
@@ -51,6 +63,7 @@ export function TreePlantingFormFields({ errors }: { errors: Map<string, ErrorMo
                         labelText="Number of Volunteers"
                         width="sm:w-24"
                         isRequired={true}
+                        defaultValue={data !== undefined ? `${data.volunteerCount}` : undefined}
                         errorText={ifErrorThenGetErrorText(errors, TREE_PLANTING_FORM_DATA_IDS.volunteerCount)}>
                     </Textbox>
                     <Textbox
@@ -62,6 +75,7 @@ export function TreePlantingFormFields({ errors }: { errors: Map<string, ErrorMo
                         step={0.25}
                         width="sm:w-24"
                         isRequired={true}
+                        defaultValue={data !== undefined ? `${data.volunteerHours}` : undefined}
                         errorText={ifErrorThenGetErrorText(errors, TREE_PLANTING_FORM_DATA_IDS.volunteerHours)}>
                     </Textbox>
                 </div>

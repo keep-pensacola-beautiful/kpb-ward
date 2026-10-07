@@ -1,13 +1,8 @@
 'use client'
 
 import { useState } from 'react';
-import {
-    RadioList,
-    Table,
-    TableRow,
-    TableHeader
-} from '../components';
-import { TableRowModel } from '../components/table/tableRow.model';
+import { RadioList, Table } from '../components';
+import { TableDataModel } from '../components/table/tableData.model';
 import { VIEW_FORMAT_VALUES, VIEW_FORMAT_LIST_NAME, VIEW_FORMAT_OPTIONS } from './visualizeMetricsJson';
 import { BarChart } from '../components/chartJS/barChart';
 import { PieChart } from '../components/chartJS/pieChart';
@@ -54,7 +49,7 @@ export function Visualizer({
     }
 
     function getTable() {
-        let tableData: TableRowModel[][] = [[]];
+        let tableData: TableDataModel[][] = [[]];
         for (let i = 0; i < chartData.length; i++) {
             tableData.push(
                 [{ center: true, data: chartData[i].label }, { center: true, data: chartData[i].value }]
@@ -64,12 +59,13 @@ export function Visualizer({
             <div className="ml-4 mb-4">
                 <Table
                     caption={metricTitle}
-                    data={JSON.stringify(tableData)}
-                    rowShading="even">
-                    <TableRow color="bg-[var(--gold)]">
-                        <TableHeader scope="col" center={true}>{ tableHeaders.labelHeader }</TableHeader>
-                        <TableHeader scope="col" center={true}>{ tableHeaders.valueHeader }</TableHeader>
-                    </TableRow>
+                    tableHeaders={[
+                        { center: true, text: tableHeaders.labelHeader, dataType: 'string', index: 0 },
+                        { center: true, text: tableHeaders.valueHeader, dataType: 'number', index: 1 }
+                    ]}
+                    data={tableData}
+                    rowShading="even"
+                    maxWidth="max-w-md">
                 </Table>
             </div>
         );

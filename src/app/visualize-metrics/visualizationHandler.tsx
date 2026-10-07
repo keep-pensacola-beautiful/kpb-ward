@@ -7,17 +7,14 @@ import { Visualizer } from './visualizer';
 import { getDataToVisualize } from './actions';
 
 export function VisualizationHandler() {
-    const [metricTitle, setMetricTitle] = useState<string>('Total Litter Collected by Month');
-    const [chartDataLabel, setChartDataLabel] = useState<string>('pounds of litter collected');
+    const [metricTitle, setMetricTitle] = useState<string>('<Select a Metric>');
+    const [chartDataLabel, setChartDataLabel] = useState<string>('');
     const [chartType, setChartType] = useState<'bar' | 'pie'>('bar');
-    const [chartData, setChartData] = useState<{ label: string, value: number }[]>(
-        [{ label: '05/26', value: 10 }, { label: '06/26', value: 14 }, { label: '07/26', value: 28 }]
-    );
+    const [chartData, setChartData] = useState<{ label: string, value: number }[]>([]);
     const [tableHeaders, setTableHeaders] = useState<{ labelHeader: string, valueHeader: string}>({ labelHeader: 'Label', valueHeader: 'Value' });
 
     async function handleVisualize(filters: MetricSearchModel) {
         const data = await getDataToVisualize(filters);
-        console.log(data);
         setMetricTitle(data.metricTitle);
         setChartDataLabel(data.dataLabel);
         setChartType(data.chartType);

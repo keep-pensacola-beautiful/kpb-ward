@@ -1,4 +1,7 @@
+import { TableDataModel } from './tableData.model';
+
 export interface TableRowModel {
-    center: boolean,
-    data: string | number
+    data: TableDataModel[];
+    color?: string;
+    key?: string;
 }

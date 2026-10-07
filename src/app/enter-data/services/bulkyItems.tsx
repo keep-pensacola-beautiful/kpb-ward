@@ -1,13 +1,19 @@
 import { useState } from 'react';
 import { MultiSelect, Textbox } from '../../components';
 import { ErrorModel } from '../../models';
-import { isBlank } from '../../utils/isBlank';
 import { ifErrorThenGetErrorText } from '../../utils/ifErrorThenGetErrorText';
 
-export function BulkyItems({ bulkyItemId, bulkyItemsReferenceString, isRequired, errors, handleBulkyItemChange }:
-    { bulkyItemId: string, bulkyItemsReferenceString: string, isRequired?: boolean, errors: Map<string, ErrorModel>, handleBulkyItemChange?: (event: any) => void }
+export function BulkyItems({ bulkyItemId, bulkyItemsReferenceString, isRequired, defaultSelectedItems, errors, handleBulkyItemChange }: {
+    bulkyItemId: string,
+    bulkyItemsReferenceString: string,
+    isRequired?: boolean,
+    errors: Map<string, ErrorModel>,
+    defaultSelectedItems?: Map<string, { quantityId: string, label: string, quantity?: number }>,
+    handleBulkyItemChange?: (event: any) => void }
 ) {
-    const [bulkyItemQuantityInputs, setBulkyItemQuantityInputs] = useState(new Map<string, any>());
+    const [bulkyItemQuantityInputs, setBulkyItemQuantityInputs] = useState<Map<string, { quantityId: string, label: string }>>(
+        defaultSelectedItems !== undefined ? defaultSelectedItems : new Map<string, { quantityId: string, label: string }>()
+    );
 
     const BULKY_ITEMS_LABEL: string = 'Bulky Items Collected';
     const BULKY_ITEMS_DESCRIPTION: string = 'Please select each bulky item collected in the multi-select. Use the search bar to filter the bulky item options.';
@@ -17,11 +23,12 @@ export function BulkyItems({ bulkyItemId, bulkyItemsReferenceString, isRequired,
             let selectedBulkyItemValues: string[] = [];
             if (event?.target?.checked && !bulkyItemQuantityInputs.has(event.target.id)) {
                 let copyOfQuantityInputs: any[] = Array.from(bulkyItemQuantityInputs);
+                console.log(copyOfQuantityInputs);
                 copyOfQuantityInputs.push([event.target.id, { quantityId: `bulky-item-${event.target.value.split('|')[1]}-quantity`, label: event.target.labels[0].textContent }]);
                 copyOfQuantityInputs.sort((itemA: any[], itemB: any[]) => {
                     return itemA[0].match(/\d+/)[0] - itemB[0].match(/\d+/);
                 });
-                setBulkyItemQuantityInputs(new Map<string, any>(copyOfQuantityInputs));
+                setBulkyItemQuantityInputs(new Map<string, {quantityId: string, label: string}>(copyOfQuantityInputs));
                 if (handleBulkyItemChange) {
                     copyOfQuantityInputs.map((input) => selectedBulkyItemValues.push(`${input[1].label}|${input[1].quantityId.match(/\d+/)}`));
                     handleBulkyItemChange(selectedBulkyItemValues);
@@ -70,6 +77,7 @@ export function BulkyItems({ bulkyItemId, bulkyItemsReferenceString, isRequired,
                                         isRequired={true}
                                         labelFontWeight="font-normal"
                                         width="sm:w-24"
+                                        defaultValue={defaultSelectedItems !== undefined ? `${defaultSelectedItems.get(input[0])?.quantity}` : undefined}
                                         errorText={ifErrorThenGetErrorText(errors, input[1].quantityId)}>
                                     </Textbox>
                                 )

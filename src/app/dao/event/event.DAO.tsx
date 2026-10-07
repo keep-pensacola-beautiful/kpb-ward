@@ -1,9 +1,8 @@
-import { EventEntity } from '../../entities/event/event.entity';
 import { EventModel } from '../../models/event/event.model';
-import { IntervalCode, MetricVisualizeModel } from '../../models/metrics';
 
 export interface EventDAO {
-    getById(id: number): Promise<EventEntity | null>;
+    getById(id: number): Promise<EventModel | null>;
     save(event: EventModel, isUpdate: boolean): Promise<number>;
-    delete(id: number): void;
+    deleteById(id: number): Promise<number>;
+    search(searchCriteria: Map<string, string>): Promise<EventModel[]>;
 }
