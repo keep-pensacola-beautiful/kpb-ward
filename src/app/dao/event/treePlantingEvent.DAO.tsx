@@ -1,20 +1,40 @@
 import { EventDAO } from './event.DAO';
 import { MetricsDAO } from '../metrics/metrics.DAO';
-import { EventModel } from '../../models';
+import { EventModel, TreePlantingEventModel } from '../../models/event';
 import { IntervalCode, MetricVisualizeModel } from '../../models/metrics';
 import { TreePlantingEventEntity } from '../../entities/event/treePlantingEvent.entity';
-import { EventEntity } from '../../entities/event/event.entity';
 import { isTreePlantingEvent } from '../../utils/eventTypeGuards';
-import { insertTreePlantingEvent, updateTreePlantingEvent } from '../../lib/event.sql';
+import {
+    deleteTreePlantingEventById,
+    getTreePlantingEventById,
+    insertTreePlantingEvent,
+    updateTreePlantingEvent
+} from '../../lib/event.sql';
 import { getColumnSumAsMetricByInterval } from '../../lib/metric.sql';
+import { searchTreePlantingEvents } from '../../lib/search.sql';
 import { TREE_PLANTING_METRIC_VALUES } from './metricValues';
 
 type MetricCode = 'treeCount' | 'volunteerCount' | 'volunteerHours';
 const METRIC_CODES: MetricCode[] = ['treeCount', 'volunteerCount', 'volunteerHours'];
 
 export class TreePlantingEventDAO implements EventDAO, MetricsDAO {
-    async getById(id: number): Promise<EventEntity | null> {
-        return null;
+    async getById(id: number): Promise<TreePlantingEventModel | null> {
+        if (id <= 0) {
+            return null;
+        }
+        let event: TreePlantingEventModel | null = null;
+        let result: any = await getTreePlantingEventById(id);
+        if (result !== null && result.length > 0) {
+            event = {
+                id: result[0].id,
+                date: result[0].date,
+                treesPlanted: result[0].treeCount,
+                eventDescription: result[0].eventDesc,
+                volunteerCount: result[0].volunteerCount,
+                volunteerHours: result[0].volunteerHours
+            }
+        }
+        return event;
     }
 
     async save(event: EventModel, isUpdate: boolean): Promise<number> {
@@ -39,8 +59,38 @@ export class TreePlantingEventDAO implements EventDAO, MetricsDAO {
         return -1;
     }
 
-    delete(id: number): void {
-        console.log('Deleting');
+    async deleteById(id: number): Promise<number> {
+        if (id <= 0) {
+            return 0;
+        }
+        return await deleteTreePlantingEventById(id);
+    }
+
+    async search(searchCriteria: Map<string, string>): Promise<TreePlantingEventModel[]> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to search for Tree Planting Events due to missing start date or end date.');
+            return [];
+        }
+        const result: any = await searchTreePlantingEvents(
+            startDate, endDate,
+            searchCriteria.get('tree-min'), searchCriteria.get('tree-max'),
+            searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max'),
+            searchCriteria.get('event-desc')
+        );
+        let events: TreePlantingEventModel[] = [];
+        if (result !== null && result.length >= 1) {
+            result.forEach((row: any) => events.push({
+                id: row.id,
+                date: row.date,
+                treesPlanted: row.treeCount,
+                volunteerCount: row.volunteerCount,
+                volunteerHours: row.volunteerHours,
+                eventDescription: row.eventDesc
+            }));
+        }
+        return events;
     }
 
     async getMetric(

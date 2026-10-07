@@ -1,20 +1,40 @@
 import { EventDAO } from './event.DAO';
 import { MetricsDAO } from '../metrics/metrics.DAO';
-import { EventModel } from '../../models';
+import { BagSwapEventModel, EventModel } from '../../models/event';
 import { IntervalCode, MetricVisualizeModel } from '../../models/metrics';
 import { BagSwapEventEntity } from '../../entities/event/bagSwapEvent.entity';
-import { EventEntity } from '../../entities/event/event.entity';
 import { isBagSwapEvent } from '../../utils/eventTypeGuards';
-import { insertBagSwapEvent, updateBagSwapEvent } from '../../lib/event.sql';
+import {
+    deleteBagSwapEventById,
+    getBagSwapEventById,
+    insertBagSwapEvent,
+    updateBagSwapEvent
+} from '../../lib/event.sql';
 import { getColumnSumAsMetricByInterval } from '../../lib/metric.sql';
+import { searchBagSwapEvents } from '../../lib/search.sql';
 import { BAG_SWAP_METRIC_VALUES } from './metricValues';
 
 type MetricCode = 'bagCount' | 'volunteerCount' | 'volunteerHours';
 const METRIC_CODES: MetricCode[] = ['bagCount', 'volunteerCount', 'volunteerHours'];
 
 export class BagSwapEventDAO implements EventDAO, MetricsDAO {
-    async getById(id: number): Promise<EventEntity | null> {
-        return null;
+    async getById(id: number): Promise<BagSwapEventModel | null> {
+        if (id <= 0) {
+            return null;
+        }
+        let event: BagSwapEventModel | null = null;
+        let result: any = await getBagSwapEventById(id);
+        if (result !== null && result.length > 0) {
+            event = {
+                id: result[0].id,
+                date: result[0].date,
+                bagsCollected: result[0].bagCount,
+                eventDescription: result[0].eventDesc,
+                volunteerCount: result[0].volunteerCount,
+                volunteerHours: result[0].volunteerHours
+            }
+        }
+        return event;
     }
 
     async save(event: EventModel, isUpdate: boolean): Promise<number> {
@@ -39,8 +59,38 @@ export class BagSwapEventDAO implements EventDAO, MetricsDAO {
         return -1;
     }
 
-    delete(id: number): void {
-        console.log('Deleting');
+    async deleteById(id: number): Promise<number> {
+        if (id <= 0) {
+            return 0;
+        }
+        return await deleteBagSwapEventById(id);
+    }
+
+    async search(searchCriteria: Map<string, string>): Promise<BagSwapEventModel[]> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to search for Bag Swap Events due to missing start date or end date.');
+            return [];
+        }
+        const result: any = await searchBagSwapEvents(
+            startDate, endDate,
+            searchCriteria.get('bag-min'), searchCriteria.get('bag-max'),
+            searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max'),
+            searchCriteria.get('event-desc')
+        );
+        let events: BagSwapEventModel[] = [];
+        if (result !== null && result.length >= 1) {
+            result.forEach((row: any) => events.push({
+                id: row.id,
+                date: row.date,
+                bagsCollected: row.bagCount,
+                volunteerCount: row.volunteerCount,
+                volunteerHours: row.volunteerHours,
+                eventDescription: row.eventDesc
+            }));
+        }
+        return events;
     }
 
     async getMetric(

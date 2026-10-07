@@ -1,20 +1,39 @@
 import { EventDAO } from './event.DAO';
 import { MetricsDAO } from '../metrics/metrics.DAO';
-import { EventEntity } from '../../entities/event/event.entity';
 import { TrashRoutesEventEntity } from '../../entities/event/trashRoutesEvent.entity';
-import { EventModel } from '../../models';
+import { EventModel } from '../../models/event';
 import { IntervalCode, MetricVisualizeModel } from '../../models/metrics';
 import { isTrashRoutesEvent } from '../../utils/eventTypeGuards';
-import { insertTrashRoutesEvent, updateTrashRoutesEvent } from '../../lib/event.sql';
+import {
+    deleteTrashRoutesEventById,
+    getTrashRoutesEventById,
+    insertTrashRoutesEvent,
+    updateTrashRoutesEvent
+} from '../../lib/event.sql';
 import { getColumnSumAsMetricByInterval } from '../../lib/metric.sql';
+import { searchTrashRoutesEvents } from '../../lib/search.sql';
 import { TRASH_ROUTES_METRIC_VALUES } from './metricValues';
+import { TrashRoutesEventModel } from '../../models/event';
 
 type MetricCode = 'trashLbs' | 'recyclingLbs';
 const METRIC_CODES: MetricCode[] = ['trashLbs', 'recyclingLbs'];
 
 export class TrashRoutesEventDAO implements EventDAO, MetricsDAO {
-    async getById(id: number): Promise<EventEntity | null> {
-        return null;
+    async getById(id: number): Promise<TrashRoutesEventModel | null> {
+        if (id <= 0) {
+            return null;
+        }
+        let event: TrashRoutesEventModel | null = null;
+        let result: any = await getTrashRoutesEventById(id);
+        if (result !== null && result.length > 0) {
+            event = {
+                id: result[0].id,
+                date: result[0].date,
+                trashPounds: result[0].trashLbs,
+                recyclingPounds: result[0].recyclingLbs,
+            }
+        }
+        return event;
     }
 
     async save(event: EventModel, isUpdate: boolean): Promise<number> {
@@ -37,8 +56,35 @@ export class TrashRoutesEventDAO implements EventDAO, MetricsDAO {
         return -1;
     }
 
-    delete(id: number): void {
-        console.log('Deleting');
+    async deleteById(id: number): Promise<number> {
+        if (id <= 0) {
+            return 0;
+        }
+        return await deleteTrashRoutesEventById(id);
+    }
+
+    async search(searchCriteria: Map<string, string>): Promise<TrashRoutesEventModel[]> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to search for Trash Can Routes Events due to missing start date or end date.');
+            return [];
+        }
+        const result: any = await searchTrashRoutesEvents(
+            startDate, endDate,
+            searchCriteria.get('trash-min'), searchCriteria.get('trash-max'),
+            searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max')
+        );
+        let events: TrashRoutesEventModel[] = [];
+        if (result !== null && result.length >= 1) {
+            result.forEach((row: any) => events.push({
+                id: row.id,
+                date: row.date,
+                trashPounds: row.trashLbs,
+                recyclingPounds: row.recyclingLbs
+            }));
+        }
+        return events;
     }
 
     async getMetric(
