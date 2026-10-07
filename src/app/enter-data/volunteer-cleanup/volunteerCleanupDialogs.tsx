@@ -112,7 +112,7 @@ export function VolunteerCleanupDialogs(
                     body: <p>Location <strong>{result.data?.location}</strong> was not assigned to <strong>{result.data?.name}</strong>.
                         If it is outside of normal business hours, the database may be off.
                         Please try again later. Select 'Okay' to return to the Add Recipient dialog window.</p>,
-                    type: 'error'
+                    type: 'danger'
                 });
                 setTimeout(() => setIsStatusDialogOpen(true), 100);
                 if (onAddAssignment) {
@@ -160,7 +160,7 @@ export function VolunteerCleanupDialogs(
                     body: <p>Location <strong>{result.data?.description}</strong> was not added.
                         If it is outside of normal business hours, the database may be off.
                         Please try again later. Select 'Okay' to return to the Add a New Cleanup Location dialog window.</p>,
-                    type: 'error'
+                    type: 'danger'
                 });
                 setTimeout(() => setIsStatusDialogOpen(true), 100);
                 if (onAddLocation) {
@@ -208,7 +208,7 @@ export function VolunteerCleanupDialogs(
                     body: <p>Organization <strong>{result.data?.name}</strong> was not added.
                         If it is outside of normal business hours, the database may be off.
                         Please try again later. Select 'Okay' to return to the Add a New Organization dialog window.</p>,
-                    type: 'error'
+                    type: 'danger'
                 });
                 setTimeout(() => setIsStatusDialogOpen(true), 100);
                 if (onAddOrganization) {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react';
-import { RadioList } from '../components';
+import { Button, RadioList } from '../components';
 import { ErrorModel } from '../models';
 import { CategoryCode, IntervalCode, MetricSearchModel, ProgramCode } from '../models/metrics';
 import { validateMetricFilters } from './metricSelectionValidation';
@@ -138,9 +138,7 @@ export function MetricSelectionForm({ onVisualize }: { onVisualize: (data: any) 
                 errors={errors}>
             </TimePeriodFields>
 
-            <button className="border p-1 rounded-md bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem]">
-                Visualize
-            </button>
+            <Button design="primary">Visualize</Button>
         </form>
     );
 }

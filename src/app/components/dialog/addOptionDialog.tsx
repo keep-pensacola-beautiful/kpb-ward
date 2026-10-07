@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '../button/button';
 import { Dialog } from './dialog';
 
 export function AddOptionDialog(
@@ -39,21 +40,8 @@ export function AddOptionDialog(
             <form onSubmit={onSubmit}>
                 { children }
                 <div className="flex flex-row justify-end gap-2 mt-4">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="border p-2 rounded-md
-                            bg-[var(--deepBlue)] text-[var(--tan)] text-[1.06rem]
-                            cursor-pointer"
-                        >
-                        { cancelBtnLabel }
-                    </button>
-                    <button className="border-2 p-2 rounded-md
-                        bg-[var(--tan)] text-[var(--deepBlue)] text-[1.06rem]
-                        cursor-pointer"
-                        >
-                        { addBtnLabel }
-                    </button>
+                    <Button type="button" design="primary" onClick={onClose}>{ cancelBtnLabel }</Button>
+                    <Button design="secondary">{ addBtnLabel }</Button>
                 </div>
             </form>
         </Dialog>

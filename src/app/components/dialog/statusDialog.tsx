@@ -1,5 +1,6 @@
 import { Dialog } from '..';
 import { DialogType } from './dialogType.model';
+import { Button } from '../button/button';
 
 export function StatusDialog({ dialogId, isOpen, onClose, title, body, type = 'info' }:
     { dialogId: string, isOpen: boolean, onClose: (e: any) => void, title: string, body: React.ReactNode, type: DialogType }
@@ -15,18 +16,19 @@ export function StatusDialog({ dialogId, isOpen, onClose, title, body, type = 'i
             >
             { body }
             <div className="flex flex-row justify-end mt-4">
-                    <button
+                <Button type="button" design="primary" color={type} onClick={onClose}>Okay</Button>
+                    {/* <button
                         type="button"
                         onClick={onClose}
                         className={`border p-2 rounded-md
                             text-[var(--tan)] text-[1.06rem]
                             cursor-pointer
                             ${type === 'info' ? 'bg-[var(--deepBlue)]' : ''}
-                            ${type === 'error' ? 'bg-red-700' : ''}
+                            ${type === 'danger' ? 'bg-red-700' : ''}
                             ${type === 'success' ? 'bg-green-800' : ''}`}
                         >
                         Okay
-                    </button>
+                    </button> */}
                 </div>
         </Dialog>
     );

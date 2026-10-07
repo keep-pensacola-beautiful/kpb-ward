@@ -275,7 +275,7 @@ export function VolunteerCleanupForm({
             { alertHeader !== '' &&
                 <Alert
                     id="save-failure-alert"
-                    type="error"
+                    type="danger"
                     header={alertHeader}
                     body="If it is outside of normal business hours, the database may be off.
                         Please copy the values you entered and try again later."
