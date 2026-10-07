@@ -6,7 +6,18 @@ import { parseJsonStringOptions } from '../../utils/parseJsonStringOptions';
 import { MultiSelectOptionModel } from './multiSelectOption.model';
 import { Checkbox } from './checkbox/checkbox';
 
-export function MultiSelect({ label, multiSelectName, options, descriptionText, isRequired, hasSearch, orientation, selectedValuesMap, errorText, handleChange }: MultiSelectModel) {
+export function MultiSelect({
+    label,
+    multiSelectName,
+    options,
+    descriptionText,
+    isRequired,
+    hasSearch,
+    orientation,
+    selectedValuesMap,
+    errorText,
+    handleChange
+}: MultiSelectModel) {
     const [filter, setFilter] = useState<string>('');
 
     function orient(orient: string | undefined): string {
@@ -34,7 +45,7 @@ export function MultiSelect({ label, multiSelectName, options, descriptionText, 
                                 inputName={multiSelectName}
                                 label={option.label}
                                 value={option.value}
-                                isChecked={selectedValuesMap?.has(option.inputId)}
+                                isChecked={option.checked || selectedValuesMap?.has(option.inputId)}
                                 handleChange={handleChange}>
                             </Checkbox>
                         </span>);
