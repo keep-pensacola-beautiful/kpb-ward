@@ -73,7 +73,11 @@ export async function getBulkyItemCountByInterval(
                         `CONCAT(MONTH(dates.month_date),'/',YEAR(dates.month_date)) AS label, ` +
                         `COALESCE(SUM(bulky_items.quantity), 0) AS value ` +
                     `FROM ${bulkyItemTable} AS bulky_items ` +
-                    `INNER JOIN ${eventTable} AS event_table ON bulky_items.${bulkyItemToEventCol} = event_table.id ` +
+                    'INNER JOIN ( ' +
+                        `SELECT id, date FROM ${eventTable} ` +
+                        'WHERE YEAR(date) >= ? AND YEAR(date) <= ? ' +
+                        'AND deleted_at IS NULL ' +
+                    `) AS event_table ON bulky_items.${bulkyItemToEventCol} = event_table.id ` +
                     'RIGHT JOIN ( ' +
                         `SELECT DATE_ADD(STR_TO_DATE(CONCAT(?, '-', ?, '-01'), '%Y-%m-%d'), INTERVAL n-1 MONTH) AS month_date ` +
                         'FROM tally ' +
@@ -86,6 +90,7 @@ export async function getBulkyItemCountByInterval(
                         'AND MONTH(event_table.date) = MONTH(dates.month_date) ' +
                     'GROUP BY label',
                     [
+                        timeFilters.startYear, timeFilters.endYear,
                         timeFilters.startYear, timeFilters.startMonth,
                         timeFilters.startYear, timeFilters.startMonth,
                         timeFilters.endYear, timeFilters.endMonth
@@ -105,8 +110,11 @@ export async function getBulkyItemCountByInterval(
                         `CONCAT('FY', YEAR(dates.quarter_date)+quarters.year_to_fy_adjuster,'-Q',quarters.kpb_quarter) AS label, ` +
                         `COALESCE(SUM(bulky_items.quantity), 0) AS value ` +
                     `FROM ${bulkyItemTable} AS bulky_items ` +
-                    // 'INNER JOIN quarter_conversion_reference AS quarters ON QUARTER(metric_table.date) = quarters.code ' +
-                    `INNER JOIN ${eventTable} AS event_table ON bulky_items.${bulkyItemToEventCol} = event_table.id ` +
+                    'INNER JOIN ( ' +
+                        `SELECT id, date FROM ${eventTable} ` +
+                        'WHERE YEAR(date) >= ? AND YEAR(date) <= ? ' +
+                        'AND deleted_at IS NULL ' +
+                    `) AS event_table ON bulky_items.${bulkyItemToEventCol} = event_table.id ` +
                     'RIGHT JOIN ( ' +
                         `SELECT DATE_ADD(STR_TO_DATE(CONCAT(?, '-', ?, '-01'), '%Y-%m-%d'), INTERVAL n-1 QUARTER) AS quarter_date ` +
                         'FROM tally ' +
@@ -118,12 +126,9 @@ export async function getBulkyItemCountByInterval(
                         `ON YEAR(event_table.date) = YEAR(dates.quarter_date) ` +
                         `AND QUARTER(event_table.date) = QUARTER(dates.quarter_date) ` +
                     'INNER JOIN quarter_conversion_reference AS quarters ON QUARTER(dates.quarter_date) = quarters.code ' +
-                    // 'WHERE quarters.kpb_quarter >= ? ' +
-                    // 'AND quarters.kpb_quarter <= ? ' +
-                    // 'AND YEAR(event_table.date) >= ? ' +
-                    // 'AND YEAR(event_table.date) <= ? ' +
                     'GROUP BY label',
                     [
+                        timeFilters.startYear, timeFilters.endYear,
                         timeFilters.startYear, firstMonthInStartQuarter,
                         timeFilters.startYear, firstMonthInStartQuarter,
                         timeFilters.endYear, firstMonthInEndQuarter
@@ -139,7 +144,11 @@ export async function getBulkyItemCountByInterval(
                         `CONCAT('FY', YEAR(dates.quarter_date)+quarters.year_to_fy_adjuster) AS label, ` +
                         `COALESCE(SUM(bulky_items.quantity), 0) AS value ` +
                     `FROM ${bulkyItemTable} AS bulky_items ` +
-                    `INNER JOIN ${eventTable} AS event_table ON bulky_items.${bulkyItemToEventCol} = event_table.id ` +
+                    'INNER JOIN ( ' +
+                        `SELECT id, date FROM ${eventTable} ` +
+                        'WHERE YEAR(date) >= ? AND YEAR(date) <= ? ' +
+                        'AND deleted_at IS NULL ' +
+                    `) AS event_table ON bulky_items.${bulkyItemToEventCol} = event_table.id ` +
                     'RIGHT JOIN ( ' +
                         `SELECT DATE_ADD(STR_TO_DATE(CONCAT(?, '-', ?, '-01'), '%Y-%m-%d'), INTERVAL n-1 QUARTER) AS quarter_date ` +
                         'FROM tally ' +
@@ -153,6 +162,7 @@ export async function getBulkyItemCountByInterval(
                     'INNER JOIN quarter_conversion_reference AS quarters ON QUARTER(dates.quarter_date) = quarters.code ' +
                     'GROUP BY label',
                     [
+                        timeFilters.startYear, timeFilters.endYear,
                         timeFilters.startYear, month,
                         timeFilters.startYear, month,
                         timeFilters.endYear, month
@@ -208,7 +218,11 @@ export async function getColumnSumAsMetricByInterval(
                     'SELECT ' +
                         `CONCAT(MONTH(dates.month_date),'/',YEAR(dates.month_date)) AS label, ` +
                         `COALESCE(SUM(metric_table.${column}), 0) AS value ` +
-                    `FROM ${table} metric_table ` +
+                    'FROM ( ' +
+                        `SELECT date, ${column} FROM ${table} ` +
+                        'WHERE YEAR(date) >= ? AND YEAR(date) <= ? ' +
+                        'AND deleted_at IS NULL ' +
+                    ') AS metric_table ' +
                     'RIGHT JOIN ( ' +
                         `SELECT DATE_ADD(STR_TO_DATE(CONCAT(?, '-', ?, '-01'), '%Y-%m-%d'), INTERVAL n-1 MONTH) AS month_date ` +
                         'FROM tally ' +
@@ -221,6 +235,7 @@ export async function getColumnSumAsMetricByInterval(
                         'AND MONTH(metric_table.date) = MONTH(dates.month_date) ' +
                     'GROUP BY label',
                     [
+                        timeFilters.startYear, timeFilters.endYear,
                         timeFilters.startYear, timeFilters.startMonth,
                         timeFilters.startYear, timeFilters.startMonth,
                         timeFilters.endYear, timeFilters.endMonth
@@ -232,14 +247,20 @@ export async function getColumnSumAsMetricByInterval(
                 if (timeFilters.startQuarter === undefined || timeFilters.endQuarter === undefined) {
                     throw new Error('Missing start or end quarter when retrieving column sum as metric by quarter interval.');
                 }
+                console.log(timeFilters);
                 let firstMonthInStartQuarter: number = getFirstMonthOfQuarter(timeFilters.startQuarter);
                 let firstMonthInEndQuarter: number = getFirstMonthOfQuarter(timeFilters.endQuarter);
+                console.log(`first=${firstMonthInStartQuarter}, end=${firstMonthInEndQuarter}`);
                 conn = await getConnection();
                 const [quarterResult] = await conn.execute(
                     'SELECT ' +
                         `CONCAT('FY', YEAR(dates.quarter_date)+quarters.year_to_fy_adjuster,'-Q',quarters.kpb_quarter) AS label, ` +
                         `COALESCE(SUM(metric_table.${column}), 0) AS value ` +
-                    `FROM ${table} AS metric_table ` +
+                    'FROM ( ' +
+                        `SELECT date, ${column} FROM ${table} ` +
+                        'WHERE YEAR(date) >= ? AND YEAR(date) <= ? ' +
+                        'AND deleted_at IS NULL ' +
+                    ') AS metric_table ' +
                     'RIGHT JOIN ( ' +
                         `SELECT DATE_ADD(STR_TO_DATE(CONCAT(?, '-', ?, '-01'), '%Y-%m-%d'), INTERVAL n-1 QUARTER) AS quarter_date ` +
                         'FROM tally ' +
@@ -253,6 +274,7 @@ export async function getColumnSumAsMetricByInterval(
                     'INNER JOIN quarter_conversion_reference AS quarters ON QUARTER(dates.quarter_date) = quarters.code ' +
                     'GROUP BY label',
                     [
+                        timeFilters.startYear, timeFilters.endYear,
                         timeFilters.startYear, firstMonthInStartQuarter,
                         timeFilters.startYear, firstMonthInStartQuarter,
                         timeFilters.endYear, firstMonthInEndQuarter
@@ -264,23 +286,14 @@ export async function getColumnSumAsMetricByInterval(
                 let month: number = getFirstMonthOfQuarter(4);
                 conn = await getConnection();
                 const [yearResult] = await conn.execute(
-                    // `SELECT YEAR(dates.year_date) AS label, COALESCE(SUM(metric_table.${column}), 0) AS value ` +
-                    // `FROM ${table} AS metric_table ` +
-                    // 'RIGHT JOIN ( ' +
-                    //     `SELECT DATE_ADD(STR_TO_DATE(CONCAT(?, '-', '01', '-01'), '%Y-%m-%d'), INTERVAL n-1 YEAR) AS year_date ` +
-                    //     'FROM tally ' +
-                    //     'WHERE DATE_ADD( ' +
-                    //             `STR_TO_DATE(CONCAT(?, '-', '01', '-01'), '%Y-%m-%d'), ` +
-                    //             'INTERVAL n-1 YEAR ' +
-                    //         `) <= STR_TO_DATE(CONCAT(?, '-', '01', '-01'), '%Y-%m-%d') ` +
-                    // ') AS dates ' +
-                    //     `ON YEAR(metric_table.date) = YEAR(dates.year_date) ` +
-                    // 'GROUP BY label'
-                    
                     'SELECT ' +
                         `CONCAT('FY', YEAR(dates.quarter_date)+quarters.year_to_fy_adjuster) AS label, ` +
                         `COALESCE(SUM(metric_table.${column}), 0) AS value ` +
-                    `FROM ${table} AS metric_table ` +
+                    'FROM ( ' +
+                        `SELECT date, ${column} FROM ${table} ` +
+                        'WHERE YEAR(date) >= ? AND YEAR(date) <= ? ' +
+                        'AND deleted_at IS NULL ' +
+                    ') AS metric_table ' +
                     'RIGHT JOIN ( ' +
                         `SELECT DATE_ADD(STR_TO_DATE(CONCAT(?, '-', ?, '-01'), '%Y-%m-%d'), INTERVAL n-1 QUARTER) AS quarter_date ` +
                         'FROM tally ' +
@@ -294,6 +307,7 @@ export async function getColumnSumAsMetricByInterval(
                     'INNER JOIN quarter_conversion_reference AS quarters ON QUARTER(dates.quarter_date) = quarters.code ' +
                     'GROUP BY label',
                     [
+                        timeFilters.startYear, timeFilters.endYear,
                         timeFilters.startYear, month,
                         timeFilters.startYear, month,
                         timeFilters.endYear, month
@@ -365,7 +379,8 @@ export async function getHighestOccurrencesOfAThingMetricUsing2Tables(
         const [result]: any = await conn.execute(
             `SELECT thing_table.${aThingLabelCol} AS label, COUNT(event_table.id) AS value FROM ${eventTable} AS event_table ` +
             `INNER JOIN ${aThingTable} AS thing_table ON event_table.${eventFKColToAThing} = thing_table.id ` +
-            'WHERE MONTH(event_table.date) >= ? ' +
+            'WHERE event_table.deleted_at IS NULL ' +
+            'AND MONTH(event_table.date) >= ? ' +
             'AND MONTH(event_table.date) <= ? ' +
             'AND YEAR(event_table.date) >= ? ' +
             'AND YEAR(event_table.date) <= ? ' +
@@ -455,7 +470,8 @@ export async function getHighestOccurrencesOfAThingMetricUsing3Tables(
             `SELECT thing_ref_table.description AS label, ${sumOrCount}(thing_table.${sumOrCountCol}) AS value FROM ${aThingTable} AS thing_table ` +
             `INNER JOIN ${aThingRefTable} AS thing_ref_table ON thing_table.${aThingFKColToRef} = thing_ref_table.${refPKCol} ` +
             `INNER JOIN ${eventTable} AS event_table ON thing_table.${aThingFKColToEvent} = event_table.id ` +
-            'WHERE MONTH(event_table.date) >= ? ' +
+            'WHERE event_table.deleted_at IS NULL ' +
+            'AND MONTH(event_table.date) >= ? ' +
             'AND MONTH(event_table.date) <= ? ' +
             'AND YEAR(event_table.date) >= ? ' +
             'AND YEAR(event_table.date) <= ? ' +
@@ -512,7 +528,11 @@ export async function getRowCountAsMetricByInterval(
                     'SELECT ' +
                         `CONCAT(MONTH(dates.month_date),'/',YEAR(dates.month_date)) AS label, ` +
                         `COALESCE(COUNT(metric_table.${column}), 0) AS value ` +
-                    `FROM ${table} metric_table ` +
+                    'FROM ( ' +
+                        `SELECT date, ${column} FROM ${table} ` +
+                        'WHERE YEAR(date) >= ? AND YEAR(date) <= ? ' +
+                        'AND deleted_at IS NULL ' +
+                    ') AS metric_table ' +
                     'RIGHT JOIN ( ' +
                         `SELECT DATE_ADD(STR_TO_DATE(CONCAT(?, '-', ?, '-01'), '%Y-%m-%d'), INTERVAL n-1 MONTH) AS month_date ` +
                         'FROM tally ' +
@@ -525,6 +545,7 @@ export async function getRowCountAsMetricByInterval(
                         'AND MONTH(metric_table.date) = MONTH(dates.month_date) ' +
                     'GROUP BY label',
                     [
+                        timeFilters.startYear, timeFilters.endYear,
                         timeFilters.startYear, timeFilters.startMonth,
                         timeFilters.startYear, timeFilters.startMonth,
                         timeFilters.endYear, timeFilters.endMonth
@@ -543,7 +564,11 @@ export async function getRowCountAsMetricByInterval(
                     'SELECT ' +
                         `CONCAT('FY', YEAR(dates.quarter_date)+quarters.year_to_fy_adjuster,'-Q',quarters.kpb_quarter) AS label, ` +
                         `COALESCE(COUNT(metric_table.${column}), 0) AS value ` +
-                    `FROM ${table} AS metric_table ` +
+                    'FROM ( ' +
+                        `SELECT date, ${column} FROM ${table} ` +
+                        'WHERE YEAR(date) >= ? AND YEAR(date) <= ? ' +
+                        'AND deleted_at IS NULL ' +
+                    ') AS metric_table ' +
                     'RIGHT JOIN ( ' +
                         `SELECT DATE_ADD(STR_TO_DATE(CONCAT(?, '-', ?, '-01'), '%Y-%m-%d'), INTERVAL n-1 QUARTER) AS quarter_date ` +
                         'FROM tally ' +
@@ -557,6 +582,7 @@ export async function getRowCountAsMetricByInterval(
                     'INNER JOIN quarter_conversion_reference AS quarters ON QUARTER(dates.quarter_date) = quarters.code ' +
                     'GROUP BY label',
                     [
+                        timeFilters.startYear, timeFilters.endYear,
                         timeFilters.startYear, firstMonthInStartQuarter,
                         timeFilters.startYear, firstMonthInStartQuarter,
                         timeFilters.endYear, firstMonthInEndQuarter
@@ -571,7 +597,11 @@ export async function getRowCountAsMetricByInterval(
                     'SELECT ' +
                         `CONCAT('FY', YEAR(dates.quarter_date)+quarters.year_to_fy_adjuster) AS label, ` +
                         `COALESCE(COUNT(metric_table.${column}), 0) AS value ` +
-                    `FROM ${table} AS metric_table ` +
+                    'FROM ( ' +
+                        `SELECT date, ${column} FROM ${table} ` +
+                        'WHERE YEAR(date) >= ? AND YEAR(date) <= ? ' +
+                        'AND deleted_at IS NULL ' +
+                    ') AS metric_table ' +
                     'RIGHT JOIN ( ' +
                         `SELECT DATE_ADD(STR_TO_DATE(CONCAT(?, '-', ?, '-01'), '%Y-%m-%d'), INTERVAL n-1 QUARTER) AS quarter_date ` +
                         'FROM tally ' +
@@ -585,6 +615,7 @@ export async function getRowCountAsMetricByInterval(
                     'INNER JOIN quarter_conversion_reference AS quarters ON QUARTER(dates.quarter_date) = quarters.code ' +
                     'GROUP BY label',
                     [
+                        timeFilters.startYear, timeFilters.endYear,
                         timeFilters.startYear, month,
                         timeFilters.startYear, month,
                         timeFilters.endYear, month
