@@ -10,6 +10,7 @@ export { Footer } from './footer';
 export { Header } from './header';
 export { MultiSelect } from './multiSelect/multiSelect';
 export { RadioList } from './radioList/radioList';
+export { SiteAlert } from './siteAlert/siteAlert';
 export { SortableTable } from './table/sortableTable';
 export { Table } from './table/table';
 export { TableData } from './table/tableData';
