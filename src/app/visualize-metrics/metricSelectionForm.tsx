@@ -93,7 +93,7 @@ export function MetricSelectionForm({ onVisualize }: { onVisualize: (data: any) 
     }
 
     return (
-        <div>
+        <div className="min-w-3xs">
             <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-[var(--gold)] p-2">
                 <RadioList
                     label="Data Category"

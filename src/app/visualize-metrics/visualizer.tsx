@@ -74,7 +74,7 @@ export function Visualizer({
     return (
         <main className="w-1/1 bg-white">
             <div className="flex flex-row grow-2 justify-between gap-2 mb-4 bg-[var(--gold)] p-2">
-                <h2 id="main-content-header" className="text-lg md:text-xl self-center font-semibold">
+                <h2 tabIndex={-1} id="metric-title" className="text-lg md:text-xl self-center font-semibold">
                     { metricTitle }
                 </h2>
                 <RadioList

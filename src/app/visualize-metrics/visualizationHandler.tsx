@@ -5,7 +5,7 @@ import { MetricSearchModel } from '../models/metrics';
 import { MetricSelectionForm } from './metricSelectionForm';
 import { Visualizer } from './visualizer';
 import { getDataToVisualize } from './actions';
-import { LoadingDialog } from '../components';
+import { LoadingDialog, StatusDialog } from '../components';
 
 export function VisualizationHandler() {
     const [metricTitle, setMetricTitle] = useState<string>('<Select a Metric>');
@@ -14,6 +14,7 @@ export function VisualizationHandler() {
     const [chartData, setChartData] = useState<{ label: string, value: number }[]>([]);
     const [tableHeaders, setTableHeaders] = useState<{ labelHeader: string, valueHeader: string}>({ labelHeader: 'Label', valueHeader: 'Value' });
     const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState<boolean>(false);
+    const [isNoDataDialogOpen, setIsNoDataDialogOpen] = useState<boolean>(false);
 
     async function handleVisualize(filters: MetricSearchModel) {
         setIsLoadingDialogOpen(true);
@@ -24,6 +25,11 @@ export function VisualizationHandler() {
         setChartType(data.chartType);
         setChartData(data.data);
         setTableHeaders(data.dataColHeaders);
+        if (data.data.length === 0) {
+            setIsNoDataDialogOpen(true);
+        } else {
+            setTimeout(() => document.getElementById('metric-title')?.focus(), 100);
+        }
     }
 
     return (
@@ -33,6 +39,18 @@ export function VisualizationHandler() {
                 dialogId="metric-dialog"
                 dialogTitle="Please wait while we retrieve the metric">
             </LoadingDialog>
+            <StatusDialog
+                dialogId="no-data-dialog"
+                isOpen={isNoDataDialogOpen}
+                onClose={() => setIsNoDataDialogOpen(false)}
+                title="No Data Found"
+                body={
+                    <p>
+                        No data was found for { metricTitle } for the specified time period.
+                        If you think there should be data, try expanding the time period.
+                    </p>}
+                type="info">
+            </StatusDialog>
             <MetricSelectionForm onVisualize={handleVisualize}></MetricSelectionForm>
             <Visualizer
                 metricTitle={metricTitle}
