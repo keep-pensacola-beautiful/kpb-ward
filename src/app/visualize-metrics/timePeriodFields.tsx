@@ -93,31 +93,29 @@ export function TimePeriodFields({ interval, errors }: { interval: IntervalCode,
             return (
                 <fieldset>
                     <legend><p className="text-[1.06rem] font-semibold">Time Period</p></legend>
-                    <div className="flex flex-row">
-                        <span className="w-[7rem]">
-                            <Textbox
-                                inputId="start-year"
-                                inputType="text"
-                                labelText="Start FY"
-                                width="sm:w-13"
-                                labelFontWeight="font-normal"
-                                maxlength={4}
-                                compact={true}
-                                ariaDescribedBy={`${errors.has('start-year') ? 'start-year-error' : ''}`}>
-                            </Textbox>
-                        </span>
-                        <span className="w-[7rem]">
-                            <Textbox
-                                inputId="end-year"
-                                inputType="text"
-                                labelText="End FY"
-                                width="sm:w-13"
-                                labelFontWeight="font-normal"
-                                maxlength={4}
-                                compact={true}
-                                ariaDescribedBy={`${errors.has('end-year') ? 'end-year-error' : ''}`}>
-                            </Textbox>
-                        </span>
+                    <div className="w-[7rem]">
+                        <Textbox
+                            inputId="start-year"
+                            inputType="text"
+                            labelText="Start FY"
+                            width="sm:w-13"
+                            labelFontWeight="font-normal"
+                            maxlength={4}
+                            compact={true}
+                            ariaDescribedBy={`${errors.has('start-year') ? 'start-year-error' : ''}`}>
+                        </Textbox>
+                    </div>
+                    <div className="w-[7rem] mt-1">
+                        <Textbox
+                            inputId="end-year"
+                            inputType="text"
+                            labelText="End FY"
+                            width="sm:w-13"
+                            labelFontWeight="font-normal"
+                            maxlength={4}
+                            compact={true}
+                            ariaDescribedBy={`${errors.has('end-year') ? 'end-year-error' : ''}`}>
+                        </Textbox>
                     </div>
                     { getDateErrors() }
                 </fieldset>
