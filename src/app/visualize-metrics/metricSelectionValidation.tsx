@@ -49,8 +49,8 @@ export function validateMetricFilters(
         newErrors = endQuarterValidation.errors;
         endQuarterNum = endQuarterValidation.quarter;
     }
-    newErrors = validateYear(newErrors, startYear, 'start-year', 'Start Year', 'start', KPB_FOUNDING_YEAR, new Date().getFullYear());
-    newErrors = validateYear(newErrors, endYear, 'end-year', 'End Year', 'end', KPB_FOUNDING_YEAR, new Date().getFullYear());
+    newErrors = validateYear(newErrors, startYear, 'start-year', 'Start Year', 'start', KPB_FOUNDING_YEAR, new Date().getFullYear() + 1);
+    newErrors = validateYear(newErrors, endYear, 'end-year', 'End Year', 'end', KPB_FOUNDING_YEAR, new Date().getFullYear() + 1);
 
     if (!newErrors || newErrors.size < 1) {
         if (startYear !== null && endYear !== null) {
