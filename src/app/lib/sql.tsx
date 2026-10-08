@@ -5,11 +5,16 @@ import { retry } from '../utils/retry';
 import Contact from '@/src/app/models/contact';
 import { getConnection, closeConnection } from '@/src/app/lib/database-connector';
 
-export async function testConnection() {
-    const conn = await getConnection();
-    const [result] = await conn.query(`SELECT 'True' AS connected;`);
-    console.table(result); // prints returned time value from server
-    await conn.release();
+export async function testConnection(): Promise<boolean> {
+    let conn;
+    try {
+        conn = await getConnection();
+        const [result]: any = await conn.execute(`SELECT 'true' AS connected`);
+        conn.release();
+        return result[0].connected === 'true';
+    } catch (err) {
+        return false;
+    }
 }
 
 export async function insertCleanupWithContact(cleanup: Cleanup, contact: Contact) {
