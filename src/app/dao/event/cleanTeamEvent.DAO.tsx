@@ -11,7 +11,7 @@ import {
     updateCleanTeamEvent
 } from '../../lib/event.sql';
 import { getColumnSumAsMetricByInterval } from '../../lib/metric.sql';
-import { searchCleanTeamEvents } from '../../lib/search.sql';
+import { getCountOfCleanTeamEventsMatchingCriteria, searchCleanTeamEvents } from '../../lib/search.sql';
 import { CLEAN_TEAM_METRIC_VALUES } from './metricValues';
 
 type MetricCode = 'trashLbs' | 'recyclingLbs';
@@ -67,7 +67,7 @@ export class CleanTeamEventDAO implements EventDAO, MetricsDAO {
         return await deleteCleanTeamEventById(id);
     }
 
-    async search(searchCriteria: Map<string, string>): Promise<CleanTeamEventModel[]> {
+    async search(searchCriteria: Map<string, string>, limit: number, offset: number): Promise<CleanTeamEventModel[]> {
         const startDate: string | undefined = searchCriteria.get('start-date');
         const endDate: string | undefined = searchCriteria.get('end-date');
         if (startDate === undefined || endDate === undefined) {
@@ -78,7 +78,8 @@ export class CleanTeamEventDAO implements EventDAO, MetricsDAO {
             startDate, endDate,
             searchCriteria.get('trash-min'), searchCriteria.get('trash-max'),
             searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max'),
-            searchCriteria.get('event-desc')
+            searchCriteria.get('event-desc'),
+            limit, offset
         );
         let events: CleanTeamEventModel[] = [];
         if (result !== null && result.length >= 1) {
@@ -91,6 +92,26 @@ export class CleanTeamEventDAO implements EventDAO, MetricsDAO {
             }));
         }
         return events;
+    }
+
+    async getCountMatchingCriteria(searchCriteria: Map<string, string>): Promise<number> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to get count of Clean Team Events matching criteria due to missing start date or end date.');
+            return 0;
+        }
+        const result: any = await getCountOfCleanTeamEventsMatchingCriteria(
+            startDate, endDate,
+            searchCriteria.get('trash-min'), searchCriteria.get('trash-max'),
+            searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max'),
+            searchCriteria.get('event-desc')
+        );
+        let rowCount: number = 0;
+        if (result !== null && result.length >= 1) {
+            rowCount = result[0].rowCount;
+        }
+        return rowCount;
     }
 
     async getMetric(

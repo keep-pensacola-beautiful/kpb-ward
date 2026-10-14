@@ -12,7 +12,7 @@ import {
     insertRoadsideLitterEvent,
     updateRoadsideLitterEvent
 } from '../../lib/event.sql';
-import { searchRoadsideLitterEvents } from '../../lib/search.sql';
+import { getCountOfRoadsideLitterEventsMatchingCriteria, searchRoadsideLitterEvents } from '../../lib/search.sql';
 import { getRoadsideLitterBulkyItemsByEventId } from '../../lib/eventBulkyItems.sql';
 import { getRoadsideLitterDistrictsByEventId } from '../../lib/eventDistricts.sql';
 import {
@@ -111,7 +111,7 @@ export class RoadsideLitterEventDAO implements EventDAO, MetricsDAO {
         return await deleteRoadsiteLitterEventById(id);
     }
 
-    async search(searchCriteria: Map<string, string>): Promise<RoadsideLitterEventModel[]> {
+    async search(searchCriteria: Map<string, string>, limit: number, offset: number): Promise<RoadsideLitterEventModel[]> {
         const startDate: string | undefined = searchCriteria.get('start-date');
         const endDate: string | undefined = searchCriteria.get('end-date');
         if (startDate === undefined || endDate === undefined) {
@@ -123,7 +123,8 @@ export class RoadsideLitterEventDAO implements EventDAO, MetricsDAO {
             searchCriteria.get('litter-min'), searchCriteria.get('litter-max'),
             searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max'),
             searchCriteria.get('district'), searchCriteria.get('location'),
-            searchCriteria.get('bulky-item-count-min'), searchCriteria.get('bulky-item-count-max')
+            searchCriteria.get('bulky-item-count-min'), searchCriteria.get('bulky-item-count-max'),
+            limit, offset
         );
         let events: RoadsideLitterEventModel[] = [];
         if (result !== null && result.length >= 1) {
@@ -139,9 +140,28 @@ export class RoadsideLitterEventDAO implements EventDAO, MetricsDAO {
                 districtsDisplay: row.districts
             }));
         }
-        console.log(result);
-        console.log(events);
         return events;
+    }
+
+    async getCountMatchingCriteria(searchCriteria: Map<string, string>): Promise<number> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to get count of Roadside Litter Events matching criteria due to missing start date or end date.');
+            return 0;
+        }
+        const result: any = await getCountOfRoadsideLitterEventsMatchingCriteria(
+            startDate, endDate,
+            searchCriteria.get('litter-min'), searchCriteria.get('litter-max'),
+            searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max'),
+            searchCriteria.get('district'), searchCriteria.get('location'),
+            searchCriteria.get('bulky-item-count-min'), searchCriteria.get('bulky-item-count-max')
+        );
+        let rowCount: number = 0;
+        if (result !== null && result.length >= 1) {
+            rowCount = result[0].rowCount;
+        }
+        return rowCount;
     }
 
     async getMetric(

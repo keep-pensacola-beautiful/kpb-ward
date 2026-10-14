@@ -11,7 +11,7 @@ import {
     updateTrashRoutesEvent
 } from '../../lib/event.sql';
 import { getColumnSumAsMetricByInterval } from '../../lib/metric.sql';
-import { searchTrashRoutesEvents } from '../../lib/search.sql';
+import { getCountOfTrashRoutesEventsMatchingCriteria, searchTrashRoutesEvents } from '../../lib/search.sql';
 import { TRASH_ROUTES_METRIC_VALUES } from './metricValues';
 import { TrashRoutesEventModel } from '../../models/event';
 
@@ -63,7 +63,7 @@ export class TrashRoutesEventDAO implements EventDAO, MetricsDAO {
         return await deleteTrashRoutesEventById(id);
     }
 
-    async search(searchCriteria: Map<string, string>): Promise<TrashRoutesEventModel[]> {
+    async search(searchCriteria: Map<string, string>, limit: number, offset: number): Promise<TrashRoutesEventModel[]> {
         const startDate: string | undefined = searchCriteria.get('start-date');
         const endDate: string | undefined = searchCriteria.get('end-date');
         if (startDate === undefined || endDate === undefined) {
@@ -73,7 +73,8 @@ export class TrashRoutesEventDAO implements EventDAO, MetricsDAO {
         const result: any = await searchTrashRoutesEvents(
             startDate, endDate,
             searchCriteria.get('trash-min'), searchCriteria.get('trash-max'),
-            searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max')
+            searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max'),
+            limit, offset
         );
         let events: TrashRoutesEventModel[] = [];
         if (result !== null && result.length >= 1) {
@@ -85,6 +86,25 @@ export class TrashRoutesEventDAO implements EventDAO, MetricsDAO {
             }));
         }
         return events;
+    }
+
+    async getCountMatchingCriteria(searchCriteria: Map<string, string>): Promise<number> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to get count of Trash Can Routes Events matching criteria due to missing start date or end date.');
+            return 0;
+        }
+        const result: any = await getCountOfTrashRoutesEventsMatchingCriteria(
+            startDate, endDate,
+            searchCriteria.get('trash-min'), searchCriteria.get('trash-max'),
+            searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max')
+        );
+        let rowCount: number = 0;
+        if (result !== null && result.length >= 1) {
+            rowCount = result[0].rowCount;
+        }
+        return rowCount;
     }
 
     async getMetric(

@@ -11,7 +11,7 @@ import {
     updateBagSwapEvent
 } from '../../lib/event.sql';
 import { getColumnSumAsMetricByInterval } from '../../lib/metric.sql';
-import { searchBagSwapEvents } from '../../lib/search.sql';
+import { getCountOfBagSwapEventsMatchingCriteria, searchBagSwapEvents } from '../../lib/search.sql';
 import { BAG_SWAP_METRIC_VALUES } from './metricValues';
 
 type MetricCode = 'bagCount' | 'volunteerCount' | 'volunteerHours';
@@ -66,7 +66,7 @@ export class BagSwapEventDAO implements EventDAO, MetricsDAO {
         return await deleteBagSwapEventById(id);
     }
 
-    async search(searchCriteria: Map<string, string>): Promise<BagSwapEventModel[]> {
+    async search(searchCriteria: Map<string, string>, limit: number, offset: number): Promise<BagSwapEventModel[]> {
         const startDate: string | undefined = searchCriteria.get('start-date');
         const endDate: string | undefined = searchCriteria.get('end-date');
         if (startDate === undefined || endDate === undefined) {
@@ -77,7 +77,8 @@ export class BagSwapEventDAO implements EventDAO, MetricsDAO {
             startDate, endDate,
             searchCriteria.get('bag-min'), searchCriteria.get('bag-max'),
             searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max'),
-            searchCriteria.get('event-desc')
+            searchCriteria.get('event-desc'),
+            limit, offset
         );
         let events: BagSwapEventModel[] = [];
         if (result !== null && result.length >= 1) {
@@ -91,6 +92,26 @@ export class BagSwapEventDAO implements EventDAO, MetricsDAO {
             }));
         }
         return events;
+    }
+
+    async getCountMatchingCriteria(searchCriteria: Map<string, string>): Promise<number> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to get count of Bag Swap Events matching criteria due to missing start date or end date.');
+            return 0;
+        }
+        const result: any = await getCountOfBagSwapEventsMatchingCriteria(
+            startDate, endDate,
+            searchCriteria.get('bag-min'), searchCriteria.get('bag-max'),
+            searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max'),
+            searchCriteria.get('event-desc')
+        );
+        let rowCount: number = 0;
+        if (result !== null && result.length >= 1) {
+            rowCount = result[0].rowCount;
+        }
+        return rowCount;
     }
 
     async getMetric(

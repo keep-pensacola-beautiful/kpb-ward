@@ -11,7 +11,7 @@ import {
     updateEducationEvent
 } from '../../lib/event.sql';
 import { getColumnSumAsMetricByInterval, getHighestOccurrencesOfAThingMetricUsing2Tables } from '../../lib/metric.sql';
-import { searchEducationEvents } from '../../lib/search.sql';
+import { getCountOfEducationEventsMatchingCriteria, searchEducationEvents } from '../../lib/search.sql';
 import { EDUCATION_METRIC_VALUES } from './metricValues';
 
 type MetricCode = 'studentCount' | 'volunteerCount' | 'volunteerHours' | 'topRecipients' | 'topTopics';
@@ -76,7 +76,7 @@ export class EducationEventDAO implements EventDAO, MetricsDAO {
         return await deleteEducationEventById(id);
     }
 
-    async search(searchCriteria: Map<string, string>): Promise<EducationEventModel[]> {
+    async search(searchCriteria: Map<string, string>, limit: number, offset: number): Promise<EducationEventModel[]> {
         const startDate: string | undefined = searchCriteria.get('start-date');
         const endDate: string | undefined = searchCriteria.get('end-date');
         if (startDate === undefined || endDate === undefined) {
@@ -89,6 +89,7 @@ export class EducationEventDAO implements EventDAO, MetricsDAO {
             searchCriteria.get('topic-combobox-input'),
             searchCriteria.get('recipient-combobox-input'),
             searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max'),
+            limit, offset
         );
         let events: EducationEventModel[] = [];
         if (result !== null && result.length >= 1) {
@@ -104,6 +105,27 @@ export class EducationEventDAO implements EventDAO, MetricsDAO {
             }));
         }
         return events;
+    }
+
+    async getCountMatchingCriteria(searchCriteria: Map<string, string>): Promise<number> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to get count of Education Events matching criteria due to missing start date or end date.');
+            return 0;
+        }
+        const result: any = await getCountOfEducationEventsMatchingCriteria(
+            startDate, endDate,
+            searchCriteria.get('student-min'), searchCriteria.get('student-max'),
+            searchCriteria.get('topic-combobox-input'),
+            searchCriteria.get('recipient-combobox-input'),
+            searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max')
+        );
+        let rowCount: number = 0;
+        if (result !== null && result.length >= 1) {
+            rowCount = result[0].rowCount;
+        }
+        return rowCount;
     }
 
     async getMetric(

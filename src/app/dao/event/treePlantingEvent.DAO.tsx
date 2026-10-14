@@ -11,7 +11,7 @@ import {
     updateTreePlantingEvent
 } from '../../lib/event.sql';
 import { getColumnSumAsMetricByInterval } from '../../lib/metric.sql';
-import { searchTreePlantingEvents } from '../../lib/search.sql';
+import { getCountOfTreePlantingEventsMatchingCriteria, searchTreePlantingEvents } from '../../lib/search.sql';
 import { TREE_PLANTING_METRIC_VALUES } from './metricValues';
 
 type MetricCode = 'treeCount' | 'volunteerCount' | 'volunteerHours';
@@ -66,7 +66,7 @@ export class TreePlantingEventDAO implements EventDAO, MetricsDAO {
         return await deleteTreePlantingEventById(id);
     }
 
-    async search(searchCriteria: Map<string, string>): Promise<TreePlantingEventModel[]> {
+    async search(searchCriteria: Map<string, string>, limit: number, offset: number): Promise<TreePlantingEventModel[]> {
         const startDate: string | undefined = searchCriteria.get('start-date');
         const endDate: string | undefined = searchCriteria.get('end-date');
         if (startDate === undefined || endDate === undefined) {
@@ -77,7 +77,8 @@ export class TreePlantingEventDAO implements EventDAO, MetricsDAO {
             startDate, endDate,
             searchCriteria.get('tree-min'), searchCriteria.get('tree-max'),
             searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max'),
-            searchCriteria.get('event-desc')
+            searchCriteria.get('event-desc'),
+            limit, offset
         );
         let events: TreePlantingEventModel[] = [];
         if (result !== null && result.length >= 1) {
@@ -91,6 +92,26 @@ export class TreePlantingEventDAO implements EventDAO, MetricsDAO {
             }));
         }
         return events;
+    }
+
+    async getCountMatchingCriteria(searchCriteria: Map<string, string>): Promise<number> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to get count of Tree Planting Events matching criteria due to missing start date or end date.');
+            return 0;
+        }
+        const result: any = await getCountOfTreePlantingEventsMatchingCriteria(
+            startDate, endDate,
+            searchCriteria.get('tree-min'), searchCriteria.get('tree-max'),
+            searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max'),
+            searchCriteria.get('event-desc')
+        );
+        let rowCount: number = 0;
+        if (result !== null && result.length >= 1) {
+            rowCount = result[0].rowCount;
+        }
+        return rowCount;
     }
 
     async getMetric(
