@@ -4,8 +4,9 @@ import { TrashRoutesEventModel } from '../../../models/event';
 import { ProgramCode } from '../../../models/search';
 import { TableRowModel } from '../../../components/table/tableRow.model';
 
-export function TrashRoutesTable({ data, onModify, onDelete }: {
+export function TrashRoutesTable({ data, pagination, onModify, onDelete }: {
     data: TrashRoutesEventModel[],
+    pagination?: React.ReactNode,
     onModify: (program: ProgramCode, eventId: number | undefined) => void,
     onDelete: (program: ProgramCode, id: number | undefined, date: string, index: number) => void
 }): React.ReactNode {
@@ -41,10 +42,6 @@ export function TrashRoutesTable({ data, onModify, onDelete }: {
         setTableData(rows);
     }, [data]);
 
-    function onDeleteRow(index: number, date: string) {
-        console.log('Delete row');
-    }
-
     return (
         <SortableTable
             caption="Trash Can Routes Events"
@@ -56,6 +53,7 @@ export function TrashRoutesTable({ data, onModify, onDelete }: {
                 { center: true, sortable: true, text: 'Recycling (lbs)', dataType: 'number' },
                 { center: true, sortable: false, text: 'Actions', dataType: 'unsortable' }
             ]}
+            pagination={pagination}
             rowShading="even">
         </SortableTable>
     );

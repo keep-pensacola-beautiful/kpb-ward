@@ -1,9 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Button, LoadingDialog, RadioList, Textbox } from '../components';
+import { Alert, Button, RadioList, Textbox } from '../components';
 import { ErrorModel } from '../models';
-import { EventModel } from '../models/event';
 import { CategoryCode, ProgramCode } from '../models/search';
 import {
     CATEGORY_CODES,
@@ -14,7 +13,6 @@ import {
     PROGRAM_LIST_NAME,
     PROGRAM_OPTIONS
 } from './searchJson';
-import { searchEventsByProgramAndByCriteria } from './actions';
 import { AdoptASpotSearchCriteria } from './componentsByProgram/adoptASpot/searchCriteria';
 import { BagSwapSearchCriteria } from './componentsByProgram/bagSwap/searchCriteria';
 import { CleanTeamSearchCriteria } from './componentsByProgram/cleanTeam/searchCriteria';
@@ -22,7 +20,7 @@ import { CountyCleanupSearchCriteria } from './componentsByProgram/countyCleanup
 import { GroupCleanupSearchCriteria } from './componentsByProgram/groupCleanup/searchCriteria';
 import { RoadsideLitterSearchCriteria } from './componentsByProgram/roadsideLitter/searchCriteria';
 import { TrashRoutesSearchCriteria } from './componentsByProgram/trashRoutes/searchCriteria';
-import { isFormDataEntryValueNullOrBlank, validateDate } from '../utils/commonFormValidation';
+import { isFormDataEntryValueNullOrBlank } from '../utils/commonFormValidation';
 import { getDistrictRefData } from './actions';
 import {
     getAdoptASpotAssignmentComboboxOptions,
@@ -37,7 +35,7 @@ import { TreePlantingSearchCriteria } from './componentsByProgram/treePlanting/s
 import { EducationSearchCriteria } from './componentsByProgram/education/searchCriteria';
 
 export function SearchForm({ onSearch }: {
-    onSearch: (pgrmCode: ProgramCode, events: EventModel[], searchCriteria: Map<string, string>) => void 
+    onSearch: (pgrmCode: ProgramCode, searchCriteria: Map<string, string>) => void 
 }) {
     const [category, setCategory] = useState<string>(DATA_CATEGORY_OPTIONS[0].value);
     const [program, setProgram] = useState<string>(PROGRAM_CODES[0]);
@@ -50,7 +48,6 @@ export function SearchForm({ onSearch }: {
     const [organizationOptions, setOrganizationOptions] = useState<string>('[]');
     const [topicOptions, setTopicOptions] = useState<string>('[]');
     const [recipientOptions, setRecipientOptions] = useState<string>('[]');
-    const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState<boolean>(false);
     
     useEffect(() => {
         getDistrictRefData().then((options: string) => setDistrictOptions(options));
@@ -81,16 +78,11 @@ export function SearchForm({ onSearch }: {
 
     async function handleSubmit(event: any) {
         event.preventDefault();
-        setIsLoadingDialogOpen(true);
         const pgrmCode: ProgramCode = PROGRAM_CODES.includes(program as any) ? program as any : PROGRAM_CODES[0];
         const formIds: string[] = CRITERIA_FORM_FIELD_IDS[pgrmCode];
         const searchCriteria = validateFormFields(pgrmCode, new FormData(event.target), formIds);
         if (searchCriteria.size > 0) {
-            const events: EventModel[] = await searchEventsByProgramAndByCriteria(pgrmCode, searchCriteria);
-            setIsLoadingDialogOpen(false);
-            onSearch(pgrmCode, events, searchCriteria);
-        } else {
-            setIsLoadingDialogOpen(false);
+            onSearch(pgrmCode, searchCriteria);
         }
     }
 
@@ -215,83 +207,74 @@ export function SearchForm({ onSearch }: {
     }
 
     return (
-        <div>
-            <LoadingDialog
-                isOpen={isLoadingDialogOpen}
-                dialogId="searching-dialog"
-                dialogTitle="Please wait while we search for Events matching the criteria">
-            </LoadingDialog>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-3">
+            <p>
+                Select a Data Category and a KPB Program, then enter at least one of the criteria and select the Search button.
+            </p>
+            <RadioList
+                label="Data Category"
+                listName={DATA_CATEGORY_LIST_NAME}
+                options={JSON.stringify(DATA_CATEGORY_OPTIONS)}
+                selectedValue={category}
+                handleChange={handleCategoryChange}>
+            </RadioList>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-3">
-                <p>
-                    Select a Data Category and a KPB Program, then enter at least one of the criteria and select the Search button.
-                </p>
-                <RadioList
-                    label="Data Category"
-                    listName={DATA_CATEGORY_LIST_NAME}
-                    options={JSON.stringify(DATA_CATEGORY_OPTIONS)}
-                    selectedValue={category}
-                    handleChange={handleCategoryChange}>
-                </RadioList>
+            <RadioList
+                label="KPB Program"
+                listName={PROGRAM_LIST_NAME}
+                options={programOptions}
+                selectedValue={program}
+                handleChange={handleProgramChange}>
+            </RadioList>
 
-                <RadioList
-                    label="KPB Program"
-                    listName={PROGRAM_LIST_NAME}
-                    options={programOptions}
-                    selectedValue={program}
-                    handleChange={handleProgramChange}>
-                </RadioList>
-
-                <fieldset>
-                    <legend><p className="text-[1.06rem] font-semibold">Date Range</p></legend>
-                    <div className="flex flex-row gap-4">
-                        <Textbox
-                            inputId="start-date"
-                            inputType="date"
-                            labelText="Start Date"
-                            labelFontWeight="font-normal"
-                            isRequired={true}
-                            ariaDescribedBy={dateRangeErrors.has('start-date') ? 'start-date-error' : ''}>
-                        </Textbox>
-                        <Textbox
-                            inputId="end-date"
-                            inputType="date"
-                            labelText="End Date"
-                            labelFontWeight="font-normal"
-                            isRequired={true}
-                            ariaDescribedBy={dateRangeErrors.has('end-date') ? 'end-date-error' : ''}>
-                        </Textbox>
+            <fieldset>
+                <legend><p className="text-[1.06rem] font-semibold">Date Range</p></legend>
+                <div className="flex flex-row gap-4">
+                    <Textbox
+                        inputId="start-date"
+                        inputType="date"
+                        labelText="Start Date"
+                        labelFontWeight="font-normal"
+                        isRequired={true}
+                        ariaDescribedBy={dateRangeErrors.has('start-date') ? 'start-date-error' : ''}>
+                    </Textbox>
+                    <Textbox
+                        inputId="end-date"
+                        inputType="date"
+                        labelText="End Date"
+                        labelFontWeight="font-normal"
+                        isRequired={true}
+                        ariaDescribedBy={dateRangeErrors.has('end-date') ? 'end-date-error' : ''}>
+                    </Textbox>
+                </div>
+                { Array.from(dateRangeErrors).map((error) => (
+                    <div key={`${error[1].inputId}-error`} id={`${error[1].inputId}-error`} className="mt-1">
+                        <span className="border-2 border-white-500 bg-red-500 text-white pl-[7px] pr-[7px] p-[3px] rounded-[100px] font-bold text-lg" aria-label="Error: ">X</span>
+                        <span className="text-red-700 font-semibold ml-1">{ error[1].message }</span>
                     </div>
-                    { Array.from(dateRangeErrors).map((error) => (
-                        <div key={`${error[1].inputId}-error`} id={`${error[1].inputId}-error`} className="mt-1">
-                            <span className="border-2 border-white-500 bg-red-500 text-white pl-[7px] pr-[7px] p-[3px] rounded-[100px] font-bold text-lg" aria-label="Error: ">X</span>
-                            <span className="text-red-700 font-semibold ml-1">{ error[1].message }</span>
-                        </div>
-                    ))}
-                </fieldset>
+                ))}
+            </fieldset>
 
-                <section className="flex flex-col gap-3 mt-3">
-                    <header>
-                        <h2 className="text-lg md:text-xl">Search Criteria</h2>
-                        <p>
-                            Please provide at least one of the following criteria for the search.
-                            We encourage you to enter as many criteria as possible to narrow the search results.
-                        </p>
-                    </header>
-                    { displayNoCriteriaError &&
-                        <Alert
-                            id="criteria-missing-error"
-                            type="danger"
-                            header="No Search Criteria Provided"
-                            body="Please enter at least one search criteria."
-                            closeButton={false}
-                            onClose={() => console.log('Closing')}>
-                        </Alert>
-                    }
-                    { getFormByProgram(program) }
-                </section>
-                <Button design="primary">Search</Button>
-            </form>
-        </div>
+            <section className="flex flex-col gap-3 mt-3">
+                <header>
+                    <h2 className="text-lg md:text-xl">Search Criteria</h2>
+                    <p>
+                        Please provide at least one of the following criteria for the search.
+                        We encourage you to enter as many criteria as possible to narrow the search results.
+                    </p>
+                </header>
+                { displayNoCriteriaError &&
+                    <Alert
+                        id="criteria-missing-error"
+                        type="danger"
+                        header="No Search Criteria Provided"
+                        body="Please enter at least one search criteria."
+                        closeButton={false}>
+                    </Alert>
+                }
+                { getFormByProgram(program) }
+            </section>
+            <Button design="primary">Search</Button>
+        </form>
     );
 }

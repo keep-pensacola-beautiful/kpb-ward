@@ -4,8 +4,9 @@ import { AdoptASpotEventModel } from '../../../models/event';
 import { ProgramCode } from '../../../models/search';
 import { TableRowModel } from '../../../components/table/tableRow.model';
 
-export function AdoptASpotTable({ data, onModify, onDelete }: {
+export function AdoptASpotTable({ data, pagination, onModify, onDelete }: {
     data: AdoptASpotEventModel[],
+    pagination?: React.ReactNode,
     onModify: (program: ProgramCode, eventId: number | undefined) => void,
     onDelete: (program: ProgramCode, id: number | undefined, date: string, index: number) => void
 }): React.ReactNode {
@@ -44,10 +45,6 @@ export function AdoptASpotTable({ data, onModify, onDelete }: {
         setTableData(rows);
     }, [data]);
 
-    function onDeleteRow(index: number, date: string) {
-        console.log('Delete row');
-    }
-
     return (
         <SortableTable
             caption="Adopt-a-Spot Cleanup Events"
@@ -62,6 +59,7 @@ export function AdoptASpotTable({ data, onModify, onDelete }: {
                 { center: true, sortable: true, text: 'Volunteer Hours', dataType: 'number' },
                 { center: true, sortable: false, text: 'Actions', dataType: 'unsortable' }
             ]}
+            pagination={pagination}
             rowShading="even">
         </SortableTable>
     );

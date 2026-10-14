@@ -4,8 +4,9 @@ import { TreePlantingEventModel } from '../../../models/event';
 import { ProgramCode } from '../../../models/search';
 import { TableRowModel } from '../../../components/table/tableRow.model';
 
-export function TreePlantingTable({ data, onModify, onDelete }: {
+export function TreePlantingTable({ data, pagination, onModify, onDelete }: {
     data: TreePlantingEventModel[],
+    pagination?: React.ReactNode,
     onModify: (program: ProgramCode, eventId: number | undefined) => void,
     onDelete: (program: ProgramCode, id: number | undefined, date: string, index: number) => void
 }): React.ReactNode {
@@ -56,6 +57,7 @@ export function TreePlantingTable({ data, onModify, onDelete }: {
                 { center: true, sortable: true, text: 'Volunteer Hours', dataType: 'number' },
                 { center: true, sortable: false, text: 'Actions', dataType: 'unsortable' }
             ]}
+            pagination={pagination}
             rowShading="even">
         </SortableTable>
     );
