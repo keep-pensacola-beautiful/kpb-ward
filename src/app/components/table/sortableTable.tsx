@@ -6,12 +6,13 @@ import { TableRow } from './tableRow';
 import { TableDataModel } from './tableData.model';
 import { TableRowModel } from './tableRow.model';
 
-export function SortableTable({ caption, tableHeaders, data, rowShading, maxWidth }: {
+export function SortableTable({ caption, tableHeaders, data, rowShading, maxWidth, pagination }: {
     caption: string,
     tableHeaders: TableHeaderModel[],
     data: TableRowModel[],
     rowShading: 'even' | 'odd',
-    maxWidth?: string
+    maxWidth?: string,
+    pagination?: React.ReactNode
 }) {
     const [colHeaders, setColHeaders] = useState<TableHeaderModel[]>([{
         key: 'default-header', center: true, text: 'Header', dataType: 'string', index: 0
@@ -116,64 +117,72 @@ export function SortableTable({ caption, tableHeaders, data, rowShading, maxWidt
     }
 
     return (
-        <table ref={tableRef} className={`${maxWidth !== undefined ? maxWidth : ''} w-[100%]`}>
-            <caption className="border p-2 bg-white font-semibold text-left">
-                {caption}
-                <span className="sr-only"> (column headers with buttons are sortable).</span>
-            </caption>
-            <thead>
-                <TableRow color="bg-[var(--gold)]">
-                    { colHeaders.map((header) => {
-                        if (header.sortable && header.dataType !== 'unsortable') {
-                            return (
-                                <TableHeader
+        <div>
+            <table ref={tableRef} className={`${maxWidth !== undefined ? maxWidth : ''} w-[100%]`}>
+                <caption className="border p-2 bg-white font-semibold text-left">
+                    { caption }
+                    <span className="sr-only"> (column headers with buttons are sortable).</span>
+                </caption>
+                
+                <thead>
+                    <TableRow color="bg-[var(--gold)]">
+                        { colHeaders.map((header) => {
+                            if (header.sortable && header.dataType !== 'unsortable') {
+                                return (
+                                    <TableHeader
+                                        key={header.key}
+                                        scope="col"
+                                        center={header.center}
+                                        padding=""
+                                        ariaSort={currSortedColIndex === header.index ? currSortedColSort : undefined}>
+                                        <button
+                                            onClick={() => handleClick(header.index)}
+                                            data-column-index={`${header.index}`}
+                                            className={`p-[4px] m-[1px] font-semibold bg-transparent inline w-[97%] cursor-pointer
+                                                focus:border-2 focus:p-[2px] focus:border-(--deepBlue) focus:bg-white
+                                                hover:border-2 hover:p-[2px] hover:border-(--deepBlue) hover:bg-white
+                                            `}>
+                                            { header.text }
+                                            <span
+                                                aria-hidden="true"
+                                                className={`
+                                                    absolute
+                                                    ml-1
+                                                    ${currSortedColIndex === header.index && currSortedColSort === 'descending' ? `after:content-['▼']` : ''}
+                                                    ${currSortedColIndex === header.index && currSortedColSort === 'ascending' ? `after:content-['▲']` : ''}
+                                                    ${currSortedColIndex !== header.index ? `after:content-['♢']` : ''}
+                                                    after:right-[4px] after:top-[0]
+                                                `}>
+                                            </span>
+                                        </button>
+                                    </TableHeader>
+                                );
+                            } else {
+                                return <TableHeader
                                     key={header.key}
                                     scope="col"
-                                    center={header.center}
-                                    padding=""
-                                    ariaSort={currSortedColIndex === header.index ? currSortedColSort : undefined}>
-                                    <button
-                                        onClick={() => handleClick(header.index)}
-                                        data-column-index={`${header.index}`}
-                                        className={`p-[4px] m-[1px] font-semibold bg-transparent inline w-[97%] cursor-pointer
-                                            focus:border-2 focus:p-[2px] focus:border-(--deepBlue) focus:bg-white
-                                            hover:border-2 hover:p-[2px] hover:border-(--deepBlue) hover:bg-white
-                                        `}>
-                                        { header.text }
-                                        <span
-                                            aria-hidden="true"
-                                            className={`
-                                                absolute
-                                                ml-1
-                                                ${currSortedColIndex === header.index && currSortedColSort === 'descending' ? `after:content-['▼']` : ''}
-                                                ${currSortedColIndex === header.index && currSortedColSort === 'ascending' ? `after:content-['▲']` : ''}
-                                                ${currSortedColIndex !== header.index ? `after:content-['♢']` : ''}
-                                                after:right-[4px] after:top-[0]
-                                            `}>
-                                        </span>
-                                    </button>
+                                    center={header.center}>
+                                    {header.text}
                                 </TableHeader>
-                            );
-                        } else {
-                            return <TableHeader
-                                key={header.key}
-                                scope="col"
-                                center={header.center}>
-                                {header.text}
-                            </TableHeader>
-                        }
-                    }) }
-                </TableRow>
-            </thead>
-            <tbody>
-                { dataRows.map((row) => {
-                    return (<TableRow key={row.key} color={row.color !== undefined ? row.color : 'bg-white'}>
-                        { row.data.map((td) => {
-                            return (<TableData key={td.key} center={td.center}>{td.data}</TableData>)
-                        })}
-                    </TableRow>)
-                })}
-            </tbody>
-        </table>
+                            }
+                        }) }
+                    </TableRow>
+                </thead>
+                <tbody>
+                    { dataRows.map((row) => {
+                        return (<TableRow key={row.key} color={row.color !== undefined ? row.color : 'bg-white'}>
+                            { row.data.map((td) => {
+                                return (<TableData key={td.key} center={td.center}>{td.data}</TableData>)
+                            })}
+                        </TableRow>)
+                    })}
+                </tbody>
+            </table>
+            { pagination !== undefined &&
+                <div className="flex flex-row justify-end border bg-white p-2">
+                    { pagination }
+                </div>
+            }
+        </div>
     );
 }
