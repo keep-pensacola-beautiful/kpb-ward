@@ -6,5 +6,5 @@ export interface AlertModel {
     header: string;
     body: string;
     closeButton: boolean;
-    onClose: () => void;
+    onClose?: () => void;
 }
