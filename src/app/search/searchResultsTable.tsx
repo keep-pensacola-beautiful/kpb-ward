@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '../components';
+import { Button, Pagination } from '../components';
 import { EventModel } from '../models/event';
 import { ProgramCode } from '../models/search';
 import { AdoptASpotTable } from './componentsByProgram/adoptASpot/table';
@@ -24,12 +24,14 @@ import {
     isTreePlantingEventArray
 } from '../utils/eventTypeGuards';
 
-
-export function SearchResultsTable({ data, onModify, onDelete, onNewSearch }: {
+export function SearchResultsTable({ data, totalRowCount, pageSize, onModify, onDelete, onNewSearch, onPageChange }: {
     data: EventModel[],
+    totalRowCount: number,
+    pageSize: number,
     onModify: (program: ProgramCode, eventId: number | undefined) => void,
     onDelete: (program: ProgramCode, id: number | undefined, date: string, index: number) => void,
-    onNewSearch: () => void
+    onNewSearch: () => void,
+    onPageChange: (offset: number, limit: number) => void
 }): React.ReactNode {
     if (data.length < 1) {
         return (
@@ -43,66 +45,73 @@ export function SearchResultsTable({ data, onModify, onDelete, onNewSearch }: {
         );
     }
 
+    const pagination: React.ReactNode = (totalRowCount <= pageSize) ? undefined : (
+        <Pagination
+            pageSize={pageSize}
+            maxPage={Math.ceil(totalRowCount / pageSize)}
+            onPageChange={onPageChange}>
+        </Pagination>
+    );
     if (isCleanTeamEventArray(data)) {
         return (
             <div className="flex flex-col gap-3 mt-4">
-                <CleanTeamTable data={data} onModify={onModify} onDelete={onDelete}></CleanTeamTable>
+                <CleanTeamTable data={data} pagination={pagination} onModify={onModify} onDelete={onDelete}></CleanTeamTable>
                 <Button design="primary" width="sm:w-30" onClick={onNewSearch}>New Search</Button>
             </div>
         );
     } else if (isCountyCleanupEventArray(data)) {
         return (
             <div className="flex flex-col gap-3 mt-4">
-                <CountyCleanupTable data={data} onModify={onModify} onDelete={onDelete}></CountyCleanupTable>
+                <CountyCleanupTable data={data} pagination={pagination} onModify={onModify} onDelete={onDelete}></CountyCleanupTable>
                 <Button design="primary" width="sm:w-30" onClick={onNewSearch}>New Search</Button>
             </div>
         );
     } else if (isRoadsideLitterEventArray(data)) {
         return (
             <div className="flex flex-col gap-3 mt-4">
-                <RoadsideLitterTable data={data} onModify={onModify} onDelete={onDelete}></RoadsideLitterTable>
+                <RoadsideLitterTable data={data} pagination={pagination} onModify={onModify} onDelete={onDelete}></RoadsideLitterTable>
                 <Button design="primary" width="sm:w-30" onClick={onNewSearch}>New Search</Button>
             </div>
         );
     } else if (isTrashRoutesEventArray(data)) {
         return (
             <div className="flex flex-col gap-3 mt-4">
-                <TrashRoutesTable data={data} onModify={onModify} onDelete={onDelete}></TrashRoutesTable>
+                <TrashRoutesTable data={data} pagination={pagination} onModify={onModify} onDelete={onDelete}></TrashRoutesTable>
                 <Button design="primary" width="sm:w-30" onClick={onNewSearch}>New Search</Button>
             </div>
         );
     } else if (isAdoptASpotEventArray(data)) {
         return (
             <div className="flex flex-col gap-3 mt-4">
-                <AdoptASpotTable data={data} onModify={onModify} onDelete={onDelete}></AdoptASpotTable>
+                <AdoptASpotTable data={data} pagination={pagination} onModify={onModify} onDelete={onDelete}></AdoptASpotTable>
                 <Button design="primary" width="sm:w-30" onClick={onNewSearch}>New Search</Button>
             </div>
         );
     } else if (isGroupCleanupEventArray(data)) {
         return (
             <div className="flex flex-col gap-3 mt-4">
-                <GroupCleanupTable data={data} onModify={onModify} onDelete={onDelete}></GroupCleanupTable>
+                <GroupCleanupTable data={data} pagination={pagination} onModify={onModify} onDelete={onDelete}></GroupCleanupTable>
                 <Button design="primary" width="sm:w-30" onClick={onNewSearch}>New Search</Button>
             </div>
         );
     } else if (isBagSwapEventArray(data)) {
         return (
             <div className="flex flex-col gap-3 mt-4">
-                <BagSwapTable data={data} onModify={onModify} onDelete={onDelete}></BagSwapTable>
+                <BagSwapTable data={data} pagination={pagination} onModify={onModify} onDelete={onDelete}></BagSwapTable>
                 <Button design="primary" width="sm:w-30" onClick={onNewSearch}>New Search</Button>
             </div>
         );
     } else if (isEducationEventArray(data)) {
         return (
             <div className="flex flex-col gap-3 mt-4">
-                <EducationTable data={data} onModify={onModify} onDelete={onDelete}></EducationTable>
+                <EducationTable data={data} pagination={pagination} onModify={onModify} onDelete={onDelete}></EducationTable>
                 <Button design="primary" width="sm:w-30" onClick={onNewSearch}>New Search</Button>
             </div>
         );
     } else if (isTreePlantingEventArray(data)) {
         return (
             <div className="flex flex-col gap-3 mt-4">
-                <TreePlantingTable data={data} onModify={onModify} onDelete={onDelete}></TreePlantingTable>
+                <TreePlantingTable data={data} pagination={pagination} onModify={onModify} onDelete={onDelete}></TreePlantingTable>
                 <Button design="primary" width="sm:w-30" onClick={onNewSearch}>New Search</Button>
             </div>
         );

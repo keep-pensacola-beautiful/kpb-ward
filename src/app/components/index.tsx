@@ -9,6 +9,7 @@ export { ErrorSummary } from './errorSummary';
 export { Footer } from './footer';
 export { Header } from './header';
 export { MultiSelect } from './multiSelect/multiSelect';
+export { Pagination } from './pagination/pagination';
 export { RadioList } from './radioList/radioList';
 export { SiteAlert } from './siteAlert/siteAlert';
 export { SortableTable } from './table/sortableTable';

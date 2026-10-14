@@ -109,27 +109,57 @@ export async function getEventByProgramAndById(
     }
 }
 
-export async function searchEventsByProgramAndByCriteria(pgrmCode: ProgramCode, searchCriteria: Map<string, string>) {
+export async function searchEventsByProgramAndByCriteria(
+    pgrmCode: ProgramCode,
+    searchCriteria: Map<string, string>,
+    limit: number,
+    offset: number
+) {
     switch (pgrmCode) {
         case PROGRAM_CODES[0]:
-            return await new CleanTeamEventDAO().search(searchCriteria);
+            return await new CleanTeamEventDAO().search(searchCriteria, limit, offset);
         case PROGRAM_CODES[1]:
-            return await new CountyCleanupEventDAO().search(searchCriteria);
+            return await new CountyCleanupEventDAO().search(searchCriteria, limit, offset);
         case PROGRAM_CODES[2]:
-            return await new RoadsideLitterEventDAO().search(searchCriteria);
+            return await new RoadsideLitterEventDAO().search(searchCriteria, limit, offset);
         case PROGRAM_CODES[3]:
-            return await new TrashRoutesEventDAO().search(searchCriteria);
+            return await new TrashRoutesEventDAO().search(searchCriteria, limit, offset);
         case PROGRAM_CODES[4]:
-            return await new AdoptASpotEventDAO().search(searchCriteria);
+            return await new AdoptASpotEventDAO().search(searchCriteria, limit, offset);
         case PROGRAM_CODES[5]:
-            return await new GroupCleanupEventDAO().search(searchCriteria);
+            return await new GroupCleanupEventDAO().search(searchCriteria, limit, offset);
         case PROGRAM_CODES[6]:
-            return await new BagSwapEventDAO().search(searchCriteria);
+            return await new BagSwapEventDAO().search(searchCriteria, limit, offset);
         case PROGRAM_CODES[7]:
-            return await new EducationEventDAO().search(searchCriteria);
+            return await new EducationEventDAO().search(searchCriteria, limit, offset);
         case PROGRAM_CODES[8]:
-            return await new TreePlantingEventDAO().search(searchCriteria);
+            return await new TreePlantingEventDAO().search(searchCriteria, limit, offset);
         default:
             return [];
+    }
+}
+
+export async function getTotalRowCountByProgramAndByCriteria(pgrmCode: ProgramCode, searchCriteria: Map<string, string>): Promise<number> {
+    switch (pgrmCode) {
+        case PROGRAM_CODES[0]:
+            return await new CleanTeamEventDAO().getCountMatchingCriteria(searchCriteria);
+        case PROGRAM_CODES[1]:
+            return await new CountyCleanupEventDAO().getCountMatchingCriteria(searchCriteria);
+        case PROGRAM_CODES[2]:
+            return await new RoadsideLitterEventDAO().getCountMatchingCriteria(searchCriteria);
+        case PROGRAM_CODES[3]:
+            return await new TrashRoutesEventDAO().getCountMatchingCriteria(searchCriteria);
+        case PROGRAM_CODES[4]:
+            return await new AdoptASpotEventDAO().getCountMatchingCriteria(searchCriteria);
+        case PROGRAM_CODES[5]:
+            return await new GroupCleanupEventDAO().getCountMatchingCriteria(searchCriteria);
+        case PROGRAM_CODES[6]:
+            return await new BagSwapEventDAO().getCountMatchingCriteria(searchCriteria);
+        case PROGRAM_CODES[7]:
+            return await new EducationEventDAO().getCountMatchingCriteria(searchCriteria);
+        case PROGRAM_CODES[8]:
+            return await new TreePlantingEventDAO().getCountMatchingCriteria(searchCriteria);
+        default:
+            return 0;
     }
 }

@@ -4,8 +4,9 @@ import { GroupCleanupEventModel } from '../../../models/event';
 import { ProgramCode } from '../../../models/search';
 import { TableRowModel } from '../../../components/table/tableRow.model';
 
-export function GroupCleanupTable({ data, onModify, onDelete }: {
+export function GroupCleanupTable({ data, pagination, onModify, onDelete }: {
     data: GroupCleanupEventModel[],
+    pagination?: React.ReactNode,
     onModify: (program: ProgramCode, eventId: number | undefined) => void,
     onDelete: (program: ProgramCode, id: number | undefined, date: string, index: number) => void
 }): React.ReactNode {
@@ -45,10 +46,6 @@ export function GroupCleanupTable({ data, onModify, onDelete }: {
         setTableData(rows);
     }, [data]);
 
-    function onDeleteRow(index: number, date: string) {
-        console.log('Delete row');
-    }
-
     return (
         <SortableTable
             caption="Group Cleanup Events"
@@ -64,6 +61,7 @@ export function GroupCleanupTable({ data, onModify, onDelete }: {
                 { center: true, sortable: true, text: 'Volunteer Hours', dataType: 'number' },
                 { center: true, sortable: false, text: 'Actions', dataType: 'unsortable' }
             ]}
+            pagination={pagination}
             rowShading="even">
         </SortableTable>
     );

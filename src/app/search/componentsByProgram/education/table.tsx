@@ -4,8 +4,9 @@ import { EducationEventModel } from '../../../models/event';
 import { ProgramCode } from '../../../models/search';
 import { TableRowModel } from '../../../components/table/tableRow.model';
 
-export function EducationTable({ data, onModify, onDelete }: {
+export function EducationTable({ data, pagination, onModify, onDelete }: {
     data: EducationEventModel[],
+    pagination?: React.ReactNode,
     onModify: (program: ProgramCode, eventId: number | undefined) => void,
     onDelete: (program: ProgramCode, id: number | undefined, date: string, index: number) => void
 }): React.ReactNode {
@@ -45,10 +46,6 @@ export function EducationTable({ data, onModify, onDelete }: {
         setTableData(rows);
     }, [data]);
 
-    function onDeleteRow(index: number, date: string) {
-        console.log('Delete row');
-    }
-
     return (
         <SortableTable
             caption="Education Events"
@@ -64,6 +61,7 @@ export function EducationTable({ data, onModify, onDelete }: {
                 { center: true, sortable: true, text: 'Volunteer Hours', dataType: 'number' },
                 { center: true, sortable: false, text: 'Actions', dataType: 'unsortable' }
             ]}
+            pagination={pagination}
             rowShading="even">
         </SortableTable>
     );

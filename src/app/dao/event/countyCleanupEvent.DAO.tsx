@@ -13,7 +13,7 @@ import {
     insertCountyCleanupEvent,
     updateCountyCleanupEvent
 } from '../../lib/event.sql';
-import { searchCountyCleanupEvents } from '../../lib/search.sql';
+import { getCountOfCountyCleanupEventsMatchingCriteria, searchCountyCleanupEvents } from '../../lib/search.sql';
 import { getColumnSumAsMetricByInterval, getHighestOccurrencesOfAThingMetricUsing3Tables } from '../../lib/metric.sql';
 import { getCountyCleanupBulkyItemsByEventId } from '../../lib/eventBulkyItems.sql';
 import { ItemWeightReferenceDataDAO } from '../referenceData';
@@ -108,7 +108,7 @@ export class CountyCleanupEventDAO implements EventDAO, MetricsDAO {
         return await deleteCountyCleanupEventById(id);
     }
 
-    async search(searchCriteria: Map<string, string>): Promise<CountyCleanupEventModel[]> {
+    async search(searchCriteria: Map<string, string>, limit: number, offset: number): Promise<CountyCleanupEventModel[]> {
         const startDate: string | undefined = searchCriteria.get('start-date');
         const endDate: string | undefined = searchCriteria.get('end-date');
         if (startDate === undefined || endDate === undefined) {
@@ -120,7 +120,8 @@ export class CountyCleanupEventDAO implements EventDAO, MetricsDAO {
             searchCriteria.get('tire-count-min'), searchCriteria.get('tire-count-max'),
             searchCriteria.get('cans-chemicals-min'), searchCriteria.get('cans-chemicals-max'),
             searchCriteria.get('bulky-item-lbs-min'), searchCriteria.get('bulky-item-lbs-max'),
-            searchCriteria.get('bulky-item-count-min'), searchCriteria.get('bulky-item-count-max')
+            searchCriteria.get('bulky-item-count-min'), searchCriteria.get('bulky-item-count-max'),
+            limit, offset
         );
         let events: CountyCleanupEventModel[] = [];
         if (result !== null && result.length >= 1) {
@@ -137,6 +138,27 @@ export class CountyCleanupEventDAO implements EventDAO, MetricsDAO {
             }));
         }
         return events;
+    }
+
+    async getCountMatchingCriteria(searchCriteria: Map<string, string>): Promise<number> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to get count of County Neighborhood Cleanup Events matching criteria due to missing start date or end date.');
+            return 0;
+        }
+        const result: any = await getCountOfCountyCleanupEventsMatchingCriteria(
+            startDate, endDate,
+            searchCriteria.get('tire-count-min'), searchCriteria.get('tire-count-max'),
+            searchCriteria.get('cans-chemicals-min'), searchCriteria.get('cans-chemicals-max'),
+            searchCriteria.get('bulky-item-lbs-min'), searchCriteria.get('bulky-item-lbs-max'),
+            searchCriteria.get('bulky-item-count-min'), searchCriteria.get('bulky-item-count-max')
+        );
+        let rowCount: number = 0;
+        if (result !== null && result.length >= 1) {
+            rowCount = result[0].rowCount;
+        }
+        return rowCount;
     }
 
     async getMetric(

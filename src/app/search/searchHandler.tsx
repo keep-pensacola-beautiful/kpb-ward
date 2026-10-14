@@ -6,15 +6,22 @@ import { SearchResultsTable } from './searchResultsTable';
 import { EventModel } from '../models/event';
 import { ProgramCode } from '../models/search';
 import { ModifyEventForm } from './modifyEventForm';
-import { deleteEventById, getEventByProgramAndById, searchEventsByProgramAndByCriteria } from './actions';
+import {
+    deleteEventById,
+    getEventByProgramAndById,
+    getTotalRowCountByProgramAndByCriteria,
+    searchEventsByProgramAndByCriteria
+} from './actions';
 import { Button, Dialog, LoadingDialog, StatusDialog } from '../components';
 import { DialogType } from '../components/dialog/dialogType.model';
 
 export function SearchHandler() {
     const [currentPage, setCurrentPage] = useState<'search' | 'table' | 'modify'>('search');
     const [searchResults, setSearchResults] = useState<EventModel[]>([]);
+    const [resultsOffset, setResultsOffset] = useState<number>(0);
     const [program, setProgram] = useState<ProgramCode>('cleanTeam');
     const [event, setEvent] = useState<EventModel>();
+    const [totalRowCount, setTotalRowCount] = useState<number>(0);
     const [searchCriteria, setSearchCriteria] = useState<Map<string, string>>(new Map<string, string>());
     const [isNoResultsDialogOpen, setIsNoResultsDialogOpen] = useState<boolean>(false);
     const [confirmActionDialogContent, setConfirmActionDialogContent] = useState<{
@@ -24,18 +31,40 @@ export function SearchHandler() {
         id: string, title: string, body: string, type: DialogType
     }>({ id: '', title: '', body: '', type: 'info' });
     const [eventToDelete, setEventToDelete] = useState<{ id: number, date: string, index: number }>();
-    const [isModifyLoadingDialogOpen, setIsModifyLoadingDialogOpen] = useState<boolean>(false);
-    const [isDeleteLoadingDialogOpen, setIsDeleteLoadingDialogOpen] = useState<boolean>(false);
+    const [isSearchLoadingDialogOpen, setIsSearchLoadingDialogOpen] = useState<boolean>(false);
+    const [loadingDialogTitle, setLoadingDialogTitle] = useState<string>('');
 
-    function handleSearch(pgrmCode: ProgramCode, events: EventModel[], searchCriteria: Map<string, string>): void {
+    const ROWS_PER_PAGE: number = 25;
+
+    async function handleSearch(pgrmCode: ProgramCode, searchCriteria: Map<string, string>): Promise<void> {
+        setIsSearchLoadingDialogOpen(true);
+        const rowCount: number = await getTotalRowCountByProgramAndByCriteria(pgrmCode, searchCriteria);
+        const events: EventModel[] = await searchEventsByProgramAndByCriteria(pgrmCode, searchCriteria, ROWS_PER_PAGE, 0);
+        setIsSearchLoadingDialogOpen(false);
+        setResultsOffset(0);
+        console.log(`rowCount=${rowCount}, events.length=${events.length}`);
         if (events.length >= 1) {
             setProgram(pgrmCode);
             setSearchResults(events);
+            setTotalRowCount(rowCount);
             setSearchCriteria(searchCriteria);
             setCurrentPage('table');
         } else {
             setIsNoResultsDialogOpen(true);
         }
+    }
+
+    async function handlePageChange(offset: number, limit: number): Promise<void> {
+        setLoadingDialogTitle('Please wait while the next page of results is loaded');
+        const events: EventModel[] = await searchEventsByProgramAndByCriteria(
+            program,
+            searchCriteria,
+            limit,
+            offset
+        );
+        setSearchResults(events);
+        setResultsOffset(offset);
+        setLoadingDialogTitle('');
     }
     
     function handleNewSearch(): void {
@@ -58,23 +87,28 @@ export function SearchHandler() {
             console.error('Error: Unable to modify event. Event ID was undefined or invalid.');
             return;
         }
-        setIsModifyLoadingDialogOpen(true);
+        setLoadingDialogTitle('Please wait while we prepare to modify the Event');
         let data: EventModel | null = await getEventByProgramAndById(pgrmCode, eventId);
         if (data === null) {
-            setIsModifyLoadingDialogOpen(false);
+            setLoadingDialogTitle('');
             displayModifyFailureDialog(eventId);
             console.error(`Error: Unable to modify event. Event (id=${eventId}) could not be retrieved.`);
         } else {
             setProgram(pgrmCode);
             setEvent(data);
-            setIsModifyLoadingDialogOpen(false);
+            setLoadingDialogTitle('');
             setCurrentPage('modify');
         }
     }
 
     async function handleSuccessfulModify(nextPage: 'search' | 'table' | 'modify'): Promise<void> {
         if (nextPage === 'table') {
-            const events: EventModel[] = await searchEventsByProgramAndByCriteria(program, searchCriteria);
+            const events: EventModel[] = await searchEventsByProgramAndByCriteria(
+                program,
+                searchCriteria,
+                ROWS_PER_PAGE,
+                resultsOffset
+            );
             setSearchResults(events);
         }
         setCurrentPage(nextPage);
@@ -110,11 +144,11 @@ export function SearchHandler() {
     async function deleteEvent() {
         if (eventToDelete !== undefined && eventToDelete.id !== undefined) {
             clearConfirmActionDialogContent();
-            setIsDeleteLoadingDialogOpen(true);
+            setLoadingDialogTitle('Please wait while we prepare to delete the Event');
 
             let isSuccessfulDelete: boolean = await deleteEventById(program, eventToDelete.id);
             
-            setIsDeleteLoadingDialogOpen(false);
+            setLoadingDialogTitle('');
             if (isSuccessfulDelete) {
                 setStatusDialogContent({
                     id: 'delete-success-dialog',
@@ -162,6 +196,12 @@ export function SearchHandler() {
                             </p>}
                         type="info">
                     </StatusDialog>
+                    <LoadingDialog
+                        isOpen={isSearchLoadingDialogOpen}
+                        dialogId="searching-dialog"
+                        dialogTitle="Please wait while we search for Events matching the criteria">
+                    </LoadingDialog>
+
                     <h1 id="main-content-header" className="text-xl md:text-2xl" tabIndex={-1}>
                         Search Events & Cleanups
                     </h1>
@@ -211,25 +251,22 @@ export function SearchHandler() {
                         type={statusDialogContent.type}>
                     </StatusDialog>
                     <LoadingDialog
-                        isOpen={isModifyLoadingDialogOpen}
-                        dialogId="modify-dialog"
-                        dialogTitle="Please wait while we prepare to modify the Event">
+                        isOpen={loadingDialogTitle !== ''}
+                        dialogId="loading-dialog"
+                        dialogTitle={loadingDialogTitle}>
                     </LoadingDialog>
-                    <LoadingDialog
-                        isOpen={isDeleteLoadingDialogOpen}
-                        dialogId="delete-dialog"
-                        dialogTitle="Please wait while we prepare to delete the Event">
-                    </LoadingDialog>
-
 
                     <h1 id="main-content-header" className="text-xl md:text-2xl" tabIndex={-1}>
                         Search Events & Cleanups
                     </h1>
                     <SearchResultsTable
                         data={searchResults}
+                        totalRowCount={totalRowCount}
+                        pageSize={ROWS_PER_PAGE}
                         onModify={handleModify}
                         onDelete={handleDelete}
-                        onNewSearch={handleNewSearch}>
+                        onNewSearch={handleNewSearch}
+                        onPageChange={handlePageChange}>
                     </SearchResultsTable>
                 </div>
             );

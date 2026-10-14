@@ -4,8 +4,9 @@ import { BagSwapEventModel } from '../../../models/event';
 import { ProgramCode } from '../../../models/search';
 import { TableRowModel } from '../../../components/table/tableRow.model';
 
-export function BagSwapTable({ data, onModify, onDelete }: {
+export function BagSwapTable({ data, pagination, onModify, onDelete }: {
     data: BagSwapEventModel[],
+    pagination?: React.ReactNode,
     onModify: (program: ProgramCode, eventId: number | undefined) => void,
     onDelete: (program: ProgramCode, id: number | undefined, date: string, index: number) => void
 }): React.ReactNode {
@@ -43,10 +44,6 @@ export function BagSwapTable({ data, onModify, onDelete }: {
         setTableData(rows);
     }, [data]);
 
-    function onDeleteRow(index: number, date: string) {
-        console.log('Delete row');
-    }
-
     return (
         <SortableTable
             caption="Bag Swap Events"
@@ -60,6 +57,7 @@ export function BagSwapTable({ data, onModify, onDelete }: {
                 { center: true, sortable: true, text: 'Volunteer Hours', dataType: 'number' },
                 { center: true, sortable: false, text: 'Actions', dataType: 'unsortable' }
             ]}
+            pagination={pagination}
             rowShading="even">
         </SortableTable>
     );

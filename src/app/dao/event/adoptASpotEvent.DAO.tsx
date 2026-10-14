@@ -16,7 +16,7 @@ import {
     getHighestOccurrencesOfAThingMetricUsing2Tables,
     getRowCountAsMetricByInterval
 } from '../../lib/metric.sql';
-import { searchAdoptASpotEvents } from '../../lib/search.sql';
+import { getCountOfAdoptASpotEventsMatchingCriteria, searchAdoptASpotEvents } from '../../lib/search.sql';
 import { ADOPT_A_SPOT_METRIC_VALUES } from './metricValues';
 
 type MetricCode = 'volunteerCount' | 'volunteerHours' | 'litterLbs' | 'recyclingLbs' | 'cleanupCount' | 'topGroups';
@@ -81,7 +81,7 @@ export class AdoptASpotEventDAO implements EventDAO, MetricsDAO {
         return await deleteAdoptASpotEventById(id);
     }
 
-    async search(searchCriteria: Map<string, string>): Promise<AdoptASpotEventModel[]> {
+    async search(searchCriteria: Map<string, string>, limit: number, offset: number): Promise<AdoptASpotEventModel[]> {
         const startDate: string | undefined = searchCriteria.get('start-date');
         const endDate: string | undefined = searchCriteria.get('end-date');
         if (startDate === undefined || endDate === undefined) {
@@ -93,7 +93,8 @@ export class AdoptASpotEventDAO implements EventDAO, MetricsDAO {
             searchCriteria.get('litter-min'), searchCriteria.get('litter-max'),
             searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max'),
             searchCriteria.get('adopted-spot-combobox-input'),
-            searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max')
+            searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max'),
+            limit, offset
         );
         let events: AdoptASpotEventModel[] = [];
         if (result !== null && result.length >= 1) {
@@ -108,6 +109,27 @@ export class AdoptASpotEventDAO implements EventDAO, MetricsDAO {
             }));
         }
         return events;
+    }
+
+    async getCountMatchingCriteria(searchCriteria: Map<string, string>): Promise<number> {
+        const startDate: string | undefined = searchCriteria.get('start-date');
+        const endDate: string | undefined = searchCriteria.get('end-date');
+        if (startDate === undefined || endDate === undefined) {
+            console.error('Error: Unable to count of Adopt-a-Spot Cleanup Events matching criteria due to missing start date or end date.');
+            return 0;
+        }
+        const result: any = await getCountOfAdoptASpotEventsMatchingCriteria(
+            startDate, endDate,
+            searchCriteria.get('litter-min'), searchCriteria.get('litter-max'),
+            searchCriteria.get('recycling-min'), searchCriteria.get('recycling-max'),
+            searchCriteria.get('adopted-spot-combobox-input'),
+            searchCriteria.get('vol-count-min'), searchCriteria.get('vol-count-max')
+        );
+        let rowCount: number = 0;
+        if (result !== null && result.length >= 1) {
+            rowCount = result[0].rowCount;
+        }
+        return rowCount;
     }
 
     async getMetric(
