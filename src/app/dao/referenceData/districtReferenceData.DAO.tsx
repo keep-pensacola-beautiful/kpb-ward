@@ -1,6 +1,5 @@
 import { ReferenceDataDAO } from '.';
 import { ReferenceDataEntity } from '../../entities/referenceData/referenceData.entity';
-import { ReferenceDataModel } from '../../models/referenceData.model';
 import { getDistrictReference } from '../../lib/referenceData.sql';
 
 export class DistrictReferenceDataDAO implements ReferenceDataDAO {
@@ -15,14 +14,5 @@ export class DistrictReferenceDataDAO implements ReferenceDataDAO {
             result.forEach((district: any) => districts.push({ code: district.code, description: district.description }));
         }
         return districts;
-    }
-
-    async save(refData: ReferenceDataModel): Promise<number> {
-        console.log('Saving');
-        return -1;
-    }
-
-    delete(code: number | string): void {
-        console.log('Deleting');
     }
 }

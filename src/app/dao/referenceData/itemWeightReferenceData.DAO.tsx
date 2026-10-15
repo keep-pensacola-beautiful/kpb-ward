@@ -1,7 +1,6 @@
 import { ReferenceDataDAO } from '.';
 import { ReferenceDataEntity } from '../../entities/referenceData/referenceData.entity';
 import { ItemWeightReferenceDataEntity } from '../../entities/referenceData/itemWeightReferenceData.entity';
-import { ReferenceDataModel } from '../../models/referenceData.model';
 import { getItemWeightReference } from '../../lib/referenceData.sql';
 
 export class ItemWeightReferenceDataDAO implements ReferenceDataDAO {
@@ -20,14 +19,5 @@ export class ItemWeightReferenceDataDAO implements ReferenceDataDAO {
             }));
         }
         return itemWeights;
-    }
-
-    async save(refData: ReferenceDataModel): Promise<number> {
-        console.log('Saving');
-        return -1;
-    }
-
-    delete(code: number | string): void {
-        console.log('Deleting');
     }
 }

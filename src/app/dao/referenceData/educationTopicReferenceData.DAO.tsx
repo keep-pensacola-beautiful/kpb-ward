@@ -43,8 +43,4 @@ export class EducationTopicReferenceDataDAO implements ReferenceDataDAO {
         const result: number = await insertEducationTopic(refDataEntity);
 	    return result;
     }
-
-    delete(code: number | string): void {
-        console.log('Deleting');
-    }
 }
