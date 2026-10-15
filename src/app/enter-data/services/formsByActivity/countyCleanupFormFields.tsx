@@ -18,10 +18,10 @@ export function CountyCleanupFormFields({ data, bulkyItemsReferenceString, error
         useState<Map<string, { quantityId: string, label: string, quantity?: number }>>(new Map());
 
     useEffect(() => {
-        if (data !== undefined && data.otherBulkyItems.length > 0) {
+        if (data !== undefined && data.otherBulkyItems.length > 0 && bulkyItemsReferenceString !== '' && bulkyItemsReferenceString !== '[]') {
             handlePreviouslySelectedBulkyItems(data.otherBulkyItems);
         }
-    }, [data])
+    }, [data, bulkyItemsReferenceString])
 
     function handlePreviouslySelectedBulkyItems(prevSelectedItems: BulkyItemModel[]) {
         let selectedItemValues: string[] = [];

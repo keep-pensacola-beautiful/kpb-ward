@@ -20,7 +20,6 @@ export class EducationTopicReferenceDataDAO implements ReferenceDataDAO {
 
     async getAll(): Promise<ReferenceDataEntity[]> {
         const result: any = await getEducationTopicReference();
-        console.log(result);
         let topics: ReferenceDataEntity[] = [];
         if (result && result.length >= 1) {
             result.forEach((topic: any) => topics.push({ code: topic.id, description: topic.topic }));
@@ -42,11 +41,6 @@ export class EducationTopicReferenceDataDAO implements ReferenceDataDAO {
             description: refData.description
         };
         const result: number = await insertEducationTopic(refDataEntity);
-        console.log(result);
 	    return result;
-    }
-
-    delete(code: number | string): void {
-        console.log('Deleting');
     }
 }

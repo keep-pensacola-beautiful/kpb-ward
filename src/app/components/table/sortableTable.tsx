@@ -19,7 +19,7 @@ export function SortableTable({ caption, tableHeaders, data, rowShading, maxWidt
     }]); 
     const [dataRows, setDataRows] = useState<TableRowModel[]>([]);
     const [currSortedColIndex, setCurrSortedColIndex] = useState<number>(1);
-    const [currSortedColSort, setCurrSortedColSort] = useState<string>('descending');
+    const [currSortedColSort, setCurrSortedColSort] = useState<string>('ascending');
     const tableRef = useRef<HTMLTableElement>(null);
     useEffect(() => {
         let headerRow: TableHeaderModel[] = [];
@@ -138,9 +138,9 @@ export function SortableTable({ caption, tableHeaders, data, rowShading, maxWidt
                                         <button
                                             onClick={() => handleClick(header.index)}
                                             data-column-index={`${header.index}`}
-                                            className={`p-[4px] m-[1px] font-semibold bg-transparent inline w-[97%] cursor-pointer
-                                                focus:border-2 focus:p-[2px] focus:border-(--deepBlue) focus:bg-white
-                                                hover:border-2 hover:p-[2px] hover:border-(--deepBlue) hover:bg-white
+                                            className={`py-[4px] pl-[2px] pr-[18px] m-[1px] font-semibold bg-transparent inline w-[97%] cursor-pointer
+                                                focus:border-2 focus:py-[2px] focus:pl-[0px] focus:pr-[16px] focus:border-(--deepBlue) focus:bg-white
+                                                hover:border-2 hover:py-[2px] hover:pl-[0px] hover:pr-[16px] hover:border-(--deepBlue) hover:bg-white
                                             `}>
                                             { header.text }
                                             <span

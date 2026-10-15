@@ -34,12 +34,16 @@ import { isBlank } from '../utils/isBlank';
 import { TreePlantingSearchCriteria } from './componentsByProgram/treePlanting/searchCriteria';
 import { EducationSearchCriteria } from './componentsByProgram/education/searchCriteria';
 
-export function SearchForm({ onSearch }: {
-    onSearch: (pgrmCode: ProgramCode, searchCriteria: Map<string, string>) => void 
+export function SearchForm({ defaultCtgy, defaultPgrm, onSearch }: {
+    defaultCtgy: string,
+    defaultPgrm: ProgramCode,
+    onSearch: (ctgyCode: string, pgrmCode: ProgramCode, searchCriteria: Map<string, string>) => void 
 }) {
-    const [category, setCategory] = useState<string>(DATA_CATEGORY_OPTIONS[0].value);
-    const [program, setProgram] = useState<string>(PROGRAM_CODES[0]);
-    const [programOptions, setProgramOptions] = useState<string>(JSON.stringify(PROGRAM_OPTIONS[CATEGORY_CODES[0]]));
+    const [category, setCategory] = useState<string>(defaultCtgy);
+    const [program, setProgram] = useState<string>(defaultPgrm);
+    const [programOptions, setProgramOptions] = useState<string>(
+        JSON.stringify(PROGRAM_OPTIONS[transformCtgyStrToCtgyCode(defaultCtgy)])
+    );
     const [displayNoCriteriaError, setDisplayNoCriteriaError] = useState<boolean>(false);
     const [dateRangeErrors, setDateRangeErrors] = useState<Map<string, ErrorModel>>(new Map<string, ErrorModel>());
     const [districtOptions, setDistrictOptions] = useState<string>('[]');
@@ -56,11 +60,10 @@ export function SearchForm({ onSearch }: {
         getCleanupOrganizationComboboxOptions().then((options: string) => setOrganizationOptions(options));
         getEducationRecipientComboboxOptions().then((options: string) => setRecipientOptions(options));
         getEducationTopicComboboxOptions().then((options: string) => setTopicOptions(options));
-    }, [])
+    }, []);
 
     const handleCategoryChange: any = useCallback((event: any) => {
-        const value: any = event.target.value;
-        const ctgyCode: CategoryCode = CATEGORY_CODES.includes(value) ? value : CATEGORY_CODES[0];
+        const ctgyCode: CategoryCode = transformCtgyStrToCtgyCode(event.target.value);
         setCategory(ctgyCode);
         setProgramOptions(JSON.stringify(PROGRAM_OPTIONS[ctgyCode]));
         setProgram(PROGRAM_OPTIONS[ctgyCode][0].value);
@@ -76,13 +79,18 @@ export function SearchForm({ onSearch }: {
         setDateRangeErrors(new Map<string, ErrorModel>());
     }, []);
 
+    function transformCtgyStrToCtgyCode(ctgyStr: any): CategoryCode {
+        const ctgyCode: CategoryCode = CATEGORY_CODES.includes(ctgyStr) ? ctgyStr : CATEGORY_CODES[0];
+        return ctgyCode;
+    }
+
     async function handleSubmit(event: any) {
         event.preventDefault();
         const pgrmCode: ProgramCode = PROGRAM_CODES.includes(program as any) ? program as any : PROGRAM_CODES[0];
         const formIds: string[] = CRITERIA_FORM_FIELD_IDS[pgrmCode];
         const searchCriteria = validateFormFields(pgrmCode, new FormData(event.target), formIds);
         if (searchCriteria.size > 0) {
-            onSearch(pgrmCode, searchCriteria);
+            onSearch(category, pgrmCode, searchCriteria);
         }
     }
 

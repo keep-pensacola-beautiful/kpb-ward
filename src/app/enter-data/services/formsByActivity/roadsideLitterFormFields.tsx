@@ -24,20 +24,17 @@ export function RoadsideLitterFormFields({ data, bulkyItemsReferenceString, dist
     const [selectedDistricts, setSelectedDistricts] = useState<Map<string, string>>(new Map<string, string>());
     const [defaultSelectedItems, setDefaultSelectedItems] =
         useState<Map<string, { quantityId: string, label: string, quantity?: number }>>(new Map());
-    const [districtRefString, setDistrictRefString] = useState<string>('[]');
 
     useEffect(() => {
         if (data !== undefined) {
-            if (data.bulkyItems.length > 0) {
+            if (data.bulkyItems.length > 0  && bulkyItemsReferenceString !== '' && bulkyItemsReferenceString !== '[]') {
                 handlePreviouslySelectedBulkyItems(data.bulkyItems);
             }
             if (data.districts.length > 0) {
-                handlePreviouslySelectedDistricts(data.districts, JSON.parse(districtsReferenceString));
+                handlePreviouslySelectedDistricts(data.districts);
             }
-        } else {
-            setDistrictRefString(districtsReferenceString);
         }
-    }, [data, districtsReferenceString])
+    }, [data, bulkyItemsReferenceString])
 
     function handlePreviouslySelectedBulkyItems(prevSelectedItems: BulkyItemModel[]): void {
         let selectedItemValues: string[] = [];
@@ -69,7 +66,7 @@ export function RoadsideLitterFormFields({ data, bulkyItemsReferenceString, dist
         }
     }
 
-    async function handlePreviouslySelectedDistricts(districts: DistrictModel[], districtOptions: MultiSelectOptionModel[]) {
+    async function handlePreviouslySelectedDistricts(districts: DistrictModel[]) {
         let prevSelectedDistricts: Map<string, string> = new Map<string, string>();
         for (let i = 0; i < districts.length; i++) {
             let key: string = uncapitalizeString(districts[i].districtRef.description).replace(' ', '-');
@@ -82,7 +79,6 @@ export function RoadsideLitterFormFields({ data, bulkyItemsReferenceString, dist
         //         }
         //     });
         //     setTimeout(() => { setDistrictRefString(JSON.stringify(districtOptions)); }, 100)
-            
         // }
         setSelectedDistricts(prevSelectedDistricts);
     }
@@ -131,7 +127,7 @@ export function RoadsideLitterFormFields({ data, bulkyItemsReferenceString, dist
             <MultiSelect
                 label="Districts"
                 multiSelectName={ROADSIDE_LITTER_FORM_DATA_IDS.districts}
-                options={districtRefString}
+                options={districtsReferenceString}
                 descriptionText="Please select all districts where litter was collected."
                 isRequired={true}
                 selectedValuesMap={selectedDistricts}

@@ -1,7 +1,0 @@
-
-[
-    { "key": 6, "id": "countactFName", "inputType": "text", "maxlength": 25, "inputName": "contactFName", "labelTxt": "Contact First Name" },
-    { "key": 7, "id": "contactLName", "inputType": "text", "maxlength": 30, "inputName": "contactLName", "labelTxt": "Contact Last Name" },
-    { "key": 8, "id": "contactEmail", "inputType": "text", "maxlength": 50, "inputName": "contactEmail", "labelTxt": "Contact Email" },
-    { "key": 9, "id": "contactPhoneNum", "inputType": "text", "maxlength": 10, "inputName": "contactPhoneNum", "labelTxt": "Contact Phone Number" }
-]

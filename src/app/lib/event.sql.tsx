@@ -725,12 +725,18 @@ export async function updateCountyCleanupEvent(event: CountyCleanupEventEntity, 
             notInPlaceholder = `${notInPlaceholder.slice(0, -1)})`; // Remove extra comma and add a right parenthesis
         }
         // Delete previously selected bulky items that were unselected
-        if (notInPlaceholder !== '' && notInIds.length > 0) {
+        if (bulkyItemsToUpdate.length > 0 && notInPlaceholder !== '' && notInIds.length > 0) {
             await conn.execute(
                 'DELETE FROM county_cleanups_bulky_items ' +
                 'WHERE county_cleanup_id = ? ' +
                 `AND id NOT IN ${notInPlaceholder}`,
                 [ event.id, ...notInIds ]
+            );
+        } else {
+            await conn.execute(
+                'DELETE FROM county_cleanups_bulky_items ' +
+                'WHERE county_cleanup_id = ? ',
+                [ event.id ]
             );
         }
         // Insert newly selected bulky items
@@ -852,12 +858,18 @@ export async function updateRoadsideLitterEvent(event: RoadsideLitterEventEntity
             bulkyItemsNotInPlaceholder = `${bulkyItemsNotInPlaceholder.slice(0, -1)})`; // Remove extra comma and add a right parenthesis
         }
         // Delete previously selected bulky items that were unselected
-        if (bulkyItemsNotInPlaceholder !== '' && bulkyItemsNotInIds.length > 0) {
+        if (bulkyItemsToUpdate.length > 0 && bulkyItemsNotInPlaceholder !== '' && bulkyItemsNotInIds.length > 0) {
             await conn.execute(
                 'DELETE FROM roadside_litter_bulky_items ' +
                 'WHERE roadside_litter_cleanup_id = ? ' +
                 `AND id NOT IN ${bulkyItemsNotInPlaceholder}`,
                 [ event.id, ...bulkyItemsNotInIds ]
+            );
+        } else {
+            await conn.execute(
+                'DELETE FROM roadside_litter_bulky_items ' +
+                'WHERE roadside_litter_cleanup_id = ? ',
+                [ event.id ]
             );
         }
         // Insert newly selected bulky items

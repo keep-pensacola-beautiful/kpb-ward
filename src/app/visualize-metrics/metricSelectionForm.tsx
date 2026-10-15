@@ -44,7 +44,6 @@ export function MetricSelectionForm({ onVisualize }: { onVisualize: (data: any) 
         setMetricOptions(JSON.stringify(METRIC_OPTIONS[prgmCode]));
         setMetric(METRIC_OPTIONS[prgmCode][0].value);
         if (interval === '' && !/^top/.test(METRIC_OPTIONS[prgmCode][0].value)) {
-            console.log('Setting interval to month');
             setInterval('month');
         }
 

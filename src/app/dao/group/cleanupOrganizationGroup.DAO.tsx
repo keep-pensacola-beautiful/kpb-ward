@@ -29,8 +29,4 @@ export class CleanupOrganizationGroupDAO implements GroupDAO {
         const result: number = await insertCleanupOrganization(groupEntity);
         return result;
     }
-
-    delete(id: number): void {
-        console.log('Deleting');
-    }
 }

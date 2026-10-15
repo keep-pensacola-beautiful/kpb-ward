@@ -1,7 +1,0 @@
-[
-    { "key": 1, "id": "date", "inputType": "date", "maxlength": 10, "inputName": "date", "labelTxt": "Date of Cleanup" },
-    { "key": 2, "id": "organization", "inputType": "text", "maxlength": 50, "inputName": "organization", "labelTxt": "Organization Name" },
-    { "key": 3, "id": "litter", "inputType": "number", "maxlength": 3, "inputName": "litter", "labelTxt": "Litter Amount (pounds)" },
-    { "key": 4, "id": "volunteerCount", "inputType": "number", "maxlength": 3, "inputName": "volunteerCount", "labelTxt": "Number of Volunteers" },
-    { "key": 5, "id": "hours", "inputType": "number", "maxlength": 3, "inputName": "hours", "labelTxt": "Cleanup Length (hours)" }
-]

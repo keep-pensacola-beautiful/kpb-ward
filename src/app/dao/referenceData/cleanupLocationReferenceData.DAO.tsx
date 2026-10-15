@@ -41,11 +41,6 @@ export class CleanupLocationReferenceDataDAO implements ReferenceDataDAO {
             description: refData.description
         };
         const result: number = await insertCleanupLocation(refDataEntity);
-        console.log(result);
         return result;
-    }
-
-    delete(code: number | string): void {
-        console.log('Deleting');
     }
 }

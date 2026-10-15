@@ -208,8 +208,8 @@ export class GroupCleanupEventDAO implements EventDAO, MetricsDAO {
                     }
                     result = await getHighestOccurrencesOfAThingMetricUsing2Tables(
                         timePeriod.startMonth,
-                        timePeriod.endMonth,
                         timePeriod.startYear,
+                        timePeriod.endMonth,
                         timePeriod.endYear,
                         GROUP_CLEANUP_METRIC_VALUES[code].tables[0],
                         GROUP_CLEANUP_METRIC_VALUES[code].tables[1],

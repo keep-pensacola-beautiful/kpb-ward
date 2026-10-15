@@ -189,8 +189,8 @@ export class EducationEventDAO implements EventDAO, MetricsDAO {
                     }
                     result = await getHighestOccurrencesOfAThingMetricUsing2Tables(
                         timePeriod.startMonth,
-                        timePeriod.endMonth,
                         timePeriod.startYear,
+                        timePeriod.endMonth,
                         timePeriod.endYear,
                         EDUCATION_METRIC_VALUES[code].tables[0],
                         EDUCATION_METRIC_VALUES[code].tables[1],

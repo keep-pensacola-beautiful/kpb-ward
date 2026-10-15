@@ -38,7 +38,6 @@ export class CleanTeamEventDAO implements EventDAO, MetricsDAO {
 
     async save(event: EventModel, isUpdate: boolean): Promise<number> {
         if (isCleanTeamEvent(event)) {
-            console.log(event);
             const eventEntity: CleanTeamEventEntity = {
                 id: event.id ? event.id : -1,
                 date: event.date,
