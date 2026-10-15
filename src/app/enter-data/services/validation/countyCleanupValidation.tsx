@@ -51,7 +51,7 @@ export async function validateCountyCleanupData(
             fieldName: 'Were any other bulky items collected',
             message: 'Please select whether bulky items were collected or not.'
         });
-    } else if (hasBulkyItems && hasBulkyItems.toString() === 'yes') {
+    } else if (hasBulkyItems !== null && hasBulkyItems.toString() === 'yes') {
         bulkyItemValidation = await validateBulkyItems(
             errors,
             formData,

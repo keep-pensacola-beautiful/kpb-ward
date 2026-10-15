@@ -108,7 +108,7 @@ export async function validateRoadsideLitterData(
             message: 'Please select whether bulky items were collected or not.'
         };
         errors.set(`${ROADSIDE_LITTER_FORM_DATA_IDS.hasBulkyItems}-no`, error);
-    } else if (hasBulkyItems && hasBulkyItems.toString() === 'yes') {
+    } else if (hasBulkyItems !== null && hasBulkyItems.toString() === 'yes') {
         bulkyItemValidation = await validateBulkyItems(
             errors,
             formData,
