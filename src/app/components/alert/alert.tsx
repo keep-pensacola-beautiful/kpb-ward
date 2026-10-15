@@ -1,31 +1,22 @@
 'use client'
 
-import { useEffect, useState } from 'react';
 import { AlertModel } from './alert.model';
 
 export function Alert({ id, type = 'info', header, body, closeButton, onClose }: AlertModel) {
-    const [alertBorderAndBg, setAlertBorderAndBg] = useState<string>('');
-    const [iconCharacter, setIconCharacter] = useState<string>('');
-
-    useEffect(() => {
-        if (type === 'info') {
-            setAlertBorderAndBg('border-[var(--deepBlue)] bg-[#e7f6f8]');
-            setIconCharacter('i');
-        } else if (type === 'danger') {
-            setAlertBorderAndBg('border-red-700 bg-[#f4e3db]');
-            setIconCharacter('!');
-        } else if (type === 'success') {
-            setAlertBorderAndBg('border-green-800 bg-[#ecf3ec]');
-            setIconCharacter('');
-        }
-    }, [type])
+    const ICON_CHARACTERS = {
+        info: 'i',
+        danger: '!',
+        success: ''
+    }
+    const ALERT_STYLING = {
+        info: 'border-[var(--deepBlue)] bg-[#e7f6f8]',
+        danger: 'border-red-700 bg-[#f4e3db]',
+        success: 'border-green-800 bg-[#ecf3ec]'
+    }
 
     return (
-        <div id={id} className={`relative rounded-xl border-1 border-l-[0.5rem] bg-[#f4e3db] ${alertBorderAndBg}`}>
+        <div id={id} className={`relative rounded-xl border-1 border-l-[0.5rem] bg-[#f4e3db] ${ALERT_STYLING[type]}`}>
             <style>{`
-                #${`${id}-icon`}.error {
-                    clip-path: circle(40%);
-                }
                 #${`${id}-icon`}.success {
                     clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
                 }
@@ -34,10 +25,10 @@ export function Alert({ id, type = 'info', header, body, closeButton, onClose }:
                 <div className="flex flex-row gap-2 p-2 text-black">
                     <span
                         id={`${id}-icon`}
-                        className={`bg-black text-white pl-[10px] pr-[10px] p-[5px] h-10 font-bold text-lg mt-[-6px] ${ type }`}
+                        className={`bg-black text-white px-[12px] p-[3px] h-8 font-bold text-lg mt-[-4px] rounded-[50%] ${ type }`}
                         aria-label=""
                         >
-                        { iconCharacter }
+                        { ICON_CHARACTERS[type] }
                     </span>
                     <div>
                         <h2 id={`${id}-header`} className="text-lg" tabIndex={-1}>{ header }</h2>
