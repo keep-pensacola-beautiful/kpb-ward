@@ -14,12 +14,14 @@ import {
 } from './actions';
 import { Button, Dialog, LoadingDialog, StatusDialog } from '../components';
 import { DialogType } from '../components/dialog/dialogType.model';
+import { DATA_CATEGORY_OPTIONS, PROGRAM_CODES } from './searchJson';
 
 export function SearchHandler() {
     const [currentPage, setCurrentPage] = useState<'search' | 'table' | 'modify'>('search');
     const [searchResults, setSearchResults] = useState<EventModel[]>([]);
     const [resultsOffset, setResultsOffset] = useState<number>(0);
-    const [program, setProgram] = useState<ProgramCode>('cleanTeam');
+    const [category, setCategory] = useState<string>(DATA_CATEGORY_OPTIONS[0].value)
+    const [program, setProgram] = useState<ProgramCode>(PROGRAM_CODES[0]);
     const [event, setEvent] = useState<EventModel>();
     const [totalRowCount, setTotalRowCount] = useState<number>(0);
     const [searchCriteria, setSearchCriteria] = useState<Map<string, string>>(new Map<string, string>());
@@ -36,14 +38,14 @@ export function SearchHandler() {
 
     const ROWS_PER_PAGE: number = 25;
 
-    async function handleSearch(pgrmCode: ProgramCode, searchCriteria: Map<string, string>): Promise<void> {
+    async function handleSearch(ctgyCode: string, pgrmCode: ProgramCode, searchCriteria: Map<string, string>): Promise<void> {
         setIsSearchLoadingDialogOpen(true);
         const rowCount: number = await getTotalRowCountByProgramAndByCriteria(pgrmCode, searchCriteria);
         const events: EventModel[] = await searchEventsByProgramAndByCriteria(pgrmCode, searchCriteria, ROWS_PER_PAGE, 0);
         setIsSearchLoadingDialogOpen(false);
         setResultsOffset(0);
-        console.log(`rowCount=${rowCount}, events.length=${events.length}`);
         if (events.length >= 1) {
+            setCategory(ctgyCode);
             setProgram(pgrmCode);
             setSearchResults(events);
             setTotalRowCount(rowCount);
@@ -205,7 +207,7 @@ export function SearchHandler() {
                     <h1 id="main-content-header" className="text-xl md:text-2xl" tabIndex={-1}>
                         Search Events & Cleanups
                     </h1>
-                    <SearchForm onSearch={handleSearch}></SearchForm>
+                    <SearchForm defaultCtgy={category} defaultPgrm={program} onSearch={handleSearch}></SearchForm>
                 </div>
         );
         case 'table':
