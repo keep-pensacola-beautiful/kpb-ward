@@ -379,7 +379,8 @@ export async function searchEducationEvents(
                 `LIMIT ${limit} OFFSET ${offset} ` +
             ') AS page ON event.id = page.id ' +
             'INNER JOIN education_topics topic ON event.topic_id = topic.id ' +
-            'INNER JOIN education_recipients recipient ON event.recipient_id = recipient.id ',
+            'INNER JOIN education_recipients recipient ON event.recipient_id = recipient.id ' +
+            'ORDER BY date ASC, id ASC ',
             [startDate, endDate, ...whereConditions.values]
         );
         conn.release();
