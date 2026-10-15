@@ -247,10 +247,8 @@ export async function getColumnSumAsMetricByInterval(
                 if (timeFilters.startQuarter === undefined || timeFilters.endQuarter === undefined) {
                     throw new Error('Missing start or end quarter when retrieving column sum as metric by quarter interval.');
                 }
-                console.log(timeFilters);
                 let firstMonthInStartQuarter: number = getFirstMonthOfQuarter(timeFilters.startQuarter);
                 let firstMonthInEndQuarter: number = getFirstMonthOfQuarter(timeFilters.endQuarter);
-                console.log(`first=${firstMonthInStartQuarter}, end=${firstMonthInEndQuarter}`);
                 conn = await getConnection();
                 const [quarterResult] = await conn.execute(
                     'SELECT ' +
@@ -341,8 +339,8 @@ export async function getColumnSumAsMetricByInterval(
  */
 export async function getHighestOccurrencesOfAThingMetricUsing2Tables(
     startMonth: number,
-    endMonth: number,
     startYear: number,
+    endMonth: number,
     endYear: number,
     eventTable: string,
     aThingTable: string,
@@ -380,14 +378,12 @@ export async function getHighestOccurrencesOfAThingMetricUsing2Tables(
             `SELECT thing_table.${aThingLabelCol} AS label, COUNT(event_table.id) AS value FROM ${eventTable} AS event_table ` +
             `INNER JOIN ${aThingTable} AS thing_table ON event_table.${eventFKColToAThing} = thing_table.id ` +
             'WHERE event_table.deleted_at IS NULL ' +
-            'AND MONTH(event_table.date) >= ? ' +
-            'AND MONTH(event_table.date) <= ? ' +
-            'AND YEAR(event_table.date) >= ? ' +
-            'AND YEAR(event_table.date) <= ? ' +
+            `AND event_table.date >= CONCAT(?,'-',?,'-01') ` +
+            `AND event_table.date < CONCAT(?,'-',?,'-01') ` +
             'GROUP BY label ' +
             'ORDER BY value DESC ' +
             'LIMIT 10',
-            [startMonth, endMonth, startYear, endYear]
+            [startYear, startMonth, endYear, endMonth+1]
         );
         conn.release();
         return result;
@@ -471,14 +467,12 @@ export async function getHighestOccurrencesOfAThingMetricUsing3Tables(
             `INNER JOIN ${aThingRefTable} AS thing_ref_table ON thing_table.${aThingFKColToRef} = thing_ref_table.${refPKCol} ` +
             `INNER JOIN ${eventTable} AS event_table ON thing_table.${aThingFKColToEvent} = event_table.id ` +
             'WHERE event_table.deleted_at IS NULL ' +
-            'AND MONTH(event_table.date) >= ? ' +
-            'AND MONTH(event_table.date) <= ? ' +
-            'AND YEAR(event_table.date) >= ? ' +
-            'AND YEAR(event_table.date) <= ? ' +
+            `AND event_table.date >= CONCAT(?,'-',?,'-01') ` +
+            `AND event_table.date < CONCAT(?,'-',?,'-01') ` +
             'GROUP BY label ' +
             'ORDER BY value DESC ' +
             'LIMIT 10',
-            [startMonth, endMonth, startYear, endYear]
+            [startYear, startMonth, endYear, endMonth+1]
         );
         conn.release();
         return result;
