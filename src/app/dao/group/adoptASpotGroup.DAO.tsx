@@ -30,8 +30,4 @@ export class AdoptASpotGroupDAO implements GroupDAO {
         const result: number = await insertAdoptASpotAssignment(groupEntity);
         return result;
     }
-
-    delete(id: number): void {
-        console.log('Deleting');
-    }
 }

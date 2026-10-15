@@ -29,8 +29,4 @@ export class EducationRecipientGroupDAO implements GroupDAO {
         const result: number = await insertEducationRecipient(groupEntity);
         return result;
     }
-
-    delete(id: number): void {
-        console.log('Deleting');
-    }
 }
