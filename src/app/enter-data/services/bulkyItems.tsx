@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MultiSelect, Textbox } from '../../components';
 import { ErrorModel } from '../../models';
 import { ifErrorThenGetErrorText } from '../../utils/ifErrorThenGetErrorText';
@@ -12,8 +12,14 @@ export function BulkyItems({ bulkyItemId, bulkyItemsReferenceString, isRequired,
     handleBulkyItemChange?: (event: any) => void }
 ) {
     const [bulkyItemQuantityInputs, setBulkyItemQuantityInputs] = useState<Map<string, { quantityId: string, label: string }>>(
-        defaultSelectedItems !== undefined ? defaultSelectedItems : new Map<string, { quantityId: string, label: string }>()
+        new Map<string, { quantityId: string, label: string }>()
     );
+
+    useEffect(() => {
+        if (defaultSelectedItems !== undefined) {
+            setBulkyItemQuantityInputs(defaultSelectedItems);
+        }
+    }, [defaultSelectedItems])
 
     const BULKY_ITEMS_LABEL: string = 'Bulky Items Collected';
     const BULKY_ITEMS_DESCRIPTION: string = 'Please select each bulky item collected in the multi-select. Use the search bar to filter the bulky item options.';
@@ -23,7 +29,6 @@ export function BulkyItems({ bulkyItemId, bulkyItemsReferenceString, isRequired,
             let selectedBulkyItemValues: string[] = [];
             if (event?.target?.checked && !bulkyItemQuantityInputs.has(event.target.id)) {
                 let copyOfQuantityInputs: any[] = Array.from(bulkyItemQuantityInputs);
-                console.log(copyOfQuantityInputs);
                 copyOfQuantityInputs.push([event.target.id, { quantityId: `bulky-item-${event.target.value.split('|')[1]}-quantity`, label: event.target.labels[0].textContent }]);
                 copyOfQuantityInputs.sort((itemA: any[], itemB: any[]) => {
                     return itemA[0].match(/\d+/)[0] - itemB[0].match(/\d+/);
